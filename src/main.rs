@@ -1,10 +1,46 @@
 use clap::{command, error::ErrorKind, Arg, ArgAction, Command};
 use std::env;
 
+const ARGUMENT_PLACEHOLDER: &'static str = "OHCRAB_ARGUMENT_PLACEHOLDER";
+
 fn main() {
+    let args: Vec<String> = env::args().collect();
+
     // let args = read_arguments();
     // let s_args = args.ids().map(|id| id.as_str()).collect::<Vec<_>>();
     // println!("{:?}", s_args);
+}
+
+fn prepare_arguments(mut argv: Vec<String>) -> Vec<String> {
+    match argv.iter().position(|x| x == ARGUMENT_PLACEHOLDER) {
+        Some(index) => {
+            let mut argv_processed = Vec::with_capacity(argv.len() + 1);
+            argv_processed.extend_from_slice(&argv[index + 1..]);
+            argv_processed.push("--".to_string());
+            argv_processed.extend_from_slice(&argv[..index]);
+            argv_processed
+        }
+        None => {
+            if argv.len() > 0 && !argv[0].starts_with('-') && argv[0] != "--" {
+                argv.insert(0, "--".to_string());
+            }
+            argv
+        }
+    }
+}
+
+#[test]
+fn test_prepare_arguments() {
+    assert_eq!(
+        prepare_arguments(vec![
+            "arg1".to_string(),
+            "arg2".to_string(),
+            "OHCRAB_ARGUMENT_PLACEHOLDER".to_string(),
+            "arg3".to_string(),
+            "arg4".to_string()
+        ]),
+        vec!["arg3", "arg4", "--", "arg1", "arg2"]
+    );
 }
 
 /// Generate an argument parser using clap
@@ -55,12 +91,10 @@ fn get_argument_parser() -> Command {
                 .required(false)
                 .last(true),
         )
-    // .get_matches()
-    // .group(ArgGroup::new("conflicting_args"))
 }
 
 #[test]
-fn test_read_arguments() {
+fn test_get_argument_parser() {
     env::set_var("OC_ALIAS", "env_alias");
     // Test alias defined from environment variable
     assert_eq!(
