@@ -1,7 +1,7 @@
 use clap::{command, error::ErrorKind, Arg, ArgAction, Command};
 use std::env;
 
-const ARGUMENT_PLACEHOLDER: &'static str = "OHCRAB_ARGUMENT_PLACEHOLDER";
+const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -11,18 +11,18 @@ fn main() {
     // println!("{:?}", s_args);
 }
 
-fn prepare_arguments(mut argv: Vec<String>) -> Vec<String> {
-    match argv.iter().position(|x| x == ARGUMENT_PLACEHOLDER) {
+fn prepare_arguments(mut argv: Vec<&str>) -> Vec<&str> {
+    match argv.iter().position(|x| x == &ARGUMENT_PLACEHOLDER) {
         Some(index) => {
             let mut argv_processed = Vec::with_capacity(argv.len() + 1);
             argv_processed.extend_from_slice(&argv[index + 1..]);
-            argv_processed.push("--".to_string());
+            argv_processed.push("--");
             argv_processed.extend_from_slice(&argv[..index]);
             argv_processed
         }
         None => {
             if argv.len() > 0 && !argv[0].starts_with('-') && argv[0] != "--" {
-                argv.insert(0, "--".to_string());
+                argv.insert(0, "--");
             }
             argv
         }
@@ -33,11 +33,11 @@ fn prepare_arguments(mut argv: Vec<String>) -> Vec<String> {
 fn test_prepare_arguments() {
     assert_eq!(
         prepare_arguments(vec![
-            "arg1".to_string(),
-            "arg2".to_string(),
-            "OHCRAB_ARGUMENT_PLACEHOLDER".to_string(),
-            "arg3".to_string(),
-            "arg4".to_string()
+            "arg1",
+            "arg2",
+            "OHCRAB_ARGUMENT_PLACEHOLDER",
+            "arg3",
+            "arg4"
         ]),
         vec!["arg3", "arg4", "--", "arg1", "arg2"]
     );
