@@ -4,10 +4,11 @@ use std::env;
 const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
 
 fn main() {
-    let argv: Vec<String> = env::args().collect();
-    let args = prepare_arguments(argv);
-    // let s_args = args.ids().map(|id| id.as_str()).collect::<Vec<_>>();
-    // println!("{:?}", s_args);
+    let argv = prepare_arguments(
+        // Skip the first element of `env::args()`
+        env::args().skip(1).collect(),
+    );
+    print!("{:?}", argv)
 }
 
 /// Prepares arguments by:
@@ -16,18 +17,18 @@ fn main() {
 /// - Adding `--` before `command`, so our parse would ignore arguments of `command`.
 ///
 /// * `argv`:
-fn prepare_arguments(mut argv: Vec<&str>) -> Vec<&str> {
+fn prepare_arguments(mut argv: Vec<String>) -> Vec<String> {
     match argv.iter().position(|x| x == &ARGUMENT_PLACEHOLDER) {
         Some(index) => {
-            let mut argv_processed = Vec::with_capacity(argv.len() + 1);
+            let mut argv_processed = Vec::<String>::with_capacity(argv.len() + 1);
             argv_processed.extend_from_slice(&argv[index + 1..]);
-            argv_processed.push("--");
+            argv_processed.push("--".to_owned());
             argv_processed.extend_from_slice(&argv[..index]);
             argv_processed
         }
         None => {
             if argv.len() > 0 && !argv[0].starts_with('-') && argv[0] != "--" {
-                argv.insert(0, "--");
+                argv.insert(0, "--".to_owned());
             }
             argv
         }
@@ -38,15 +39,20 @@ fn prepare_arguments(mut argv: Vec<&str>) -> Vec<&str> {
 fn test_prepare_arguments() {
     for (input, exp_output) in [
         (
-            vec!["arg1", "arg2", "OHCRAB_ARGUMENT_PLACEHOLDER", "arg3"],
+            vec![
+                "arg1".to_owned(),
+                "arg2".to_owned(),
+                "OHCRAB_ARGUMENT_PLACEHOLDER".to_owned(),
+                "arg3".to_owned(),
+            ],
             vec!["arg3", "--", "arg1", "arg2"],
         ),
         (
-            vec!["arg1", "arg2", "arg3"],
+            vec!["arg1".to_owned(), "arg2".to_owned(), "arg3".to_owned()],
             vec!["--", "arg1", "arg2", "arg3"],
         ),
         (
-            vec!["-param", "arg2", "arg3"],
+            vec!["-param".to_owned(), "arg2".to_owned(), "arg3".to_owned()],
             vec!["-param", "arg2", "arg3"],
         ),
     ] {
