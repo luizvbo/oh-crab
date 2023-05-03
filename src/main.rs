@@ -4,13 +4,18 @@ use std::env;
 const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    // let args = read_arguments();
+    let argv: Vec<String> = env::args().collect();
+    let args = prepare_arguments(argv);
     // let s_args = args.ids().map(|id| id.as_str()).collect::<Vec<_>>();
     // println!("{:?}", s_args);
 }
 
+/// Prepares arguments by:
+/// - Removing placeholder and moving arguments after it to beginning, we need this
+///     to distinguish arguments from `command` with ours;
+/// - Adding `--` before `command`, so our parse would ignore arguments of `command`.
+///
+/// * `argv`:
 fn prepare_arguments(mut argv: Vec<&str>) -> Vec<&str> {
     match argv.iter().position(|x| x == &ARGUMENT_PLACEHOLDER) {
         Some(index) => {
@@ -31,16 +36,22 @@ fn prepare_arguments(mut argv: Vec<&str>) -> Vec<&str> {
 
 #[test]
 fn test_prepare_arguments() {
-    assert_eq!(
-        prepare_arguments(vec![
-            "arg1",
-            "arg2",
-            "OHCRAB_ARGUMENT_PLACEHOLDER",
-            "arg3",
-            "arg4"
-        ]),
-        vec!["arg3", "arg4", "--", "arg1", "arg2"]
-    );
+    for (input, exp_output) in [
+        (
+            vec!["arg1", "arg2", "OHCRAB_ARGUMENT_PLACEHOLDER", "arg3"],
+            vec!["arg3", "--", "arg1", "arg2"],
+        ),
+        (
+            vec!["arg1", "arg2", "arg3"],
+            vec!["--", "arg1", "arg2", "arg3"],
+        ),
+        (
+            vec!["-param", "arg2", "arg3"],
+            vec!["-param", "arg2", "arg3"],
+        ),
+    ] {
+        assert_eq!(prepare_arguments(input), exp_output);
+    }
 }
 
 /// Generate an argument parser using clap
