@@ -4,11 +4,11 @@ use std::env;
 const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
 
 fn main() {
-    let argv = prepare_arguments(
-        // Skip the first element of `env::args()`
-        env::args().skip(1).collect(),
-    );
-    print!("{:?}", argv)
+    // Skip the first element of `env::args()`
+    let args = env::args().skip(1).collect();
+    let args = prepare_arguments(args);
+    let parser = get_argument_parser().get_matches_from(&args);
+    print!("{:?}", args)
 }
 
 /// Prepares arguments by:
@@ -63,6 +63,7 @@ fn test_prepare_arguments() {
 /// Generate an argument parser using clap
 fn get_argument_parser() -> Command {
     command!()
+        .no_binary_name(true)
         .arg(
             Arg::new("alias")
                 .long("alias")
@@ -116,31 +117,31 @@ fn test_get_argument_parser() {
     // Test alias defined from environment variable
     assert_eq!(
         get_argument_parser()
-            .get_matches_from(vec!["ohcrab"])
+            .get_matches_from(Vec::<String>::new())
             .get_one::<String>("alias"),
         Some(&"env_alias".to_string())
     );
     assert_eq!(
         get_argument_parser()
-            .get_matches_from(vec!["ohcrab", "--alias", "new_alias"])
+            .get_matches_from(vec!["--alias", "new_alias"])
             .get_one::<String>("alias"),
         Some(&"new_alias".to_string())
     );
     assert_eq!(
         get_argument_parser()
-            .get_matches_from(vec!["ohcrab", "-a", "new_alias"])
+            .get_matches_from(vec!["-a", "new_alias"])
             .get_one::<String>("alias"),
         Some(&"new_alias".to_string())
     );
     assert_eq!(
         get_argument_parser()
-            .get_matches_from(vec!["ohcrab", "-d", "anything"])
+            .get_matches_from(vec!["-d", "anything"])
             .get_flag("debug"),
         true
     );
     assert_eq!(
         get_argument_parser()
-            .get_matches_from(vec!["ohcrab", "--", "my", "command"])
+            .get_matches_from(vec!["--", "my", "command"])
             .get_many::<String>("command")
             .expect("Command not found")
             .map(|x| x.as_str())
@@ -150,26 +151,26 @@ fn test_get_argument_parser() {
     // Test conflicting arguments
     assert_eq!(
         get_argument_parser()
-            .try_get_matches_from(vec!["ohcrab", "-y", "-r"])
+            .try_get_matches_from(vec!["-y", "-r"])
             .unwrap_err()
             .kind(),
         ErrorKind::ArgumentConflict
     );
     assert_eq!(
         get_argument_parser()
-            .get_matches_from(vec!["ohcrab", "-r"])
+            .get_matches_from(vec!["-r"])
             .get_flag("yes"),
         false
     );
     assert_eq!(
         get_argument_parser()
-            .get_matches_from(vec!["ohcrab", "-y"])
+            .get_matches_from(vec!["-y"])
             .get_flag("yes"),
         true
     );
     assert_eq!(
         get_argument_parser()
-            .get_matches_from(vec!["ohcrab", "-r"])
+            .get_matches_from(vec!["-r"])
             .get_flag("repeat"),
         true
     );
