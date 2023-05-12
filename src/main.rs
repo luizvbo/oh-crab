@@ -1,5 +1,8 @@
-use clap::{command, error::ErrorKind, Arg, ArgAction, Command};
-use std::env;
+use clap::{command, error::ErrorKind, parser, Arg, ArgAction, ArgMatches};
+use std::{
+    env,
+    process::{Command, Stdio},
+};
 
 const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
 
@@ -8,7 +11,41 @@ fn main() {
     let args = env::args().skip(1).collect();
     let args = prepare_arguments(args);
     let parser = get_argument_parser().get_matches_from(&args);
-    print!("{:?}", args)
+
+    read_arguments(parser);
+    println!("{:?}", args)
+}
+
+fn read_arguments(mut parser: ArgMatches) {
+    if let Some(command) = parser.remove_many::<String>("command") {
+        let raw_command = match parser.remove_one::<String>("force-command") {
+            Some(force_command) => vec![force_command],
+            None => command.collect::<Vec<_>>(),
+        };
+        let command = prepare_command(raw_command);
+
+        let output = if cfg!(target_os = "windows") {
+            Command::new("cmd")
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .args(["/C", &command.as_str()])
+                .output()
+                .expect("failed to execute process")
+        } else {
+            Command::new("sh")
+                .arg("-c")
+                .arg(command)
+                .output()
+                .expect("failed to execute process")
+        };
+
+        println!("{:?}", output);
+    }
+}
+
+fn prepare_command(raw_command: Vec<String>) -> String {
+    // TODO: Expand aliases (`shell.from_shell()`)
+    raw_command.join(" ").trim().to_owned()
 }
 
 /// Prepares arguments by:
@@ -35,33 +72,8 @@ fn prepare_arguments(mut argv: Vec<String>) -> Vec<String> {
     }
 }
 
-#[test]
-fn test_prepare_arguments() {
-    for (input, exp_output) in [
-        (
-            vec![
-                "arg1".to_owned(),
-                "arg2".to_owned(),
-                "OHCRAB_ARGUMENT_PLACEHOLDER".to_owned(),
-                "arg3".to_owned(),
-            ],
-            vec!["arg3", "--", "arg1", "arg2"],
-        ),
-        (
-            vec!["arg1".to_owned(), "arg2".to_owned(), "arg3".to_owned()],
-            vec!["--", "arg1", "arg2", "arg3"],
-        ),
-        (
-            vec!["-param".to_owned(), "arg2".to_owned(), "arg3".to_owned()],
-            vec!["-param", "arg2", "arg3"],
-        ),
-    ] {
-        assert_eq!(prepare_arguments(input), exp_output);
-    }
-}
-
 /// Generate an argument parser using clap
-fn get_argument_parser() -> Command {
+fn get_argument_parser() -> clap::Command {
     command!()
         .no_binary_name(true)
         .arg(
@@ -112,6 +124,31 @@ fn get_argument_parser() -> Command {
 }
 
 #[test]
+fn test_prepare_arguments() {
+    for (input, exp_output) in [
+        (
+            vec![
+                "arg1".to_owned(),
+                "arg2".to_owned(),
+                "OHCRAB_ARGUMENT_PLACEHOLDER".to_owned(),
+                "arg3".to_owned(),
+            ],
+            vec!["arg3", "--", "arg1", "arg2"],
+        ),
+        (
+            vec!["arg1".to_owned(), "arg2".to_owned(), "arg3".to_owned()],
+            vec!["--", "arg1", "arg2", "arg3"],
+        ),
+        (
+            vec!["-param".to_owned(), "arg2".to_owned(), "arg3".to_owned()],
+            vec!["-param", "arg2", "arg3"],
+        ),
+    ] {
+        assert_eq!(prepare_arguments(input), exp_output);
+    }
+}
+
+#[test]
 fn test_get_argument_parser() {
     env::set_var("OC_ALIAS", "env_alias");
     // Test alias defined from environment variable
@@ -144,7 +181,6 @@ fn test_get_argument_parser() {
             .get_matches_from(vec!["--", "my", "command"])
             .get_many::<String>("command")
             .expect("Command not found")
-            .map(|x| x.as_str())
             .collect::<Vec<_>>(),
         ["my", "command"]
     );
