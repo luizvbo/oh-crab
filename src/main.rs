@@ -1,22 +1,22 @@
 use clap::{command, error::ErrorKind, parser, Arg, ArgAction, ArgMatches};
 use std::{
     env,
-    process::{Command, Stdio},
+    process::{Command, Output, Stdio},
 };
 
 const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
 
 fn main() {
-    // Skip the first element of `env::args()`
+    // Skip the first element of `env::args()` (the name of program)
     let args = env::args().skip(1).collect();
     let args = prepare_arguments(args);
-    let parser = get_argument_parser().get_matches_from(&args);
+    let arg_matches = get_argument_parser().get_matches_from(&args);
 
-    read_arguments(parser);
+    read_arguments(arg_matches);
     println!("{:?}", args)
 }
 
-fn read_arguments(mut parser: ArgMatches) {
+fn read_arguments(mut parser: ArgMatches) -> Option<Output> {
     if let Some(command) = parser.remove_many::<String>("command") {
         let raw_command = match parser.remove_one::<String>("force-command") {
             Some(force_command) => vec![force_command],
@@ -40,7 +40,21 @@ fn read_arguments(mut parser: ArgMatches) {
         };
 
         println!("{:?}", output);
+        Some(output)
+    } else {
+        if let Some(alias) = parser.get_one::<String>("alias") {
+            panic!("Alias support not implemented yet");
+        } else {
+            None
+        }
     }
+}
+
+#[test]
+fn test_read_arguments() {
+    let arg_matches = get_argument_parser().get_matches_from(vec!["--", "echo", "TEST"]);
+    let result = read_arguments(arg_matches).unwrap();
+    assert_eq!(result.stdout, b"TEST\n");
 }
 
 fn prepare_command(raw_command: Vec<String>) -> String {
@@ -51,7 +65,7 @@ fn prepare_command(raw_command: Vec<String>) -> String {
 /// Prepares arguments by:
 /// - Removing placeholder and moving arguments after it to beginning, we need this
 ///     to distinguish arguments from `command` with ours;
-/// - Adding `--` before `command`, so our parse would ignore arguments of `command`.
+/// - Adding `--` before `command`, so that our parser ignores arguments of `command`.
 ///
 /// * `argv`:
 fn prepare_arguments(mut argv: Vec<String>) -> Vec<String> {
