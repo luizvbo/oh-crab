@@ -6,4 +6,7 @@ description = "Fix your command line magically"
 authors = ["Luiz Otavio Vilas Boas Oliveira <luiz.vbo@gmail.com>"]
 
 [dependencies]
-clap = { version = "4.2.2", features = ["env", "cargo"] }
+clap = { version = "4.2.2", features = ["derive", "cargo", "env"] }
+thiserror = "1.0.40"
+# clap = { version = "4.2.2", features = ["derive", "cargo"] }
+

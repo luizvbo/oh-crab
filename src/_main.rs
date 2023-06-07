@@ -1,4 +1,4 @@
-use clap::{command, error::ErrorKind, parser, Arg, ArgAction, ArgMatches, Args, Parser};
+use clap::{command, error::ErrorKind, parser, Arg, ArgAction, ArgMatches};
 use std::{
     env,
     process::{Command, Output, Stdio},
