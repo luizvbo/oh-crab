@@ -1,11 +1,13 @@
 use crate::rules;
 use std::process::{Command, Stdio};
 use std::str;
+use shellwords;
 
 pub struct CrabCommand {
-    script: String,
-    stdout: String,
-    stderr: String,
+    pub script: String,
+    pub stdout: String,
+    pub stderr: String,
+    pub script_parts: Vec<String>,
 }
 
 impl CrabCommand {
@@ -14,13 +16,24 @@ impl CrabCommand {
             script,
             stdout,
             stderr,
+            script_parts: CrabCommand::split_command(&script)
         }
     }
+
+    fn split_command(command: &str) -> Vec<String> {
+        // Split the command using shell-like syntax.
+        shellwords::split(command).expect("")
+    } 
+
+
+
     pub fn get_corrected_commands(self) -> Vec<Self> {
         let corrected_commands: Vec<Self> = Vec::new();
         for rule in rules::get_rules() {}
         return corrected_commands;
     }
+
+    pub fn script_parts(self) -
 }
 
 pub fn run_command(raw_command: Vec<String>) -> CrabCommand {
