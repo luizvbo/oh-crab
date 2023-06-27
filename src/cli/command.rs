@@ -1,7 +1,7 @@
 use crate::rules;
+use shellwords;
 use std::process::{Command, Stdio};
 use std::str;
-use shellwords;
 
 pub struct CrabCommand {
     pub script: String,
@@ -12,28 +12,28 @@ pub struct CrabCommand {
 
 impl CrabCommand {
     pub fn new(script: String, stdout: String, stderr: String) -> Self {
+        let split_command = CrabCommand::split_command(&script);
+
         CrabCommand {
             script,
             stdout,
             stderr,
-            script_parts: CrabCommand::split_command(&script)
+            script_parts: split_command,
         }
     }
 
     fn split_command(command: &str) -> Vec<String> {
         // Split the command using shell-like syntax.
         shellwords::split(command).expect("")
-    } 
-
-
-
-    pub fn get_corrected_commands(self) -> Vec<Self> {
-        let corrected_commands: Vec<Self> = Vec::new();
-        for rule in rules::get_rules() {}
-        return corrected_commands;
     }
 
-    pub fn script_parts(self) -
+    // pub fn get_corrected_commands(self) -> Vec<Self> {
+    //     let corrected_commands: Vec<Self> = Vec::new();
+    //     for rule in rules::get_rules() {}
+    //     return corrected_commands;
+    // }
+
+    // pub fn script_parts(self) -
 }
 
 pub fn run_command(raw_command: Vec<String>) -> CrabCommand {

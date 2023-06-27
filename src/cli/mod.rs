@@ -15,7 +15,7 @@ pub fn handler() {
 
     if let Some(command) = arg_matches.remove_many::<String>("command") {
         let crab_command = run_command(command.collect());
-        let corrected_commands = crab_command.get_corrected_commands();
+        // let corrected_commands = crab_command.get_corrected_commands();
     } else {
         if let Some(alias) = arg_matches.get_one::<String>("alias") {
             panic!("Alias support not implemented yet");

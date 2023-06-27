@@ -1,14 +1,16 @@
+pub mod cargo;
 use crate::cli::command::CrabCommand;
 
 mod apt_get;
 
 pub trait RuleTrait {
     fn new(
+        &self,
         name: &str,
         enabled_by_default: Option<bool>,
         priority: Option<u16>,
         requires_output: Option<bool>,
-    ) -> Self;
+    );
     fn match_rule(&self, command: CrabCommand) -> bool;
     fn get_new_command(&self, command: CrabCommand) -> String;
     fn side_effect(&self, command: CrabCommand, fixed_command: String) {}
