@@ -1,15 +1,15 @@
-pub mod cargo;
 use crate::{cli::command::CrabCommand, command::CorrectedCommand};
 
 mod apt_get;
+pub mod cargo;
 
-pub struct RuleAttributes {
+pub struct Rule {
     name: String,
     enabled_by_default: bool,
     priority: u16,
     requires_output: bool,
     pub match_rule: fn(&CrabCommand) -> bool,
-    get_new_command: fn(CrabCommand) -> Vec<String>,
+    get_new_command: fn(&CrabCommand) -> Vec<String>,
     side_effect: Option<fn(CrabCommand, String)>,
 }
 
@@ -20,7 +20,7 @@ impl Rule {
         priority: Option<u16>,
         requires_output: Option<bool>,
         match_rule: fn(&CrabCommand) -> bool,
-        get_new_command: fn(CrabCommand) -> Vec<String>,
+        get_new_command: fn(&CrabCommand) -> Vec<String>,
         side_effect: Option<fn(CrabCommand, String)>,
     ) -> Self {
         Self {
@@ -46,7 +46,7 @@ impl Rule {
         false
     }
 
-    fn get_corrected_commands(&self, command: CrabCommand) -> Vec<CorrectedCommand> {
+    fn get_corrected_commands(&self, command: &CrabCommand) -> Vec<CorrectedCommand> {
         let mut new_commands: Vec<CorrectedCommand> = vec![];
         for (n, new_command) in (self.get_new_command)(command).iter().enumerate() {
             new_commands.push(CorrectedCommand::new(
@@ -63,7 +63,7 @@ pub fn get_corrected_commands(command: CrabCommand) -> Vec<CorrectedCommand> {
     let mut corrected_commands: Vec<CorrectedCommand> = vec![];
     for rule in get_rules() {
         if (rule.match_rule)(&command) {
-            for corrected in rule.get_corrected_commands(command) {
+            for corrected in rule.get_corrected_commands(&command) {
                 corrected_commands.push(corrected);
             }
         }

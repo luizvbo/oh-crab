@@ -5,7 +5,7 @@ use std::env;
 
 use crate::{
     command::run_command,
-    rules::{get_corrected_commands, get_rules},
+    rules::{get_corrected_commands, get_rules, selected_command},
 };
 
 use self::command::CrabCommand;

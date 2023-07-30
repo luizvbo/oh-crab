@@ -1,4 +1,3 @@
-use crate::rules::{get_rules, Rule};
 use shellwords;
 use std::process::{Command, Stdio};
 use std::str;

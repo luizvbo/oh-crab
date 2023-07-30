@@ -2,11 +2,11 @@ use crate::command::CrabCommand;
 
 use super::Rule;
 
-pub fn match_rule(command: CrabCommand) -> bool {
+pub fn match_rule(command: &CrabCommand) -> bool {
     command.script == "cargo"
 }
 
-pub fn get_new_command(command: CrabCommand) -> Vec<String> {
+pub fn get_new_command(command: &CrabCommand) -> Vec<String> {
     vec!["cargo build".to_owned()]
 }
 
