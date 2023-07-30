@@ -3,7 +3,12 @@ use clap::{command, Arg, ArgAction};
 
 use std::env;
 
-use crate::command::run_command;
+use crate::{
+    command::run_command,
+    rules::{get_corrected_commands, get_rules},
+};
+
+use self::command::CrabCommand;
 
 const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
 
@@ -15,7 +20,8 @@ pub fn handler() {
 
     if let Some(command) = arg_matches.remove_many::<String>("command") {
         let crab_command = run_command(command.collect());
-        let corrected_commands = crab_command.get_corrected_commands();
+        let corrected_commands = get_corrected_commands(crab_command);
+        let selected_command = selected_command(corrected_commands);
     } else {
         if let Some(alias) = arg_matches.get_one::<String>("alias") {
             panic!("Alias support not implemented yet");
@@ -24,6 +30,22 @@ pub fn handler() {
         }
     }
 }
+
+// fn get_corrected_commands(command: CrabCommand){
+//     for Some((i, rule)) in get_rules().iter().enumerate(){
+//         if rule.match_rule(command){
+//             for corrected in rule.get
+//         }
+//     }
+// }
+
+// corrected_commands = (
+//     corrected
+//     for rule in get_rules()
+//     if rule.is_match(command)
+//     for corrected in rule.get_corrected_commands(command)
+// )
+// return organize_commands(corrected_commands)
 
 /// Prepares arguments by:
 /// - Removing placeholder and moving arguments after it to beginning, we need this

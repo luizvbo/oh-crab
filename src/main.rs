@@ -1,10 +1,5 @@
 extern crate ohcrab;
 
-use std::{
-    env,
-    process::{Command, Output, Stdio},
-};
-
 const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
 
 fn main() {
