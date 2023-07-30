@@ -3,7 +3,7 @@ use crate::{cli::command::CrabCommand, command::CorrectedCommand};
 
 mod apt_get;
 
-pub struct Rule {
+pub struct RuleAttributes {
     name: String,
     enabled_by_default: bool,
     priority: u16,
@@ -24,7 +24,7 @@ impl Rule {
         side_effect: Option<fn(CrabCommand, String)>,
     ) -> Self {
         Self {
-            name,
+            name: name.to_owned(),
             enabled_by_default: enabled_by_default.unwrap_or(true),
             priority: priority.unwrap_or(1000),
             requires_output: requires_output.unwrap_or(true),
