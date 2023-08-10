@@ -10,7 +10,7 @@ pub struct Rule {
     requires_output: bool,
     pub match_rule: fn(&CrabCommand) -> bool,
     get_new_command: fn(&CrabCommand) -> Vec<String>,
-    side_effect: Option<fn(CrabCommand, String)>,
+    side_effect: Option<fn(CrabCommand, &String)>,
 }
 
 impl Rule {
@@ -21,7 +21,7 @@ impl Rule {
         requires_output: Option<bool>,
         match_rule: fn(&CrabCommand) -> bool,
         get_new_command: fn(&CrabCommand) -> Vec<String>,
-        side_effect: Option<fn(CrabCommand, String)>,
+        side_effect: Option<fn(CrabCommand, &String)>,
     ) -> Self {
         Self {
             name: name.to_owned(),
@@ -71,9 +71,9 @@ pub fn get_corrected_commands(command: CrabCommand) -> Vec<CorrectedCommand> {
     return organize_commands(corrected_commands);
 }
 
-pub fn organize_commands(corrected_commands: Vec<CorrectedCommand>) -> Vec<CorrectedCommand> {
-    // let mut reorder_commands: Vec<CorrectedCommand> = vec![];
-    // reorder_commands
+pub fn organize_commands(mut corrected_commands: Vec<CorrectedCommand>) -> Vec<CorrectedCommand> {
+    corrected_commands.sort_by(|a, b| a.priority.cmp(&b.priority));
+    corrected_commands.dedup_by(|a, b| a.script.eq(&b.script));
     corrected_commands
 }
 

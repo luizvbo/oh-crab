@@ -4,14 +4,14 @@ use std::str;
 
 pub struct CorrectedCommand {
     pub script: String,
-    pub side_effect: Option<fn(CrabCommand, String)>,
+    pub side_effect: Option<fn(CrabCommand, &String)>,
     pub priority: u16,
 }
 
 impl CorrectedCommand {
     pub fn new(
         script: String,
-        side_effect: Option<fn(CrabCommand, String)>,
+        side_effect: Option<fn(CrabCommand, &String)>,
         priority: u16,
     ) -> Self {
         Self {
@@ -19,6 +19,15 @@ impl CorrectedCommand {
             side_effect,
             priority,
         }
+    }
+    pub fn get_script(&self) -> &String {
+        &self.script
+    }
+    pub fn run(&self, old_command: CrabCommand) {
+        if let Some(side_effect) = self.side_effect {
+            (side_effect)(old_command, &self.script);
+        }
+        println!("{}", self.get_script());
     }
 }
 

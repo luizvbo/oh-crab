@@ -1,5 +1,5 @@
 pub mod command;
-use clap::{command, Arg, ArgAction};
+use clap::{command, parser::ValueSource, Arg, ArgAction};
 
 use std::env;
 
@@ -23,29 +23,13 @@ pub fn handler() {
         let corrected_commands = get_corrected_commands(crab_command);
         let selected_command = selected_command(corrected_commands);
     } else {
-        if let Some(alias) = arg_matches.get_one::<String>("alias") {
+        if arg_matches.value_source("alias") == Some(ValueSource::CommandLine) {
             panic!("Alias support not implemented yet");
         } else {
             return;
         }
     }
 }
-
-// fn get_corrected_commands(command: CrabCommand){
-//     for Some((i, rule)) in get_rules().iter().enumerate(){
-//         if rule.match_rule(command){
-//             for corrected in rule.get
-//         }
-//     }
-// }
-
-// corrected_commands = (
-//     corrected
-//     for rule in get_rules()
-//     if rule.is_match(command)
-//     for corrected in rule.get_corrected_commands(command)
-// )
-// return organize_commands(corrected_commands)
 
 /// Prepares arguments by:
 /// - Removing placeholder and moving arguments after it to beginning, we need this
@@ -101,72 +85,110 @@ pub fn get_parser() -> clap::Command {
         )
 }
 
-#[test]
-fn test_get_parser() {
-    env::set_var("OC_ALIAS", "env_alias");
-    // Test alias defined from environment variable
-    assert_eq!(
-        get_parser()
-            .get_matches_from(Vec::<String>::new())
-            .get_one::<String>("alias"),
-        Some(&"env_alias".to_string())
-    );
-    assert_eq!(
-        get_parser()
-            .get_matches_from(vec!["--alias", "new_alias"])
-            .get_one::<String>("alias"),
-        Some(&"new_alias".to_string())
-    );
-    assert_eq!(
-        get_parser()
-            .get_matches_from(vec!["-a", "new_alias"])
-            .get_one::<String>("alias"),
-        Some(&"new_alias".to_string())
-    );
-    assert_eq!(
-        get_parser()
-            .get_matches_from(vec!["-d", "anything"])
-            .get_flag("debug"),
-        true
-    );
-    assert_eq!(
-        get_parser()
-            .get_matches_from(vec!["--", "my", "command"])
-            .get_many::<String>("command")
-            .expect("Command not found")
-            .collect::<Vec<_>>(),
-        ["my", "command"]
-    );
-}
+#[cfg(test)]
+mod tests {
+    use clap::parser::ValueSource;
 
-#[test]
-fn test_prepare_arguments() {
-    for (input, exp_output) in [
-        (
-            vec![
-                "arg1".to_owned(),
-                "arg2".to_owned(),
-                "OHCRAB_ARGUMENT_PLACEHOLDER".to_owned(),
-                "arg3".to_owned(),
-            ],
-            vec!["arg3", "--", "arg1", "arg2"],
-        ),
-        (
-            vec!["arg1".to_owned(), "arg2".to_owned(), "arg3".to_owned()],
-            vec!["--", "arg1", "arg2", "arg3"],
-        ),
-        (
-            vec!["-param".to_owned(), "arg2".to_owned(), "arg3".to_owned()],
-            vec!["-param", "arg2", "arg3"],
-        ),
-    ] {
-        assert_eq!(prepare_arguments(input), exp_output);
+    use crate::cli::{get_parser, prepare_arguments};
+    use std::env;
+
+    #[test]
+    fn test_get_parser_alias_source() {
+        assert_eq!(
+            get_parser()
+                .get_matches_from(Vec::<String>::new())
+                .value_source("alias"),
+            Some(ValueSource::DefaultValue)
+        );
+        env::set_var("OC_ALIAS", "env_alias");
+        assert_eq!(
+            get_parser()
+                .get_matches_from(Vec::<String>::new())
+                .value_source("alias"),
+            Some(ValueSource::EnvVariable)
+        );
+        assert_eq!(
+            get_parser()
+                .get_matches_from(vec!["--alias", "new_alias"])
+                .value_source("alias"),
+            Some(ValueSource::CommandLine)
+        );
     }
-}
+    #[test]
+    fn test_get_parser_matches() {
+        // In case no alias is provided or the environment variable `OC_ALIAS`
+        // is not set we should get the default value "crab"
+        assert_eq!(
+            get_parser()
+                .get_matches_from(Vec::<String>::new())
+                .get_one::<String>("alias"),
+            Some(&"crab".to_string())
+        );
+        // Test alias defined from environment variable
+        env::set_var("OC_ALIAS", "env_alias");
+        assert_eq!(
+            get_parser()
+                .get_matches_from(Vec::<String>::new())
+                .get_one::<String>("alias"),
+            Some(&"env_alias".to_string())
+        );
+        assert_eq!(
+            get_parser()
+                .get_matches_from(vec!["--alias", "new_alias"])
+                .get_one::<String>("alias"),
+            Some(&"new_alias".to_string())
+        );
+        assert_eq!(
+            get_parser()
+                .get_matches_from(vec!["-a", "new_alias"])
+                .get_one::<String>("alias"),
+            Some(&"new_alias".to_string())
+        );
+        assert_eq!(
+            get_parser()
+                .get_matches_from(vec!["-d", "--", "anything"])
+                .get_flag("debug"),
+            true
+        );
+        assert_eq!(
+            get_parser()
+                .get_matches_from(vec!["--", "my", "command"])
+                .get_many::<String>("command")
+                .expect("Command not found")
+                .collect::<Vec<_>>(),
+            ["my", "command"]
+        );
+    }
 
-// #[test]
-// fn test_handler() {
-//     let arg_matches = get_argument_parser().get_matches_from(vec!["--", "echo", "TEST"]);
-//     let result = handler().unwrap();
-//     assert_eq!(result.stdout, b"TEST\n");
-// }
+    #[test]
+    fn test_prepare_arguments() {
+        for (input, exp_output) in [
+            (
+                vec![
+                    "arg1".to_owned(),
+                    "arg2".to_owned(),
+                    "OHCRAB_ARGUMENT_PLACEHOLDER".to_owned(),
+                    "arg3".to_owned(),
+                ],
+                vec!["arg3", "--", "arg1", "arg2"],
+            ),
+            (
+                vec!["arg1".to_owned(), "arg2".to_owned(), "arg3".to_owned()],
+                vec!["--", "arg1", "arg2", "arg3"],
+            ),
+            (
+                vec!["-param".to_owned(), "arg2".to_owned(), "arg3".to_owned()],
+                vec!["-param", "arg2", "arg3"],
+            ),
+        ] {
+            assert_eq!(prepare_arguments(input), exp_output);
+        }
+    }
+
+    // #[test]
+    // fn test_handler() {
+    //     let arg_matches = get_argument_parser().get_matches_from(vec!["--", "echo", "TEST"]);
+    //     let result = handler().unwrap();
+    //     assert_eq!(result.stdout, b"TEST\n");
+    // }
+}

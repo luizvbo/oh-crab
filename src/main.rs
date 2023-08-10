@@ -1,6 +1,6 @@
 extern crate ohcrab;
 
-const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
+// const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
 
 fn main() {
     ohcrab::handler()
