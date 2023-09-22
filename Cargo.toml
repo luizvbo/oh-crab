@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 description = "Fix your command line magically"
 authors = ["Luiz Otavio Vilas Boas Oliveira <luiz.vbo@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/luizvbo/oh-crab"
+readme = "README.md"
 
 [dependencies]
 clap = { version = "4.2.2", features = ["derive", "cargo", "env"] }
