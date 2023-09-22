@@ -1,6 +1,6 @@
 use shellwords;
 use std::process::{Command, Stdio};
-use std::str;
+use std::{fmt, str};
 
 pub struct CorrectedCommand {
     pub script: String,
@@ -31,11 +31,24 @@ impl CorrectedCommand {
     }
 }
 
+#[derive(Debug)]
 pub struct CrabCommand {
     pub script: String,
     pub stdout: Option<String>,
     pub stderr: Option<String>,
     pub script_parts: Vec<String>,
+}
+
+impl fmt::Display for CrabCommand {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "script: {}, stdout: {}, stderr: {}",
+            self.script,
+            self.stdout.as_ref().unwrap_or(&"".to_owned()),
+            self.stderr.as_ref().unwrap_or(&"".to_owned()),
+        )
+    }
 }
 
 impl CrabCommand {
@@ -66,7 +79,6 @@ impl CrabCommand {
 
 pub fn run_command(raw_command: Vec<String>) -> CrabCommand {
     let command = prepare_command(raw_command);
-
     let mut output = shell_command()
         .arg(&command)
         .stdout(Stdio::piped())

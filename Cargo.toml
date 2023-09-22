@@ -7,6 +7,7 @@ authors = ["Luiz Otavio Vilas Boas Oliveira <luiz.vbo@gmail.com>"]
 
 [dependencies]
 clap = { version = "4.2.2", features = ["derive", "cargo", "env"] }
-thiserror = "1.0.40"
 shellwords = "1.1.0"
 which = "4.4.0"
+similar = "2.2.1"
+console = "0.15.7"

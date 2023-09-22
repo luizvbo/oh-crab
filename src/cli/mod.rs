@@ -6,6 +6,8 @@ use std::env;
 use crate::{
     command::run_command,
     rules::{get_corrected_commands, get_rules, selected_command},
+    shell::{get_bash_type, Shell},
+    shell::{Bash, Zsh},
 };
 
 use self::command::CrabCommand;
@@ -17,17 +19,16 @@ pub fn handler() {
     let args = env::args().skip(1).collect();
     let args = prepare_arguments(args);
     let mut arg_matches = get_parser().get_matches_from(&args);
+    let shell_command = get_bash_type(&arg_matches.remove_one::<String>("shell").unwrap());
 
     if let Some(command) = arg_matches.remove_many::<String>("command") {
         let crab_command = run_command(command.collect());
+        println!("{:?}", crab_command);
         let corrected_commands = get_corrected_commands(crab_command);
-        let selected_command = selected_command(corrected_commands);
+        let selected_command = selected_command(&corrected_commands);
     } else {
-        if arg_matches.value_source("alias") == Some(ValueSource::CommandLine) {
-            panic!("Alias support not implemented yet");
-        } else {
-            return;
-        }
+        let alias_name = arg_matches.get_one::<String>("alias").unwrap();
+        println!("{}", shell_command.app_alias(alias_name));
     }
 }
 
@@ -67,6 +68,14 @@ pub fn get_parser() -> clap::Command {
                 .required(false)
                 .env("OC_ALIAS")
                 .default_value("crab"),
+        )
+        .arg(
+            Arg::new("shell")
+                .long("shell")
+                .short('s')
+                .help("Shell used to call ohcrab")
+                .required(false)
+                .default_value("bash"),
         )
         .arg(
             Arg::new("debug")
@@ -109,7 +118,7 @@ mod tests {
         );
         assert_eq!(
             get_parser()
-                .get_matches_from(vec!["--alias", "new_alias"])
+                .get_matches_from(vec!["--alias=new_alias"])
                 .value_source("alias"),
             Some(ValueSource::CommandLine)
         );
@@ -140,9 +149,21 @@ mod tests {
         );
         assert_eq!(
             get_parser()
-                .get_matches_from(vec!["-a", "new_alias"])
-                .get_one::<String>("alias"),
-            Some(&"new_alias".to_string())
+                .get_matches_from(Vec::<String>::new())
+                .get_one::<String>("shell"),
+            Some(&"bash".to_string())
+        );
+        assert_eq!(
+            get_parser()
+                .get_matches_from(vec!["-s", "bash"])
+                .get_one::<String>("shell"),
+            Some(&"bash".to_string())
+        );
+        assert_eq!(
+            get_parser()
+                .get_matches_from(vec!["--shell", "bash"])
+                .get_one::<String>("shell"),
+            Some(&"bash".to_string())
         );
         assert_eq!(
             get_parser()
@@ -185,10 +206,41 @@ mod tests {
         }
     }
 
-    // #[test]
-    // fn test_handler() {
-    //     let arg_matches = get_argument_parser().get_matches_from(vec!["--", "echo", "TEST"]);
-    //     let result = handler().unwrap();
-    //     assert_eq!(result.stdout, b"TEST\n");
-    // }
+
+    /// Tests the argument processing logic.
+    ///
+    /// This test checks if the argument processing functions work as expected. It prepares some
+    /// arguments, processes them, and verifies that the resulting command and shell type are as
+    /// expected.
+    ///
+    /// The arguments used in this test are:
+    /// - "arg1"
+    /// - "arg2"
+    /// - "OHCRAB_ARGUMENT_PLACEHOLDER"
+    /// - "--shell"
+    /// - "custom_bash"
+    ///
+    /// The expected behavior is:
+    /// - The resulting command should be ["arg1", "arg2"].
+    /// - The shell type should be "custom_bash".
+    #[test]
+    fn test_process_arguments() {
+        let prepared_args = prepare_arguments(vec![
+            "arg1".to_owned(),
+            "arg2".to_owned(),
+            "OHCRAB_ARGUMENT_PLACEHOLDER".to_owned(),
+            "--shell".to_owned(),
+            "custom_bash".to_owned(),
+        ]);
+        let mut vec_matches = get_parser()
+            .get_matches_from(&prepared_args);
+        let command = vec_matches
+            .remove_many::<String>("command")
+            .expect("Command not found")
+            .collect::<Vec<_>>();
+        let shell_type = vec_matches.remove_one::<String>("shell");
+        println!("{:?}", command);
+        assert_eq!(command, ["arg1", "arg2"]);
+        assert_eq!(shell_type, Some("custom_bash".to_owned()));
+    }
 }
