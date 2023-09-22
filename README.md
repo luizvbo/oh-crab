@@ -29,3 +29,9 @@ function for your shell. Currently, we support `bash` and `zsh`.
 In the terminal, after typing the wrong command, type `crab` (or the alias you
 chose in during the [Exporting `ohcrab`](#exporting-ohcrab) step). It will show
 a menu to choose the correct command from.
+
+## Road map
+
+- [] Inform the user which shell type is being used when the `ohcrab` shell
+  function is generated.
+- [] Add support to user shell aliases.

@@ -80,11 +80,11 @@ impl Rule {
 ///
 /// A `Vec<CorrectedCommand>` containing the list of corrected commands based on the
 /// input `CrabCommand`.
-pub fn get_corrected_commands(command: CrabCommand) -> Vec<CorrectedCommand> {
+pub fn get_corrected_commands(command: &CrabCommand) -> Vec<CorrectedCommand> {
     let mut corrected_commands: Vec<CorrectedCommand> = vec![];
     for rule in get_rules() {
-        if (rule.match_rule)(&command) {
-            for corrected in rule.get_corrected_commands(&command) {
+        if (rule.match_rule)(command) {
+            for corrected in rule.get_corrected_commands(command) {
                 corrected_commands.push(corrected);
             }
         }
