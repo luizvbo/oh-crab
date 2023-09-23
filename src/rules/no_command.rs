@@ -32,6 +32,14 @@ pub fn match_rule(command: &CrabCommand) -> bool {
 
 pub fn get_new_command(command: &CrabCommand) -> Vec<String> {
     let old_command = &command.script_parts[0];
+    let old_parameters = {
+        if command.script_parts.len() > 1 {
+            " ".to_string() + &command.script_parts[1..].join(" ")
+        } else {
+            "".to_owned()
+        }
+    };
+
     // TODO: Check shell history
     let mut new_cmds: Vec<&str> = vec![];
     let executables = get_all_executable();
@@ -44,7 +52,10 @@ pub fn get_new_command(command: &CrabCommand) -> Vec<String> {
             new_cmds.push(cmd);
         }
     }
-    new_cmds.iter().map(|s| s.to_string()).collect()
+    new_cmds
+        .iter()
+        .map(|s| s.to_string() + &old_parameters)
+        .collect()
 }
 
 pub fn get_rule() -> Rule {

@@ -27,7 +27,7 @@ impl CorrectedCommand {
         if let Some(side_effect) = self.side_effect {
             (side_effect)(old_command, &self.script);
         }
-        println!("{}", self.get_script());
+        println!("\n{}", self.get_script());
     }
 }
 
@@ -67,14 +67,6 @@ impl CrabCommand {
         // Split the command using shell-like syntax.
         shellwords::split(command).expect("")
     }
-
-    // pub fn get_corrected_commands(self) -> Vec<Self> {
-    //     let corrected_commands: Vec<Self> = Vec::new();
-    //     for rule in rules::get_rules() {}
-    //     return corrected_commands;
-    // }
-
-    // pub fn script_parts(self) -
 }
 
 pub fn run_command(raw_command: Vec<String>) -> CrabCommand {
