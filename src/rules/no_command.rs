@@ -1,5 +1,5 @@
 use crate::{
-    command::CrabCommand,
+    cli::command::CrabCommand,
     utils::{get_all_executable, get_close_matches},
 };
 use similar::DiffableStr;

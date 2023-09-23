@@ -1,4 +1,4 @@
-use crate::command::CrabCommand;
+use crate::cli::command::CrabCommand;
 
 use super::Rule;
 

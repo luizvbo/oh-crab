@@ -1,6 +1,9 @@
 use core::fmt;
 
-use crate::{cli::command::CrabCommand, command::CorrectedCommand, ui::iterative_menu};
+use crate::{
+    cli::{command::CorrectedCommand, command::CrabCommand},
+    ui::iterative_menu,
+};
 
 mod apt_get;
 pub mod cargo;
