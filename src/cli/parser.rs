@@ -1,5 +1,4 @@
 use clap::{command, parser::ValueSource, Arg, ArgAction};
-
 use std::env;
 
 use crate::{
@@ -7,10 +6,8 @@ use crate::{
     rules::{get_corrected_commands, get_rules, selected_command},
     shell::{get_bash_type, Shell},
     shell::{Bash, Zsh},
+    ARGUMENT_PLACEHOLDER, ENV_VAR_NAME_ALIAS, ENV_VAR_NAME_HISTORY, ENV_VAR_NAME_SHELL,
 };
-
-const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
-
 
 /// Prepares arguments by:
 /// - Removing placeholder and moving arguments after it to beginning, we need this
@@ -44,9 +41,9 @@ pub fn get_parser() -> clap::Command {
             Arg::new("alias")
                 .long("alias")
                 .short('a')
-                .help("[custom-alias-name] Prints alias for current shell")
+                .help("Prints the shell function using the given alias")
                 .required(false)
-                .env("OC_ALIAS")
+                .env(ENV_VAR_NAME_ALIAS)
                 .default_value("crab"),
         )
         .arg(
@@ -54,6 +51,7 @@ pub fn get_parser() -> clap::Command {
                 .long("shell")
                 .short('s')
                 .help("Shell used to call ohcrab")
+                .env(ENV_VAR_NAME_SHELL)
                 .required(false)
                 .default_value("bash"),
         )
@@ -70,15 +68,18 @@ pub fn get_parser() -> clap::Command {
                 .help("Command that should be fixed")
                 .action(ArgAction::Append)
                 .required(false)
+                .env(ENV_VAR_NAME_HISTORY)
                 .last(true),
         )
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::{
+        cli::parser::{get_parser, prepare_arguments},
+        ARGUMENT_PLACEHOLDER, ENV_VAR_NAME_ALIAS, ENV_VAR_NAME_HISTORY, ENV_VAR_NAME_SHELL,
+    };
     use clap::parser::ValueSource;
-
-    use crate::cli::parser::{get_parser, prepare_arguments};
     use std::env;
 
     #[test]
@@ -89,7 +90,7 @@ mod tests {
                 .value_source("alias"),
             Some(ValueSource::DefaultValue)
         );
-        env::set_var("OC_ALIAS", "env_alias");
+        env::set_var(ENV_VAR_NAME_ALIAS, "env_alias");
         assert_eq!(
             get_parser()
                 .get_matches_from(Vec::<String>::new())
@@ -114,7 +115,7 @@ mod tests {
             Some(&"crab".to_string())
         );
         // Test alias defined from environment variable
-        env::set_var("OC_ALIAS", "env_alias");
+        env::set_var(ENV_VAR_NAME_ALIAS, "env_alias");
         assert_eq!(
             get_parser()
                 .get_matches_from(Vec::<String>::new())
@@ -139,11 +140,13 @@ mod tests {
                 .get_one::<String>("shell"),
             Some(&"bash".to_string())
         );
+        // Test shell defined from environment variable
+        env::set_var(ENV_VAR_NAME_SHELL, "pws");
         assert_eq!(
             get_parser()
-                .get_matches_from(vec!["--shell", "bash"])
+                .get_matches_from(Vec::<String>::new())
                 .get_one::<String>("shell"),
-            Some(&"bash".to_string())
+            Some(&"pws".to_string())
         );
         assert_eq!(
             get_parser()
@@ -153,11 +156,21 @@ mod tests {
         );
         assert_eq!(
             get_parser()
-                .get_matches_from(vec!["--", "my", "command"])
+                .get_matches_from(vec!["--", "ls", "-a"])
                 .get_many::<String>("command")
-                .expect("Command not found")
+                .unwrap()
                 .collect::<Vec<_>>(),
-            ["my", "command"]
+            ["ls", "-a"]
+        );
+        // Test command defined from environment variable
+        env::set_var(ENV_VAR_NAME_HISTORY, "ls -a\nls -lah".to_owned());
+        assert_eq!(
+            get_parser()
+                .get_matches_from(Vec::<String>::new())
+                .get_many::<String>("command")
+                .unwrap()
+                .collect::<Vec<_>>(),
+            ["ls -a\nls -lah"]
         );
     }
 
@@ -168,7 +181,7 @@ mod tests {
                 vec![
                     "arg1".to_owned(),
                     "arg2".to_owned(),
-                    "OHCRAB_ARGUMENT_PLACEHOLDER".to_owned(),
+                    ARGUMENT_PLACEHOLDER.to_owned(),
                     "arg3".to_owned(),
                 ],
                 vec!["arg3", "--", "arg1", "arg2"],
@@ -186,7 +199,6 @@ mod tests {
         }
     }
 
-
     /// Tests the argument processing logic.
     ///
     /// This test checks if the argument processing functions work as expected. It prepares some
@@ -196,7 +208,7 @@ mod tests {
     /// The arguments used in this test are:
     /// - "arg1"
     /// - "arg2"
-    /// - "OHCRAB_ARGUMENT_PLACEHOLDER"
+    /// - ARGUMENT_PLACEHOLDER
     /// - "--shell"
     /// - "custom_bash"
     ///
@@ -208,12 +220,11 @@ mod tests {
         let prepared_args = prepare_arguments(vec![
             "arg1".to_owned(),
             "arg2".to_owned(),
-            "OHCRAB_ARGUMENT_PLACEHOLDER".to_owned(),
+            ARGUMENT_PLACEHOLDER.to_owned(),
             "--shell".to_owned(),
             "custom_bash".to_owned(),
         ]);
-        let mut vec_matches = get_parser()
-            .get_matches_from(&prepared_args);
+        let mut vec_matches = get_parser().get_matches_from(&prepared_args);
         let command = vec_matches
             .remove_many::<String>("command")
             .expect("Command not found")
