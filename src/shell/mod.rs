@@ -1,6 +1,6 @@
 use std::env;
 
-use crate::ARGUMENT_PLACEHOLDER;
+use crate::{ARGUMENT_PLACEHOLDER, ENV_VAR_NAME_ALIAS, ENV_VAR_NAME_HISTORY, ENV_VAR_NAME_SHELL};
 
 pub trait Shell {
     fn app_alias(&self, alias_name: &str) -> String;
@@ -22,19 +22,23 @@ impl Shell for Zsh {
     fn app_alias(&self, alias_name: &str) -> String {
         format!(
             r#"
-            {name} () {{
-                OC_PREVIOUS=$(fc -ln -1 | tail -n 1);
-                OC_CMD=$(
-                    OC_ALIAS={name}
-                    OC_SHELL_ALIASES=$(alias)
-                    ohcrab $OC_PREVIOUS {argument_placeholder} --bash zsh $*
-                ) && eval $OC_CMD;
+            {alias_name} () {{
+                export {var_name_shell}="zsh";
+                export {var_name_alias}="{alias_name}";
+                export {var_name_history}="$(fc -ln -1)";
+                OHCRAB_CMD=$(
+                    ohcrab {argument_placeholder} $@
+                ) && eval $OHCRAB_CMD;
+                unset {var_name_history};
                 {alter_history}
             }}
             "#,
-            name = alias_name,
+            alias_name = alias_name,
+            var_name_shell = ENV_VAR_NAME_SHELL,
+            var_name_alias = ENV_VAR_NAME_ALIAS,
+            var_name_history = ENV_VAR_NAME_HISTORY,
             argument_placeholder = ARGUMENT_PLACEHOLDER,
-            alter_history = "test -n \"$TF_CMD\" && print -s $TF_CMD"
+            alter_history = "test -n \"$OHCRAB_CMD\" && print -s $OHCRAB_CMD"
         )
     }
 }
@@ -43,20 +47,23 @@ impl Shell for Bash {
     fn app_alias(&self, alias_name: &str) -> String {
         format!(
             r#"
-            function {name} () {{
-                OC_PREVIOUS=$(fc -ln -1);
-                export OC_ALIAS={name};
-                export OC_SHELL_ALIASES=$(alias);
-                export PYTHONIOENCODING=utf-8;
-                OC_CMD=$(
-                    ohcrab $OC_PREVIOUS {argument_placeholder} --bash bash $@
-                ) && eval $OC_CMD;
+            function {alias_name} () {{
+                export {var_name_shell}="bash";
+                export {var_name_alias}="{alias_name}";
+                export {var_name_history}="$(fc -ln -1)";
+                OHCRAB_CMD=$(
+                    ohcrab {argument_placeholder} "$@"
+                ) && eval "$OHCRAB_CMD";
+                unset {var_name_history};
                 {alter_history}
             }}
             "#,
-            name = alias_name,
+            alias_name = alias_name,
+            var_name_history = ENV_VAR_NAME_HISTORY,
+            var_name_shell = ENV_VAR_NAME_SHELL,
+            var_name_alias = ENV_VAR_NAME_ALIAS,
             argument_placeholder = ARGUMENT_PLACEHOLDER,
-            alter_history = "test -n \"$TF_CMD\" && print -s $TF_CMD"
+            alter_history = "history -s $OHCRAB_CMD"
         )
     }
 }
