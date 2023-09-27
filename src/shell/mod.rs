@@ -26,11 +26,8 @@ impl Shell for Zsh {
                 export {var_name_shell}="zsh";
                 export {var_name_alias}="{alias_name}";
                 export {var_name_history}="$(fc -ln -1)";
-                OHCRAB_CMD=$(
-                    ohcrab {argument_placeholder} $@
-                ) && eval $OHCRAB_CMD;
+                ohcrab {argument_placeholder} $@;
                 unset {var_name_history};
-                {alter_history}
             }}
             "#,
             alias_name = alias_name,
@@ -38,7 +35,6 @@ impl Shell for Zsh {
             var_name_alias = ENV_VAR_NAME_ALIAS,
             var_name_history = ENV_VAR_NAME_HISTORY,
             argument_placeholder = ARGUMENT_PLACEHOLDER,
-            alter_history = "test -n \"$OHCRAB_CMD\" && print -s $OHCRAB_CMD"
         )
     }
 }
@@ -51,11 +47,8 @@ impl Shell for Bash {
                 export {var_name_shell}="bash";
                 export {var_name_alias}="{alias_name}";
                 export {var_name_history}="$(fc -ln -1)";
-                OHCRAB_CMD=$(
-                    ohcrab {argument_placeholder} "$@"
-                ) && eval "$OHCRAB_CMD";
+                ohcrab {argument_placeholder} "$@";
                 unset {var_name_history};
-                {alter_history}
             }}
             "#,
             alias_name = alias_name,
@@ -63,7 +56,6 @@ impl Shell for Bash {
             var_name_shell = ENV_VAR_NAME_SHELL,
             var_name_alias = ENV_VAR_NAME_ALIAS,
             argument_placeholder = ARGUMENT_PLACEHOLDER,
-            alter_history = "history -s $OHCRAB_CMD"
         )
     }
 }
