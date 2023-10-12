@@ -49,7 +49,6 @@ impl Shell for Bash {
                 export {var_name_shell}="bash";
                 export {var_name_alias}="{alias_name}";
                 export {var_name_history}="$(fc -ln -1)";
-                ohcrab {argument_placeholder} "$@";
                 OC_CMD=$(
                     ohcrab {argument_placeholder} "$@"
                 ) && eval "$OC_CMD";
