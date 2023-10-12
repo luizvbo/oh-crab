@@ -1,17 +1,18 @@
-extern crate ohcrab; 
+extern crate ohcrab;
 
 use std::env;
 
 use ohcrab::{
     cli::{
         command::run_command,
-        parser::{prepare_arguments, get_parser},
+        parser::{get_parser, prepare_arguments},
     },
+    rules::{get_corrected_commands, selected_command},
     shell::get_bash_type,
-    rules::{get_corrected_commands, selected_command}
 };
 
 fn main() {
+    env_logger::init();
     // Skip the first element of `env::args()` (the name of program)
     let args = env::args().skip(1).collect();
     let args = prepare_arguments(args);
@@ -19,11 +20,22 @@ fn main() {
     let shell_command = get_bash_type(&arg_matches.remove_one::<String>("shell").unwrap());
 
     if let Some(command) = arg_matches.remove_many::<String>("command") {
-        let crab_command = run_command(command.collect());
-        println!("{:?}", crab_command);
+        let command_vec = command.collect();
+        log::debug!("Retrieved command(s): {:?}", command_vec);
+        let crab_command = run_command(command_vec);
         let corrected_commands = get_corrected_commands(&crab_command);
+        log::debug!(
+            "Candidate command(s): {:?}",
+            corrected_commands
+                .iter()
+                .map(|cmd| cmd.script.to_owned())
+                .collect::<Vec<_>>()
+        );
         let selected_command = selected_command(&corrected_commands);
-        if let Some(valid_command) = selected_command{
+        // Print a new line after the menu
+        eprintln!("");
+        if let Some(valid_command) = selected_command {
+            log::debug!("Command selected: {:?}", valid_command);
             valid_command.run(crab_command);
         }
     } else {

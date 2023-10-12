@@ -16,23 +16,23 @@ enum UpdateOptions {
 /// * `command` - A reference to a `CorrectedCommand`.
 pub fn confirm_text(command: &CorrectedCommand) {
     let prefix = "\u{200B}".repeat(10);
-    print!(
+    eprint!(
         "\r{}{}{}{}{}{}{}{}{}{}{}{}",
         prefix,
-        style(command.script.to_owned()).bold(),
+        style(command.script.to_owned()).for_stderr().bold(),
         if command.side_effect.is_some() {
             " (+side_effect)"
         } else {
             ""
         },
         " [",
-        style("enter").green(),
+        style("enter").for_stderr().green(),
         " | ",
-        style("↑/k").blue(),
+        style("↑/k").for_stderr().blue(),
         " | ",
-        style("↓/j").blue(),
+        style("↓/j").for_stderr().blue(),
         " | ",
-        style("CTRL+c").red(),
+        style("CTRL+c").for_stderr().red(),
         "]"
     );
 }
@@ -60,11 +60,11 @@ fn update_item(items: &Vec<CorrectedCommand>, mut index: usize, increment: Updat
         }
         UpdateOptions::JustPrint => (),
     }
-    io::stdout().flush().unwrap(); // Flush to ensure it's immediately displayed
+    io::stderr().flush().unwrap(); // Flush to ensure it's immediately displayed
     if let Some(correct_command) = items.get(index) {
         confirm_text(correct_command);
     }
-    io::stdout().flush().unwrap(); // Flush again to display the new content
+    io::stderr().flush().unwrap(); // Flush again to display the new content
     index
 }
 
@@ -86,7 +86,8 @@ pub fn iterative_menu<'a>(
         let mut index = 0;
         index = update_item(&corrected_commands, index, UpdateOptions::JustPrint);
         // index = (index + 1) % numbers.len();
-        let stdout = Term::buffered_stdout();
+        let stdout = Term::buffered_stderr();
+        // buffered_stdout();
         'game_loop: loop {
             if let Ok(character) = stdout.read_key() {
                 match character {

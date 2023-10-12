@@ -2,6 +2,7 @@ use shellwords;
 use std::process::{Command, Stdio};
 use std::{fmt, str};
 
+#[derive(Debug)]
 pub struct CorrectedCommand {
     pub script: String,
     pub side_effect: Option<fn(CrabCommand, &String)>,
@@ -27,7 +28,7 @@ impl CorrectedCommand {
         if let Some(side_effect) = self.side_effect {
             (side_effect)(old_command, &self.script);
         }
-        println!("\n{}", self.get_script());
+        println!("{}", self.get_script());
     }
 }
 
