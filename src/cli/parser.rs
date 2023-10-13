@@ -109,6 +109,7 @@ mod tests {
     fn test_get_parser_matches() {
         // In case no alias is provided or the environment variable `OC_ALIAS`
         // is not set we should get the default value "crab"
+        env::remove_var(ENV_VAR_NAME_ALIAS);
         assert_eq!(
             get_parser()
                 .get_matches_from(Vec::<String>::new())

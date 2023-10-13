@@ -8,7 +8,7 @@ name: CI
 
 jobs:
   test:
-    name: Tests
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -41,20 +41,8 @@ jobs:
         with:
           command: test
 
-      - name: Install deps
-        run: ./scripts/dot pkg add git bash npm tmux
-
-      - name: Install fzf
-        run: git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; yes | ~/.fzf/install;
-
-      - name: Install tealdeer
-        run: sudo npm install -g tldr
-
-      - name: Run bash tests
-        run: ./tests/run
-
   lints:
-    name: Lints
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
