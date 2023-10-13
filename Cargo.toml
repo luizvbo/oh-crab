@@ -7,6 +7,8 @@ authors = ["Luiz Otavio Vilas Boas Oliveira <luiz.vbo@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/luizvbo/oh-crab"
 readme = "README.md"
+keywords = ["fix", "command", "terminal"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = { version = "4.2.2", features = ["derive", "cargo", "env"] }
