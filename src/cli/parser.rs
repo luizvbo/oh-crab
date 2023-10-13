@@ -16,7 +16,7 @@ use crate::{
 ///
 /// * `argv`:
 pub fn prepare_arguments(mut argv: Vec<String>) -> Vec<String> {
-    match argv.iter().position(|x| x == &ARGUMENT_PLACEHOLDER) {
+    match argv.iter().position(|x| *x == ARGUMENT_PLACEHOLDER) {
         Some(index) => {
             let mut argv_processed = Vec::<String>::with_capacity(argv.len() + 1);
             argv_processed.extend_from_slice(&argv[index + 1..]);
@@ -25,7 +25,7 @@ pub fn prepare_arguments(mut argv: Vec<String>) -> Vec<String> {
             argv_processed
         }
         None => {
-            if argv.len() > 0 && !argv[0].starts_with('-') && argv[0] != "--" {
+            if !argv.is_empty() && !argv[0].starts_with('-') && argv[0] != "--" {
                 argv.insert(0, "--".to_owned());
             }
             argv
@@ -148,12 +148,9 @@ mod tests {
                 .get_one::<String>("shell"),
             Some(&"pws".to_string())
         );
-        assert_eq!(
-            get_parser()
-                .get_matches_from(vec!["-d", "--", "anything"])
-                .get_flag("debug"),
-            true
-        );
+        assert!(get_parser()
+            .get_matches_from(vec!["-d", "--", "anything"])
+            .get_flag("debug"));
         assert_eq!(
             get_parser()
                 .get_matches_from(vec!["--", "ls", "-a"])
@@ -163,7 +160,7 @@ mod tests {
             ["ls", "-a"]
         );
         // Test command defined from environment variable
-        env::set_var(ENV_VAR_NAME_HISTORY, "ls -a\nls -lah".to_owned());
+        env::set_var(ENV_VAR_NAME_HISTORY, "ls -a\nls -lah");
         assert_eq!(
             get_parser()
                 .get_matches_from(Vec::<String>::new())
@@ -224,7 +221,7 @@ mod tests {
             "--shell".to_owned(),
             "custom_bash".to_owned(),
         ]);
-        let mut vec_matches = get_parser().get_matches_from(&prepared_args);
+        let mut vec_matches = get_parser().get_matches_from(prepared_args);
         let command = vec_matches
             .remove_many::<String>("command")
             .expect("Command not found")

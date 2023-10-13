@@ -10,15 +10,11 @@ use super::Rule;
 pub fn match_rule(command: &CrabCommand) -> bool {
     which(&command.script_parts[0]).is_err()
         & (if let Some(output) = &command.stderr {
-            if output.contains("not found") | output.contains("is not recognized as") {
-                true
-            } else {
-                false
-            }
+            output.contains("not found") | output.contains("is not recognized as")
         } else {
             false
         })
-        & (get_close_matches(
+        & !get_close_matches(
             &command.script_parts[0],
             get_all_executable()
                 .iter()
@@ -26,8 +22,7 @@ pub fn match_rule(command: &CrabCommand) -> bool {
                 .collect::<Vec<&str>>()
                 .as_slice(),
         )
-        .len()
-            > 0)
+        .is_empty()
 }
 
 pub fn get_new_command(command: &CrabCommand) -> Vec<String> {

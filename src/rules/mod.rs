@@ -36,7 +36,7 @@ impl Rule {
         side_effect: Option<fn(CrabCommand, &String)>,
     ) -> Self {
         Self {
-            name: name.to_owned(),
+            name,
             enabled_by_default: enabled_by_default.unwrap_or(true),
             priority: priority.unwrap_or(1000),
             requires_output: requires_output.unwrap_or(true),
@@ -49,7 +49,7 @@ impl Rule {
     // Returns `True` if rule matches the command.
     fn is_match(&self, command: CrabCommand) -> bool {
         let script_only = command.stdout.is_none() && command.stderr.is_none();
-        if script_only == true && self.requires_output == true {
+        if script_only && self.requires_output {
             return false;
         }
         if (self.match_rule)(&command) {
@@ -92,7 +92,7 @@ pub fn get_corrected_commands(command: &CrabCommand) -> Vec<CorrectedCommand> {
             }
         }
     }
-    return organize_commands(corrected_commands);
+    organize_commands(corrected_commands)
 }
 
 pub fn organize_commands(mut corrected_commands: Vec<CorrectedCommand>) -> Vec<CorrectedCommand> {
@@ -101,9 +101,7 @@ pub fn organize_commands(mut corrected_commands: Vec<CorrectedCommand>) -> Vec<C
     corrected_commands
 }
 
-pub fn selected_command<'a>(
-    corrected_commands: &'a Vec<CorrectedCommand>,
-) -> Option<&'a CorrectedCommand> {
+pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&CorrectedCommand> {
     iterative_menu(corrected_commands)
 }
 

@@ -85,7 +85,7 @@ pub fn run_command(raw_command: Vec<String>) -> CrabCommand {
     // output.status.success();
     let stdout = str::from_utf8(&output.stdout).map(|s| s.to_owned()).ok();
     let stderr = str::from_utf8(&output.stderr).map(|s| s.to_owned()).ok();
-    return CrabCommand::new(command, stdout, stderr);
+    CrabCommand::new(command, stdout, stderr)
 }
 
 fn prepare_command(raw_command: Vec<String>) -> String {
