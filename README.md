@@ -1,4 +1,4 @@
-# OhCrab!
+# OhCrab! 🦀
 
 `ohcrab` is a port of the well known CLI tool
 [`thefuck`](https://github.com/nvbn/thefuck) to our beloved Rust language.
@@ -7,6 +7,8 @@
 
 1. [Installation](#installation)
 1. [Usage](#usage)
+1. [Road map](#road-map)
+1. [Contributing](#contributing)
 
 ## Installation
 
@@ -14,15 +16,40 @@
 
 You can install `ohcrab` using [`cargo`](https://crates.io/):
 
-```bash
+```shell
 cargo install ohcrab
 ```
 
 ### Exporting `ohcrab`
 
 In order for `ohcrab` to work in your terminal, you need to export the correct
-function for your shell. Currently, we support `bash` and `zsh`.
+function for your shell. Currently, we support `bash` and `zsh`. Copy and paste
+the respective command to your terminal:
 
+* For `bash`, use:
+```shell
+eval $(ohcrab --shell bash)
+```
+* For `zsh`, use:
+```shell
+eval $(ohcrab --shell zsh)
+```
+
+### Loading `ohcrab` automatically
+
+In order to load `ohcrab` every time you open a terminal, add the `eval`
+command above to your .bash_profile, .bashrc, .zshrc or other startup script.
+
+### Changing the alias
+
+The commands above use the default alias (`crab`) to call `ohcrab` from your
+terminal. Feel free to use your own alias by passing `--alias NEW_ALIAS` to use
+your `NEW_ALIAS` instead. For example, in case you want to use `shinycrab` as
+your alias in `zsh`, use
+
+```shell
+eval $(ohcrab --shell zsh --alias shinycrab)
+```
 
 ## Usage
 
@@ -32,6 +59,12 @@ a menu to choose the correct command from.
 
 ## Road map
 
-- [] Inform the user which shell type is being used when the `ohcrab` shell
+- [ ] Inform the user which shell type is being used when the `ohcrab` shell
   function is generated.
-- [] Add support to user shell aliases.
+- [ ] Add support to user shell aliases.
+- [ ] Add `sudo` support 
+
+## Contributing
+
+If you like `ohcrab` and/or want to learn `rust`, you can contribute by adding
+new rules or improving the crate.
