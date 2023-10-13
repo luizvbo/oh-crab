@@ -17,7 +17,7 @@ enum UpdateOptions {
 pub fn confirm_text(command: &CorrectedCommand) {
     let prefix = "\u{200B}".repeat(10);
     eprint!(
-        "\r{}{}{}{}{}{}{}{}{}{}{}{}",
+        "\r{}{}{}[{}|{}|{}|{}]",
         prefix,
         style(command.script.to_owned()).for_stderr().bold(),
         if command.side_effect.is_some() {
@@ -25,15 +25,10 @@ pub fn confirm_text(command: &CorrectedCommand) {
         } else {
             ""
         },
-        " [",
         style("enter").for_stderr().green(),
-        " | ",
         style("↑/k").for_stderr().blue(),
-        " | ",
         style("↓/j").for_stderr().blue(),
-        " | ",
-        style("CTRL+c").for_stderr().red(),
-        "]"
+        style("CTRL+c").for_stderr().red()
     );
 }
 
@@ -77,14 +72,12 @@ fn update_item(items: &Vec<CorrectedCommand>, mut index: usize, increment: Updat
 /// # Returns
 ///
 /// An optional reference to the selected `CorrectedCommand`.
-pub fn iterative_menu<'a>(
-    corrected_commands: &'a Vec<CorrectedCommand>,
-) -> Option<&'a CorrectedCommand> {
+pub fn iterative_menu(corrected_commands: &Vec<CorrectedCommand>) -> Option<&CorrectedCommand> {
     if corrected_commands.is_empty() {
         None
     } else {
         let mut index = 0;
-        index = update_item(&corrected_commands, index, UpdateOptions::JustPrint);
+        index = update_item(corrected_commands, index, UpdateOptions::JustPrint);
         // index = (index + 1) % numbers.len();
         let stdout = Term::buffered_stderr();
         // buffered_stdout();
@@ -92,19 +85,17 @@ pub fn iterative_menu<'a>(
             if let Ok(character) = stdout.read_key() {
                 match character {
                     Key::ArrowUp => {
-                        index = update_item(&corrected_commands, index, UpdateOptions::Increment)
+                        index = update_item(corrected_commands, index, UpdateOptions::Increment)
                     }
                     Key::ArrowDown => {
-                        index = update_item(&corrected_commands, index, UpdateOptions::Decrement)
+                        index = update_item(corrected_commands, index, UpdateOptions::Decrement)
                     }
                     Key::Char(c) => match c {
                         'k' => {
-                            index =
-                                update_item(&corrected_commands, index, UpdateOptions::Increment)
+                            index = update_item(corrected_commands, index, UpdateOptions::Increment)
                         }
                         'j' => {
-                            index =
-                                update_item(&corrected_commands, index, UpdateOptions::Decrement)
+                            index = update_item(corrected_commands, index, UpdateOptions::Decrement)
                         }
                         _ => (),
                     },

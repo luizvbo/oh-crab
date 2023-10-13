@@ -16,7 +16,7 @@ fn main() {
     // Skip the first element of `env::args()` (the name of program)
     let args = env::args().skip(1).collect();
     let args = prepare_arguments(args);
-    let mut arg_matches = get_parser().get_matches_from(&args);
+    let mut arg_matches = get_parser().get_matches_from(args);
     let shell_command = get_bash_type(&arg_matches.remove_one::<String>("shell").unwrap());
 
     if let Some(command) = arg_matches.remove_many::<String>("command") {
@@ -33,7 +33,7 @@ fn main() {
         );
         let selected_command = selected_command(&corrected_commands);
         // Print a new line after the menu
-        eprintln!("");
+        eprintln!();
         if let Some(valid_command) = selected_command {
             log::debug!("Command selected: {:?}", valid_command);
             valid_command.run(crab_command);
