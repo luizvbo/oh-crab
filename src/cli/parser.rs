@@ -84,6 +84,7 @@ mod tests {
 
     #[test]
     fn test_get_parser_alias_source() {
+        env::remove_var(ENV_VAR_NAME_ALIAS);
         assert_eq!(
             get_parser()
                 .get_matches_from(Vec::<String>::new())
