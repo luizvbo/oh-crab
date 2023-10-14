@@ -46,7 +46,7 @@ jobs:
         toolchain: ${{ needs.crate_metadata.outputs.msrv }}
         components: clippy
     - name: Run clippy (on minimum supported rust version to prevent warnings we can't fix)
-      run: cargo clippy --locked --all-targets ${{ env.MSRV_FEATURES }}
+      run: cargo clippy --all-targets ${{ env.MSRV_FEATURES }}
     - name: Run tests
       run: cargo test --locked ${{ env.MSRV_FEATURES }}
   test:
