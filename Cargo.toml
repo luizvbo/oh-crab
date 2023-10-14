@@ -9,6 +9,8 @@ repository = "https://github.com/luizvbo/oh-crab"
 readme = "README.md"
 keywords = ["fix", "command", "terminal"]
 categories = ["command-line-utilities"]
+
+[package.metadata]
 msrv = "1.70.0"
 
 [dependencies]

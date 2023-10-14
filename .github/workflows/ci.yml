@@ -6,6 +6,9 @@ on: [push]
 
 name: CI
 
+env:
+  MSRV_FEATURES: "--all-features"
+
 jobs:
   crate_metadata:
     name: Extract crate metadata

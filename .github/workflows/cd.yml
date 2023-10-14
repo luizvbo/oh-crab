@@ -2,7 +2,6 @@ name: CICD
 
 env:
   CICD_INTERMEDIATES_DIR: "_cicd-intermediates"
-  MSRV_FEATURES: "--all-features"
 
 on:
   workflow_dispatch:
