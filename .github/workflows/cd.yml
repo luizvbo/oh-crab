@@ -1,4 +1,4 @@
-name: CICD
+name: CD
 
 env:
   CICD_INTERMEDIATES_DIR: "_cicd-intermediates"
@@ -192,8 +192,8 @@ jobs:
         install -Dm755 "${{ steps.bin.outputs.BIN_PATH }}" "${DPKG_DIR}/usr/bin/${{ steps.bin.outputs.BIN_NAME }}"
 
         # Man page
-        install -Dm644 'doc/${{ needs.crate_metadata.outputs.name }}.1' "${DPKG_DIR}/usr/share/man/man1/${{ needs.crate_metadata.outputs.name }}.1"
-        gzip -n --best "${DPKG_DIR}/usr/share/man/man1/${{ needs.crate_metadata.outputs.name }}.1"
+        # install -Dm644 'doc/${{ needs.crate_metadata.outputs.name }}.1' "${DPKG_DIR}/usr/share/man/man1/${{ needs.crate_metadata.outputs.name }}.1"
+        # gzip -n --best "${DPKG_DIR}/usr/share/man/man1/${{ needs.crate_metadata.outputs.name }}.1"
 
         # README and LICENSE
         install -Dm644 "README.md" "${DPKG_DIR}/usr/share/doc/${DPKG_BASENAME}/README.md"
