@@ -2,6 +2,8 @@ use shellwords;
 use std::process::{Command, Stdio};
 use std::{fmt, str};
 
+use crate::shell::Shell;
+
 #[derive(Debug)]
 pub struct CorrectedCommand {
     pub script: String,
@@ -70,9 +72,9 @@ impl CrabCommand {
     }
 }
 
-pub fn run_command(raw_command: Vec<String>) -> CrabCommand {
+pub fn run_command(raw_command: Vec<String>, system_shell: Box<dyn Shell>) -> CrabCommand {
     let command = prepare_command(raw_command);
-    let mut output = shell_command()
+    let mut output = shell_command(&system_shell.get_shell())
         .arg(&command)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -93,11 +95,8 @@ fn prepare_command(raw_command: Vec<String>) -> String {
     raw_command.join(" ").trim().to_owned()
 }
 
-pub fn shell_command() -> Command {
-    // TODO: Retrieve the shell type from the config
-    // let words_str = CONFIG.shell();
-    let words_str = "bash".to_string();
-    let mut words_vec = shellwords::split(&words_str).expect("empty shell command");
+pub fn shell_command(words_str: &str) -> Command {
+    let mut words_vec = shellwords::split(words_str).expect("empty shell command");
     let mut words = words_vec.iter_mut();
     let first_cmd = words.next().expect("absent shell binary");
     let dash_c = if words_str.contains("cmd.exe") {
@@ -109,4 +108,29 @@ pub fn shell_command() -> Command {
     cmd.args(words);
     cmd.arg(dash_c);
     cmd
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{cli::command::shell_command, shell::Bash};
+
+    use super::run_command;
+
+    #[test]
+    fn test_shell_command() {
+        let shell_name = "bash".to_owned();
+        let cmd = shell_command(&shell_name);
+        assert_eq!(cmd.get_args().len(), 1);
+        assert_eq!(cmd.get_program().to_str().unwrap(), shell_name);
+    }
+
+    #[test]
+    fn test_run_command() {
+        let command_vec = vec!["echo".to_owned(), "Hello!".to_owned()];
+        let command = command_vec.join(" ").trim().to_owned();
+        let crab_command = run_command(command_vec, Box::new(Bash));
+        assert_eq!(crab_command.script, command);
+        assert_eq!(crab_command.stdout.unwrap(), "Hello!\n");
+        assert_eq!(crab_command.stderr.unwrap(), "");
+    }
 }

@@ -63,7 +63,7 @@ fn update_item(items: &Vec<CorrectedCommand>, mut index: usize, increment: Updat
     index
 }
 
-/// Implements an iterative menu for selecting from a list of corrected commands.
+/// Implements an interactive menu for selecting from a list of corrected commands.
 ///
 /// # Arguments
 ///
@@ -72,7 +72,7 @@ fn update_item(items: &Vec<CorrectedCommand>, mut index: usize, increment: Updat
 /// # Returns
 ///
 /// An optional reference to the selected `CorrectedCommand`.
-pub fn iterative_menu(corrected_commands: &Vec<CorrectedCommand>) -> Option<&CorrectedCommand> {
+pub fn interactive_menu(corrected_commands: &Vec<CorrectedCommand>) -> Option<&CorrectedCommand> {
     if corrected_commands.is_empty() {
         None
     } else {

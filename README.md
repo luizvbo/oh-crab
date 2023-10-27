@@ -12,6 +12,12 @@
 
 ## Installation
 
+### Prerequisite
+
+For now, it is only possible to install `ohcrab` through `cargo`. If you don't
+have cargo installed, you can installing it following the instructions from
+[https://doc.rust-lang.org/cargo/getting-started/installation.html](https://doc.rust-lang.org/cargo/getting-started/installation.html).
+
 ### Installing the package
 
 You can install `ohcrab` using [`cargo`](https://crates.io/):
@@ -63,6 +69,7 @@ a menu to choose the correct command from.
   function is generated.
 - [ ] Add support to user shell aliases.
 - [ ] Add `sudo` support 
+- [ ] Distribute binaries for Linux, MacOs and Windows.
 
 ## Contributing
 
