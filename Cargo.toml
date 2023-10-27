@@ -12,10 +12,15 @@ categories = ["command-line-utilities"]
 rust-version = "1.70.0"
 
 [dependencies]
-clap = { version = "4.2.2", features = ["derive", "cargo", "env"] }
+clap = { version = "4.4.7", features = ["cargo", "env"] }
 shellwords = "1.1.0"
 which = "4.4.0"
 similar = "2.2.1"
 console = "0.15.7"
 log = "0.4.20"
 env_logger = "0.10.0"
+
+[profile.release]
+lto = true          # Enable link-time optimization
+strip = true        # Strip symbols from binary*
+codegen-units = 1   # Reduce number of codegen units to increase optimizations
