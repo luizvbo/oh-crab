@@ -2,7 +2,7 @@ use core::fmt;
 
 use crate::{
     cli::{command::CorrectedCommand, command::CrabCommand},
-    ui::iterative_menu,
+    ui::interactive_menu,
 };
 
 mod apt_get;
@@ -102,7 +102,7 @@ pub fn organize_commands(mut corrected_commands: Vec<CorrectedCommand>) -> Vec<C
 }
 
 pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&CorrectedCommand> {
-    iterative_menu(corrected_commands)
+    interactive_menu(corrected_commands)
 }
 
 pub fn get_rules() -> Vec<Rule> {

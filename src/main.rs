@@ -17,12 +17,12 @@ fn main() {
     let args = env::args().skip(1).collect();
     let args = prepare_arguments(args);
     let mut arg_matches = get_parser().get_matches_from(args);
-    let shell_command = get_bash_type(&arg_matches.remove_one::<String>("shell").unwrap());
+    let system_shell = get_bash_type(&arg_matches.remove_one::<String>("shell").unwrap());
 
     if let Some(command) = arg_matches.remove_many::<String>("command") {
         let command_vec = command.collect();
         log::debug!("Retrieved command(s): {:?}", command_vec);
-        let crab_command = run_command(command_vec);
+        let crab_command = run_command(command_vec, system_shell);
         let corrected_commands = get_corrected_commands(&crab_command);
         log::debug!(
             "Candidate command(s): {:?}",
@@ -40,6 +40,6 @@ fn main() {
         }
     } else {
         let alias_name = arg_matches.get_one::<String>("alias").unwrap();
-        println!("{}", shell_command.app_alias(alias_name));
+        println!("{}", system_shell.app_alias(alias_name));
     }
 }

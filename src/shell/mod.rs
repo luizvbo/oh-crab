@@ -4,6 +4,7 @@ use crate::{ARGUMENT_PLACEHOLDER, ENV_VAR_NAME_ALIAS, ENV_VAR_NAME_HISTORY, ENV_
 
 pub trait Shell {
     fn app_alias(&self, alias_name: &str) -> String;
+    fn get_shell(&self) -> String;
 }
 
 pub fn get_bash_type(shell_type: &str) -> Box<dyn Shell> {
@@ -19,6 +20,10 @@ pub struct Zsh;
 pub struct Bash;
 
 impl Shell for Zsh {
+    fn get_shell(&self) -> String {
+        "zsh".to_owned()
+    }
+
     fn app_alias(&self, alias_name: &str) -> String {
         format!(
             r#"
@@ -42,6 +47,10 @@ impl Shell for Zsh {
 }
 
 impl Shell for Bash {
+    fn get_shell(&self) -> String {
+        "bash".to_owned()
+    }
+
     fn app_alias(&self, alias_name: &str) -> String {
         format!(
             r#"
