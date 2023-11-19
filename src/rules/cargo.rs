@@ -21,3 +21,22 @@ pub fn get_rule() -> Rule {
         None,
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{cli::command::CrabCommand, rules::cargo::match_rule};
+
+    #[test]
+    fn test_match_rule() {
+        assert!(match_rule(&mut CrabCommand::new(
+            "cargo".to_owned(),
+            Some("multiple\nlines".to_owned()),
+            None
+        )));
+        assert!(!match_rule(&mut CrabCommand::new(
+            "acargo".to_owned(),
+            Some("multiple\nlines".to_owned()),
+            None
+        )));
+    }
+}
