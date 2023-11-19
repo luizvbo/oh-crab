@@ -2,7 +2,7 @@ use crate::cli::command::CrabCommand;
 
 use super::Rule;
 
-pub fn match_rule(command: &CrabCommand) -> bool {
+pub fn match_rule(command: &mut CrabCommand) -> bool {
     command.script == "cargo"
 }
 

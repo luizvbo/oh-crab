@@ -7,7 +7,7 @@ use which::which;
 
 use super::Rule;
 
-pub fn match_rule(command: &CrabCommand) -> bool {
+pub fn match_rule(command: &mut CrabCommand) -> bool {
     which(&command.script_parts[0]).is_err()
         & (if let Some(output) = &command.stderr {
             output.contains("not found") | output.contains("is not recognized as")
