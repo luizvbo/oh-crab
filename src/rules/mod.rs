@@ -82,7 +82,7 @@ pub fn match_without_sudo(
     if !command.script.starts_with("sudo ") {
         match_function(command)
     } else {
-        let new_script = (&command.script[5..]).to_owned();
+        let new_script = command.script[5..].to_owned();
         command.script = new_script;
         match_function(command)
     }
