@@ -15,7 +15,7 @@
 ### Prerequisite
 
 For now, it is only possible to install `ohcrab` through `cargo`. If you don't
-have cargo installed, you can installing it following the instructions from
+have cargo installed, you can install it following the instructions from
 [https://doc.rust-lang.org/cargo/getting-started/installation.html](https://doc.rust-lang.org/cargo/getting-started/installation.html).
 
 ### Installing the package

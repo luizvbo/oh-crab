@@ -1,11 +1,15 @@
 use core::fmt;
 
 use crate::{
-    cli::{command::CorrectedCommand, command::CrabCommand},
+    cli::{
+        command::CorrectedCommand,
+        command::{self, CrabCommand},
+    },
     ui::interactive_menu,
 };
 
 mod apt_get;
+pub mod apt_upgrade;
 pub mod cargo;
 pub mod no_command;
 
@@ -14,7 +18,7 @@ pub struct Rule {
     enabled_by_default: bool,
     priority: u16,
     requires_output: bool,
-    pub match_rule: fn(&CrabCommand) -> bool,
+    pub match_rule: fn(&mut CrabCommand) -> bool,
     get_new_command: fn(&CrabCommand) -> Vec<String>,
     side_effect: Option<fn(CrabCommand, &String)>,
 }
@@ -31,7 +35,7 @@ impl Rule {
         enabled_by_default: Option<bool>,
         priority: Option<u16>,
         requires_output: Option<bool>,
-        match_rule: fn(&CrabCommand) -> bool,
+        match_rule: fn(&mut CrabCommand) -> bool,
         get_new_command: fn(&CrabCommand) -> Vec<String>,
         side_effect: Option<fn(CrabCommand, &String)>,
     ) -> Self {
@@ -47,12 +51,12 @@ impl Rule {
     }
 
     // Returns `True` if rule matches the command.
-    fn is_match(&self, command: CrabCommand) -> bool {
+    fn is_match(&self, mut command: CrabCommand) -> bool {
         let script_only = command.stdout.is_none() && command.stderr.is_none();
         if script_only && self.requires_output {
             return false;
         }
-        if (self.match_rule)(&command) {
+        if (self.match_rule)(&mut command) {
             return true;
         }
         false
@@ -71,6 +75,19 @@ impl Rule {
     }
 }
 
+pub fn match_without_sudo(
+    match_function: fn(&CrabCommand) -> bool,
+    command: &mut CrabCommand,
+) -> bool {
+    if !command.script.starts_with("sudo ") {
+        match_function(command)
+    } else {
+        let new_script = command.script[5..].to_owned();
+        command.script = new_script;
+        match_function(command)
+    }
+}
+
 /// Generate a list of corrected commands for the given CrabCommand.
 ///
 /// This function takes a `CrabCommand` as input and iterates through the registered
@@ -83,7 +100,7 @@ impl Rule {
 ///
 /// A `Vec<CorrectedCommand>` containing the list of corrected commands based on the
 /// input `CrabCommand`.
-pub fn get_corrected_commands(command: &CrabCommand) -> Vec<CorrectedCommand> {
+pub fn get_corrected_commands(command: &mut CrabCommand) -> Vec<CorrectedCommand> {
     let mut corrected_commands: Vec<CorrectedCommand> = vec![];
     for rule in get_rules() {
         if (rule.match_rule)(command) {
