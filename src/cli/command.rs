@@ -72,7 +72,7 @@ impl CrabCommand {
     }
 }
 
-pub fn run_command(raw_command: Vec<String>, system_shell: Box<dyn Shell>) -> CrabCommand {
+pub fn run_command(raw_command: Vec<String>, system_shell: &Box<dyn Shell>) -> CrabCommand {
     let command = prepare_command(raw_command);
     let mut output = shell_command(&system_shell.get_shell())
         .arg(&command)
