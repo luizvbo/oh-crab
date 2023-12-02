@@ -1,3 +1,4 @@
+use crate::shell::Shell;
 use core::fmt;
 
 use crate::{
@@ -18,7 +19,7 @@ pub struct Rule {
     enabled_by_default: bool,
     priority: u16,
     requires_output: bool,
-    pub match_rule: fn(&mut CrabCommand) -> bool,
+    pub match_rule: fn(&mut CrabCommand, &Box<dyn Shell>) -> bool,
     get_new_command: fn(&CrabCommand) -> Vec<String>,
     side_effect: Option<fn(CrabCommand, &String)>,
 }
@@ -35,7 +36,7 @@ impl Rule {
         enabled_by_default: Option<bool>,
         priority: Option<u16>,
         requires_output: Option<bool>,
-        match_rule: fn(&mut CrabCommand) -> bool,
+        match_rule: fn(&mut CrabCommand, &Box<dyn Shell>) -> bool,
         get_new_command: fn(&CrabCommand) -> Vec<String>,
         side_effect: Option<fn(CrabCommand, &String)>,
     ) -> Self {
@@ -51,12 +52,12 @@ impl Rule {
     }
 
     // Returns `True` if rule matches the command.
-    fn is_match(&self, mut command: CrabCommand) -> bool {
+    fn is_match(&self, mut command: CrabCommand, system_shell: &Box<dyn Shell>) -> bool {
         let script_only = command.stdout.is_none() && command.stderr.is_none();
         if script_only && self.requires_output {
             return false;
         }
-        if (self.match_rule)(&mut command) {
+        if (self.match_rule)(&mut command, system_shell) {
             return true;
         }
         false
@@ -100,10 +101,13 @@ pub fn match_without_sudo(
 ///
 /// A `Vec<CorrectedCommand>` containing the list of corrected commands based on the
 /// input `CrabCommand`.
-pub fn get_corrected_commands(command: &mut CrabCommand) -> Vec<CorrectedCommand> {
+pub fn get_corrected_commands(
+    command: &mut CrabCommand,
+    system_shell: &Box<dyn Shell>,
+) -> Vec<CorrectedCommand> {
     let mut corrected_commands: Vec<CorrectedCommand> = vec![];
     for rule in get_rules() {
-        if (rule.match_rule)(command) {
+        if (rule.match_rule)(command, system_shell) {
             for corrected in rule.get_corrected_commands(command) {
                 corrected_commands.push(corrected);
             }
@@ -123,5 +127,9 @@ pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&C
 }
 
 pub fn get_rules() -> Vec<Rule> {
-    vec![cargo::get_rule(), no_command::get_rule()]
+    vec![
+        cargo::get_rule(),
+        no_command::get_rule(),
+        apt_upgrade::get_rule(),
+    ]
 }
