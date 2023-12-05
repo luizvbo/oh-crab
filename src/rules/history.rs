@@ -2,8 +2,20 @@ use super::Rule;
 use crate::cli::command::CrabCommand;
 use crate::utils::get_close_matches;
 
-pub fn match_rule(command: &mut CrabCommand) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&Box<dyn Shell>>) -> bool {
     command.script == "cargo"
+}
+
+pub fn get_rule() -> Rule {
+    Rule::new(
+        "history".to_owned(),
+        None,
+        None,
+        None,
+        match_rule,
+        get_new_command,
+        None,
+    )
 }
 
 // def match(command):
