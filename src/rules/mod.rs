@@ -19,7 +19,7 @@ pub struct Rule {
     enabled_by_default: bool,
     priority: u16,
     requires_output: bool,
-    pub match_rule: fn(&mut CrabCommand, &Box<dyn Shell>) -> bool,
+    pub match_rule: fn(&mut CrabCommand, Option<&Box<dyn Shell>>) -> bool,
     get_new_command: fn(&CrabCommand) -> Vec<String>,
     side_effect: Option<fn(CrabCommand, &String)>,
 }
@@ -36,7 +36,7 @@ impl Rule {
         enabled_by_default: Option<bool>,
         priority: Option<u16>,
         requires_output: Option<bool>,
-        match_rule: fn(&mut CrabCommand, &Box<dyn Shell>) -> bool,
+        match_rule: fn(&mut CrabCommand, Option<&Box<dyn Shell>>) -> bool,
         get_new_command: fn(&CrabCommand) -> Vec<String>,
         side_effect: Option<fn(CrabCommand, &String)>,
     ) -> Self {
@@ -57,7 +57,7 @@ impl Rule {
         if script_only && self.requires_output {
             return false;
         }
-        if (self.match_rule)(&mut command, system_shell) {
+        if (self.match_rule)(&mut command, Some(system_shell)) {
             return true;
         }
         false
@@ -107,7 +107,7 @@ pub fn get_corrected_commands(
 ) -> Vec<CorrectedCommand> {
     let mut corrected_commands: Vec<CorrectedCommand> = vec![];
     for rule in get_rules() {
-        if (rule.match_rule)(command, system_shell) {
+        if (rule.match_rule)(command, Some(system_shell)) {
             for corrected in rule.get_corrected_commands(command) {
                 corrected_commands.push(corrected);
             }

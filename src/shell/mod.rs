@@ -1,10 +1,97 @@
 use std::env;
+use std::fs::File;
+use std::io::{self, BufRead};
+use std::path::Path;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::{ARGUMENT_PLACEHOLDER, ENV_VAR_NAME_ALIAS, ENV_VAR_NAME_HISTORY, ENV_VAR_NAME_SHELL};
 
 pub trait Shell {
     fn app_alias(&self, alias_name: &str) -> String;
     fn get_shell(&self) -> String;
+    fn get_history_file_name(&self) -> String;
+    fn get_history_line(&self, command_script: &str) -> String;
+
+    fn get_history(&self) -> Vec<String> {
+        let history_file_name = self.get_history_file_name();
+        let mut history: Vec<String> = Vec::new();
+        if Path::new(&history_file_name).exists() {
+            if let Ok(file) = File::open(&history_file_name) {
+                let reader = io::BufReader::new(file);
+
+                // TODO: Limit history length based on settings
+                for line in reader.lines() {
+                    let line = line.unwrap_or("".to_owned());
+                    let prepared = line.trim();
+                    if !prepared.is_empty() {
+                        history.push(prepared.to_owned());
+                    }
+                }
+            }
+        }
+        history
+    }
+
+    fn get_builtin_commands(&self) -> Vec<String> {
+        vec![
+            "alias".to_owned(),
+            "bg".to_owned(),
+            "bind".to_owned(),
+            "break".to_owned(),
+            "builtin".to_owned(),
+            "case".to_owned(),
+            "cd".to_owned(),
+            "command".to_owned(),
+            "compgen".to_owned(),
+            "complete".to_owned(),
+            "continue".to_owned(),
+            "declare".to_owned(),
+            "dirs".to_owned(),
+            "disown".to_owned(),
+            "echo".to_owned(),
+            "enable".to_owned(),
+            "eval".to_owned(),
+            "exec".to_owned(),
+            "exit".to_owned(),
+            "export".to_owned(),
+            "fc".to_owned(),
+            "fg".to_owned(),
+            "getopts".to_owned(),
+            "hash".to_owned(),
+            "help".to_owned(),
+            "history".to_owned(),
+            "if".to_owned(),
+            "jobs".to_owned(),
+            "kill".to_owned(),
+            "let".to_owned(),
+            "local".to_owned(),
+            "logout".to_owned(),
+            "popd".to_owned(),
+            "printf".to_owned(),
+            "pushd".to_owned(),
+            "pwd".to_owned(),
+            "read".to_owned(),
+            "readonly".to_owned(),
+            "return".to_owned(),
+            "set".to_owned(),
+            "shift".to_owned(),
+            "shopt".to_owned(),
+            "source".to_owned(),
+            "suspend".to_owned(),
+            "test".to_owned(),
+            "times".to_owned(),
+            "trap".to_owned(),
+            "type".to_owned(),
+            "typeset".to_owned(),
+            "ulimit".to_owned(),
+            "umask".to_owned(),
+            "unalias".to_owned(),
+            "unset".to_owned(),
+            "until".to_owned(),
+            "wait".to_owned(),
+            "while".to_owned(),
+        ]
+    }
 }
 
 pub fn get_bash_type(shell_type: &str) -> Box<dyn Shell> {
@@ -44,6 +131,27 @@ impl Shell for Zsh {
             argument_placeholder = ARGUMENT_PLACEHOLDER,
         )
     }
+
+    fn get_history_line(&self, command_script: &str) -> String {
+        let start = SystemTime::now();
+        let since_the_epoch = start
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards");
+        let in_seconds = since_the_epoch.as_secs();
+        format!(": {}:0;{}\n", in_seconds, command_script)
+    }
+
+    fn get_history_file_name(&self) -> String {
+        match env::var("HISTFILE") {
+            Ok(val) => val,
+            Err(_) => dirs::home_dir()
+                .unwrap()
+                .join(".zsh_history")
+                .to_str()
+                .unwrap()
+                .to_string(),
+        }
+    }
 }
 
 impl Shell for Bash {
@@ -70,5 +178,21 @@ impl Shell for Bash {
             var_name_alias = ENV_VAR_NAME_ALIAS,
             argument_placeholder = ARGUMENT_PLACEHOLDER,
         )
+    }
+
+    fn get_history_file_name(&self) -> String {
+        match env::var("HISTFILE") {
+            Ok(val) => val,
+            Err(_) => dirs::home_dir()
+                .unwrap()
+                .join(".bash_history")
+                .to_str()
+                .unwrap()
+                .to_string(),
+        }
+    }
+
+    fn get_history_line(&self, command_script: &str) -> String {
+        format!("{}\n", command_script)
     }
 }

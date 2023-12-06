@@ -2,7 +2,7 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 
 use super::Rule;
 
-pub fn match_rule(command: &mut CrabCommand, system_shell: &Box<dyn Shell>) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&Box<dyn Shell>>) -> bool {
     command.script == "cargo"
 }
 
@@ -28,15 +28,17 @@ mod tests {
 
     #[test]
     fn test_match_rule() {
-        let system_shell = Box::new(Zsh);
         assert!(match_rule(
             &mut CrabCommand::new("cargo".to_owned(), Some("multiple\nlines".to_owned()), None),
-            &system_shell
-        ));
-        assert!(!match_rule(&mut CrabCommand::new(
-            "acargo".to_owned(),
-            Some("multiple\nlines".to_owned()),
             None
-        )));
+        ));
+        assert!(!match_rule(
+            &mut CrabCommand::new(
+                "acargo".to_owned(),
+                Some("multiple\nlines".to_owned()),
+                None
+            ),
+            None
+        ));
     }
 }
