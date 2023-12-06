@@ -97,7 +97,9 @@ command: &CrabCommand, system_shell: &Box<dyn Shell>) -> Vec<String>{
     let executables: HashSet<_> = executables.into_iter().collect();
         
     for line in not_corrected(&system_shell.get_history(), &get_alias()){
-
+        if !line.starts_with(get_alias()) & line != command.script & line.split(" ")[0] in executables{
+            valid_history.push(line);
+        }
     }
 
     valid_history
