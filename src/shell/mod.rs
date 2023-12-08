@@ -10,10 +10,18 @@ pub trait Shell {
     fn app_alias(&self, alias_name: &str) -> String;
     fn get_shell(&self) -> String;
     fn get_history_file_name(&self) -> String;
-    fn get_history_line(&self, command_script: &str) -> String;
+    fn script_from_history(&self, command_script: &str) -> String {
+        command_script.to_owned()
+    }
 
-    fn get_history(&self) -> Vec<String> {
-        let history_file_name = self.get_history_file_name();
+    fn get_history(&self, file_path: Option<&str>) -> Vec<String> {
+        let history_file_name = {
+            if let Some(path) = file_path {
+                path.to_owned()
+            } else {
+                self.get_history_file_name()
+            }
+        };
         let mut history: Vec<String> = Vec::new();
         if Path::new(&history_file_name).exists() {
             if let Ok(file) = File::open(&history_file_name) {
@@ -21,8 +29,8 @@ pub trait Shell {
 
                 // TODO: Limit history length based on settings
                 for line in reader.lines() {
-                    let line = line.unwrap_or("".to_owned());
-                    let prepared = line.trim();
+                    let prepared = self.script_from_history(&line.unwrap_or("".to_owned()));
+                    let prepared = prepared.trim();
                     if !prepared.is_empty() {
                         history.push(prepared.to_owned());
                     }
@@ -132,13 +140,12 @@ impl Shell for Zsh {
         )
     }
 
-    fn get_history_line(&self, command_script: &str) -> String {
-        let start = SystemTime::now();
-        let since_the_epoch = start
-            .duration_since(UNIX_EPOCH)
-            .expect("Time went backwards");
-        let in_seconds = since_the_epoch.as_secs();
-        format!(": {}:0;{}\n", in_seconds, command_script)
+    fn script_from_history(&self, command_script: &str) -> String {
+        if command_script.contains(";") {
+            command_script.splitn(2, ";").nth(1).unwrap().to_owned()
+        } else {
+            "".to_owned()
+        }
     }
 
     fn get_history_file_name(&self) -> String {
@@ -191,8 +198,32 @@ impl Shell for Bash {
                 .to_string(),
         }
     }
+}
 
-    fn get_history_line(&self, command_script: &str) -> String {
-        format!("{}\n", command_script)
+#[cfg(test)]
+mod test_zsh {
+    use crate::shell::Shell;
+    use std::io::{self, Write};
+    use tempfile::NamedTempFile;
+
+    use super::Zsh;
+
+    #[test]
+    fn test_get_history() {
+        // Create a file inside of `std::env::temp_dir()`.
+        let mut file = NamedTempFile::new().unwrap();
+
+        writeln!(
+            file,
+            ": 1702325001:0;ls -lah\n: 1702325001:0;cd /tmp\n: 1702325001:0;nvim"
+        )
+        .unwrap();
+        let path = file.path().to_str().unwrap();
+
+        let system_shell = Zsh {};
+        assert_eq!(
+            system_shell.get_history(Some(&path)),
+            vec!["ls -lah", "cd /tmp", "nvim"]
+        );
     }
 }

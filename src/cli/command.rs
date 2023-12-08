@@ -112,7 +112,7 @@ pub fn shell_command(words_str: &str) -> Command {
 
 #[cfg(test)]
 mod tests {
-    use crate::{cli::command::shell_command, shell::Bash};
+    use crate::{cli::command::shell_command, shell::{Bash, Shell}};
 
     use super::run_command;
 
@@ -128,7 +128,8 @@ mod tests {
     fn test_run_command() {
         let command_vec = vec!["echo".to_owned(), "Hello!".to_owned()];
         let command = command_vec.join(" ").trim().to_owned();
-        let crab_command = run_command(command_vec, Box::new(Bash));
+        let system_shell: Box<dyn Shell> = Box::new(Bash{});
+        let crab_command = run_command(command_vec, &system_shell);
         assert_eq!(crab_command.script, command);
         assert_eq!(crab_command.stdout.unwrap(), "Hello!\n");
         assert_eq!(crab_command.stderr.unwrap(), "");

@@ -93,11 +93,12 @@ pub fn get_valid_history_without_current(
     let mut corrected: Vec<String> = Vec::new();
     let mut valid_history: Vec<String> = Vec::new();
 
-    let mut executables = system_shell.get_history();
+    let history = system_shell.get_history(None);
+    let mut executables = history.clone();
     executables.extend(system_shell.get_builtin_commands());
     let executables: HashSet<_> = executables.into_iter().collect();
 
-    for line in not_corrected(&system_shell.get_history(), &get_alias()) {
+    for line in not_corrected(&history, &get_alias()) {
         let first_word = line.split_whitespace().next().unwrap_or(line.as_str());
         if !line.starts_with(&get_alias())
             & (line != command.script)
@@ -120,14 +121,29 @@ pub fn get_valid_history_without_current(
 //             previous = line
 //         if history:
 //             yield history[-1]
-
 //     from thefuck.shells import shell
 //     history = shell.get_history()
 //     tf_alias = get_alias()
 //     executables = set(get_all_executables())\
 //         .union(shell.get_builtin_commands())
-
 //     return [line for line in _not_corrected(history, tf_alias)
 //             if not line.startswith(tf_alias) and not line == command.script
 //             and line.split(' ')[0] in executables]
-//
+
+#[cfg(test)]
+mod tests {
+    use mockall::{automock,predicate::*};
+
+    #[automock]
+    trait MockShell {
+        fn get_history<'a>(&self, file_path: Option<&'a str>) -> Vec<String>;
+        fn get_builtin_commands(&self) -> Vec<String>;
+    }
+
+    fn test_get_valid_history_without_current() {
+        let mut mock = MockMyTrait::new();
+        mock.expect_get_history()
+
+        
+    }
+}
