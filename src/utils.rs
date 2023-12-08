@@ -1,7 +1,7 @@
 use similar::get_close_matches as difflib_get_close_matches;
 use std::collections::HashSet;
-use std::iter::FromIterator;
 use std::env;
+use std::iter::FromIterator;
 use std::path::Path;
 
 use crate::cli::command::CrabCommand;
@@ -66,7 +66,7 @@ pub fn get_all_executable() -> Vec<String> {
     bins
 }
 
-fn not_corrected(history: &Vec<String>, oc_alias: &String) -> Vec<String>{
+fn not_corrected(history: &Vec<String>, oc_alias: &String) -> Vec<String> {
     let mut previous: Option<String> = None;
     let mut result = Vec::new();
 
@@ -86,25 +86,29 @@ fn not_corrected(history: &Vec<String>, oc_alias: &String) -> Vec<String>{
     result
 }
 
-
-fn get_valid_history_without_current(
-command: &CrabCommand, system_shell: &Box<dyn Shell>) -> Vec<String>{
+pub fn get_valid_history_without_current(
+    command: &CrabCommand,
+    system_shell: &Box<dyn Shell>,
+) -> Vec<String> {
     let mut corrected: Vec<String> = Vec::new();
     let mut valid_history: Vec<String> = Vec::new();
 
     let mut executables = system_shell.get_history();
     executables.extend(system_shell.get_builtin_commands());
     let executables: HashSet<_> = executables.into_iter().collect();
-        
-    for line in not_corrected(&system_shell.get_history(), &get_alias()){
-        if !line.starts_with(get_alias()) & line != command.script & line.split(" ")[0] in executables{
+
+    for line in not_corrected(&system_shell.get_history(), &get_alias()) {
+        let first_word = line.split_whitespace().next().unwrap_or(line.as_str());
+        if !line.starts_with(&get_alias())
+            & (line != command.script)
+            & executables.contains(first_word)
+        {
             valid_history.push(line);
         }
     }
 
     valid_history
 }
-
 
 // def get_valid_history_without_current(command):
 //     def _not_corrected(history, tf_alias):
@@ -127,4 +131,3 @@ command: &CrabCommand, system_shell: &Box<dyn Shell>) -> Vec<String>{
 //             if not line.startswith(tf_alias) and not line == command.script
 //             and line.split(' ')[0] in executables]
 //
-
