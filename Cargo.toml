@@ -25,3 +25,6 @@ dirs = "5.0.1"
 lto = true          # Enable link-time optimization
 strip = true        # Strip symbols from binary*
 codegen-units = 1   # Reduce number of codegen units to increase optimizations
+
+[dev-dependencies]
+mockall = "0.11.4"
