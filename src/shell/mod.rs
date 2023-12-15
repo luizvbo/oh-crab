@@ -141,8 +141,8 @@ impl Shell for Zsh {
     }
 
     fn script_from_history(&self, command_script: &str) -> String {
-        if command_script.contains(";") {
-            command_script.splitn(2, ";").nth(1).unwrap().to_owned()
+        if command_script.contains(';') {
+            command_script.split_once(';').unwrap().1.to_owned()
         } else {
             "".to_owned()
         }
@@ -222,7 +222,7 @@ mod test_zsh {
 
         let system_shell = Zsh {};
         assert_eq!(
-            system_shell.get_history(Some(&path)),
+            system_shell.get_history(Some(path)),
             vec!["ls -lah", "cd /tmp", "nvim"]
         );
     }
