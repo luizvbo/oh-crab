@@ -132,42 +132,66 @@ pub fn get_valid_history_without_current(
 
 #[cfg(test)]
 mod tests {
-    use crate::{cli::command::CrabCommand, shell::Shell};
+    use mockall::{mock, predicate};
+
+    use crate::{cli::command::CrabCommand, shell::Shell, utils::get_alias};
 
     use super::get_valid_history_without_current;
 
-    struct MockShell;
-
-    impl Shell for MockShell {
-        fn app_alias(&self, alias_name: &str) -> String {
-            "".to_owned()
-        }
-        fn get_shell(&self) -> String {
-            "".to_owned()
-        }
-        fn get_history_file_name(&self) -> String {
-            "".to_owned()
-        }
-        fn script_from_history(&self, command_script: &str) -> String {
-            command_script.to_owned()
-        }
-        fn get_builtin_commands(&self) -> Vec<String> {
-            vec!["command1".to_string(), "command2".to_string()]
-        }
-        fn get_history(&self, file_path: Option<&str>) -> Vec<String> {
-            vec!["ls -l".to_string(), "cd /tmp".to_string(), "cmp a.txt b.txt".to_string()]
+    mock! {
+        pub MyShell {}
+        impl Shell for MyShell {
+            fn app_alias(&self, alias_name: &str) -> String;
+            fn get_shell(&self) -> String;
+            fn get_history_file_name(&self) -> String;
+            fn script_from_history(&self, command_script: &str) -> String;
+            fn get_history<'a>(&self, file_path: Option<&'a str>) -> Vec<String> ;
+            fn get_builtin_commands(&self) -> Vec<String>;
         }
     }
-
 
     #[test]
     fn test_get_valid_history_without_current() {
         let command = CrabCommand::new("ls -l".to_owned(), Some("multiple\nlines".to_owned()), None);
-        let mock_shell: Box<dyn Shell> = Box::new(MockShell{});
+        // let mock_shell: Box<dyn Shell> = Box::new(MockShell {});
+        let mut mock_shell = MockMyShell::new();
+        mock_shell
+            .expect_get_builtin_commands()
+            .returning(|| vec!["command1".to_string(), "command2".to_string()]);
+        mock_shell
+            .expect_get_history()
+            .returning(|_| {
+                vec![
+                    "ls -l".to_string(),
+                    "command1".to_string(),
+                    "cmp a.txt b.txt".to_string(),
+                ]
+            });
+        let system_shell: Box<dyn Shell> = Box::new(mock_shell);
 
         assert_eq!(
-            vec!["cmp a.txt b.txt"],
-            get_valid_history_without_current(&command, &mock_shell)
+            vec!["command1", "cmp a.txt b.txt"],
+            get_valid_history_without_current(&command, &system_shell)
+        );
+
+        let mut mock_shell = MockMyShell::new();
+        mock_shell
+            .expect_get_builtin_commands()
+            .returning(|| vec!["command1".to_string(), "command2".to_string()]);
+        mock_shell
+            .expect_get_history()
+            .returning(|_| {
+                vec![
+                    "ls -l".to_string(),
+                    "cmp a.txt b.txt".to_string(),
+                    get_alias()
+                ]
+            });
+        let system_shell: Box<dyn Shell> = Box::new(mock_shell);
+        // Skip "cmp a.txt b.txt" because it comes before "crab" (alias)
+        assert_eq!(
+            Vec::<String>::new(),
+            get_valid_history_without_current(&command, &system_shell)
         );
     }
 }
