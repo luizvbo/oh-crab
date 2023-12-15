@@ -1,4 +1,4 @@
-use crate::cli::command::CrabCommand;
+use crate::{cli::command::CrabCommand, shell::Shell};
 
 use super::{match_without_sudo, Rule};
 
@@ -12,11 +12,14 @@ fn _match_rule(command: &CrabCommand) -> bool {
     }
 }
 
-pub fn match_rule(command: &mut CrabCommand) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&Box<dyn Shell>>) -> bool {
     match_without_sudo(_match_rule, command)
 }
 
-pub fn get_new_command(command: &CrabCommand) -> Vec<String> {
+pub fn get_new_command(
+    command: &CrabCommand,
+    system_shell: Option<&Box<dyn Shell>>,
+) -> Vec<String> {
     vec!["apt upgrade".to_owned()]
 }
 
@@ -51,10 +54,13 @@ mod tests {
             Some("multiple\nlines".to_owned()),
             None
         )));
-        assert!(match_rule(&mut CrabCommand::new(
-            "sudo apt list --upgradable".to_owned(),
-            Some("multiple\nlines".to_owned()),
+        assert!(match_rule(
+            &mut CrabCommand::new(
+                "sudo apt list --upgradable".to_owned(),
+                Some("multiple\nlines".to_owned()),
+                None
+            ),
             None
-        )));
+        ));
     }
 }

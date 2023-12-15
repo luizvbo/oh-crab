@@ -1,5 +1,6 @@
 use crate::{
     cli::command::CrabCommand,
+    shell::Shell,
     utils::{get_all_executable, get_close_matches},
 };
 use similar::DiffableStr;
@@ -7,7 +8,7 @@ use which::which;
 
 use super::Rule;
 
-pub fn match_rule(command: &mut CrabCommand) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&Box<dyn Shell>>) -> bool {
     which(&command.script_parts[0]).is_err()
         & (if let Some(output) = &command.stderr {
             output.contains("not found") | output.contains("is not recognized as")
@@ -25,7 +26,10 @@ pub fn match_rule(command: &mut CrabCommand) -> bool {
         .is_empty()
 }
 
-pub fn get_new_command(command: &CrabCommand) -> Vec<String> {
+pub fn get_new_command(
+    command: &CrabCommand,
+    system_shell: Option<&Box<dyn Shell>>,
+) -> Vec<String> {
     let old_command = &command.script_parts[0];
     let old_parameters = {
         if command.script_parts.len() > 1 {

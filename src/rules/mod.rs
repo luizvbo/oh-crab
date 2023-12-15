@@ -1,3 +1,4 @@
+use crate::shell::Shell;
 use core::fmt;
 
 use crate::{
@@ -9,17 +10,18 @@ use crate::{
 };
 
 mod apt_get;
-pub mod apt_upgrade;
-pub mod cargo;
-pub mod no_command;
+mod apt_upgrade;
+mod cargo;
+mod history;
+mod no_command;
 
 pub struct Rule {
     name: String,
     enabled_by_default: bool,
     priority: u16,
     requires_output: bool,
-    pub match_rule: fn(&mut CrabCommand) -> bool,
-    get_new_command: fn(&CrabCommand) -> Vec<String>,
+    pub match_rule: fn(&mut CrabCommand, Option<&Box<dyn Shell>>) -> bool,
+    get_new_command: fn(&CrabCommand, Option<&Box<dyn Shell>>) -> Vec<String>,
     side_effect: Option<fn(CrabCommand, &String)>,
 }
 
@@ -35,8 +37,8 @@ impl Rule {
         enabled_by_default: Option<bool>,
         priority: Option<u16>,
         requires_output: Option<bool>,
-        match_rule: fn(&mut CrabCommand) -> bool,
-        get_new_command: fn(&CrabCommand) -> Vec<String>,
+        match_rule: fn(&mut CrabCommand, Option<&Box<dyn Shell>>) -> bool,
+        get_new_command: fn(&CrabCommand, Option<&Box<dyn Shell>>) -> Vec<String>,
         side_effect: Option<fn(CrabCommand, &String)>,
     ) -> Self {
         Self {
@@ -51,20 +53,27 @@ impl Rule {
     }
 
     // Returns `True` if rule matches the command.
-    fn is_match(&self, mut command: CrabCommand) -> bool {
+    fn is_match(&self, mut command: CrabCommand, system_shell: &Box<dyn Shell>) -> bool {
         let script_only = command.stdout.is_none() && command.stderr.is_none();
         if script_only && self.requires_output {
             return false;
         }
-        if (self.match_rule)(&mut command) {
+        if (self.match_rule)(&mut command, Some(system_shell)) {
             return true;
         }
         false
     }
 
-    fn get_corrected_commands(&self, command: &CrabCommand) -> Vec<CorrectedCommand> {
+    fn get_corrected_commands(
+        &self,
+        command: &CrabCommand,
+        system_shell: &Box<dyn Shell>,
+    ) -> Vec<CorrectedCommand> {
         let mut new_commands: Vec<CorrectedCommand> = vec![];
-        for (n, new_command) in (self.get_new_command)(command).iter().enumerate() {
+        for (n, new_command) in (self.get_new_command)(command, Some(system_shell))
+            .iter()
+            .enumerate()
+        {
             new_commands.push(CorrectedCommand::new(
                 new_command.to_owned(),
                 self.side_effect,
@@ -100,11 +109,14 @@ pub fn match_without_sudo(
 ///
 /// A `Vec<CorrectedCommand>` containing the list of corrected commands based on the
 /// input `CrabCommand`.
-pub fn get_corrected_commands(command: &mut CrabCommand) -> Vec<CorrectedCommand> {
+pub fn get_corrected_commands(
+    command: &mut CrabCommand,
+    system_shell: &Box<dyn Shell>,
+) -> Vec<CorrectedCommand> {
     let mut corrected_commands: Vec<CorrectedCommand> = vec![];
     for rule in get_rules() {
-        if (rule.match_rule)(command) {
-            for corrected in rule.get_corrected_commands(command) {
+        if (rule.match_rule)(command, Some(system_shell)) {
+            for corrected in rule.get_corrected_commands(command, system_shell) {
                 corrected_commands.push(corrected);
             }
         }
@@ -123,5 +135,10 @@ pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&C
 }
 
 pub fn get_rules() -> Vec<Rule> {
-    vec![cargo::get_rule(), no_command::get_rule()]
+    vec![
+        cargo::get_rule(),
+        no_command::get_rule(),
+        apt_upgrade::get_rule(),
+        history::get_rule(),
+    ]
 }
