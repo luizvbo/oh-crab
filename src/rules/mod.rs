@@ -10,9 +10,10 @@ use crate::{
 };
 
 mod apt_get;
-pub mod apt_upgrade;
-pub mod cargo;
-pub mod no_command;
+mod apt_upgrade;
+mod cargo;
+mod no_command;
+mod history;
 
 pub struct Rule {
     name: String,
@@ -20,7 +21,7 @@ pub struct Rule {
     priority: u16,
     requires_output: bool,
     pub match_rule: fn(&mut CrabCommand, Option<&Box<dyn Shell>>) -> bool,
-    get_new_command: fn(&CrabCommand) -> Vec<String>,
+    get_new_command: fn(&CrabCommand, Option<&Box<dyn Shell>>) -> Vec<String>,
     side_effect: Option<fn(CrabCommand, &String)>,
 }
 
@@ -37,7 +38,7 @@ impl Rule {
         priority: Option<u16>,
         requires_output: Option<bool>,
         match_rule: fn(&mut CrabCommand, Option<&Box<dyn Shell>>) -> bool,
-        get_new_command: fn(&CrabCommand) -> Vec<String>,
+        get_new_command: fn(&CrabCommand, Option<&Box<dyn Shell>>) -> Vec<String>,
         side_effect: Option<fn(CrabCommand, &String)>,
     ) -> Self {
         Self {
@@ -63,9 +64,9 @@ impl Rule {
         false
     }
 
-    fn get_corrected_commands(&self, command: &CrabCommand) -> Vec<CorrectedCommand> {
+    fn get_corrected_commands(&self, command: &CrabCommand, system_shell: &Box<dyn Shell>) -> Vec<CorrectedCommand> {
         let mut new_commands: Vec<CorrectedCommand> = vec![];
-        for (n, new_command) in (self.get_new_command)(command).iter().enumerate() {
+        for (n, new_command) in (self.get_new_command)(command, Some(system_shell)).iter().enumerate() {
             new_commands.push(CorrectedCommand::new(
                 new_command.to_owned(),
                 self.side_effect,
@@ -108,7 +109,7 @@ pub fn get_corrected_commands(
     let mut corrected_commands: Vec<CorrectedCommand> = vec![];
     for rule in get_rules() {
         if (rule.match_rule)(command, Some(system_shell)) {
-            for corrected in rule.get_corrected_commands(command) {
+            for corrected in rule.get_corrected_commands(command, system_shell) {
                 corrected_commands.push(corrected);
             }
         }
@@ -131,5 +132,6 @@ pub fn get_rules() -> Vec<Rule> {
         cargo::get_rule(),
         no_command::get_rule(),
         apt_upgrade::get_rule(),
+        history::get_rule()
     ]
 }

@@ -1,6 +1,7 @@
 use crate::{
     cli::command::CrabCommand,
-    utils::{get_all_executable, get_close_matches}, shell::Shell,
+    shell::Shell,
+    utils::{get_all_executable, get_close_matches},
 };
 use similar::DiffableStr;
 use which::which;
@@ -25,7 +26,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&Box<dyn Shell
         .is_empty()
 }
 
-pub fn get_new_command(command: &CrabCommand) -> Vec<String> {
+pub fn get_new_command(command: &CrabCommand, system_shell: Option<&Box<dyn Shell>>) -> Vec<String> {
     let old_command = &command.script_parts[0];
     let old_parameters = {
         if command.script_parts.len() > 1 {
