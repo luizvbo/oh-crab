@@ -66,6 +66,16 @@ pub fn get_all_executable() -> Vec<String> {
     bins
 }
 
+/// Filters out history entries occurring immediately after the alias ("crab").
+///
+/// # Arguments
+///
+/// * `history` - A reference to a vector of strings representing the history.
+/// * `oc_alias` - A reference to a string representing the alias to be filtered out.
+///
+/// # Returns
+///
+/// * Vector of strings where entries immediately after the alias have been filtered out.
 fn not_corrected(history: &Vec<String>, oc_alias: &String) -> Vec<String> {
     let mut previous: Option<&str> = None;
     let mut result = Vec::new();
@@ -85,6 +95,19 @@ fn not_corrected(history: &Vec<String>, oc_alias: &String) -> Vec<String> {
     result
 }
 
+/// Returns a vector of valid history commands excluding the current command.
+///
+/// The method compares the command with executables and shell builtins and 
+/// ignores commands performed just after the alias is called ("crab").
+///
+/// # Arguments
+///
+/// * `command` - A reference to the current CrabCommand.
+/// * `system_shell` - A reference to the system shell.
+///
+/// # Returns
+///
+/// * A vector of valid history commands as strings.
 pub fn get_valid_history_without_current(
     command: &CrabCommand,
     system_shell: &Box<dyn Shell>,
