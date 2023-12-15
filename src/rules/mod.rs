@@ -12,8 +12,8 @@ use crate::{
 mod apt_get;
 mod apt_upgrade;
 mod cargo;
-mod no_command;
 mod history;
+mod no_command;
 
 pub struct Rule {
     name: String,
@@ -64,9 +64,16 @@ impl Rule {
         false
     }
 
-    fn get_corrected_commands(&self, command: &CrabCommand, system_shell: &Box<dyn Shell>) -> Vec<CorrectedCommand> {
+    fn get_corrected_commands(
+        &self,
+        command: &CrabCommand,
+        system_shell: &Box<dyn Shell>,
+    ) -> Vec<CorrectedCommand> {
         let mut new_commands: Vec<CorrectedCommand> = vec![];
-        for (n, new_command) in (self.get_new_command)(command, Some(system_shell)).iter().enumerate() {
+        for (n, new_command) in (self.get_new_command)(command, Some(system_shell))
+            .iter()
+            .enumerate()
+        {
             new_commands.push(CorrectedCommand::new(
                 new_command.to_owned(),
                 self.side_effect,
@@ -132,6 +139,6 @@ pub fn get_rules() -> Vec<Rule> {
         cargo::get_rule(),
         no_command::get_rule(),
         apt_upgrade::get_rule(),
-        history::get_rule()
+        history::get_rule(),
     ]
 }

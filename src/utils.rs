@@ -97,7 +97,7 @@ fn not_corrected(history: &Vec<String>, oc_alias: &String) -> Vec<String> {
 
 /// Returns a vector of valid history commands excluding the current command.
 ///
-/// The method compares the command with executables and shell builtins and 
+/// The method compares the command with executables and shell builtins and
 /// ignores commands performed just after the alias is called ("crab").
 ///
 /// # Arguments
@@ -156,21 +156,20 @@ mod tests {
 
     #[test]
     fn test_get_valid_history_without_current() {
-        let command = CrabCommand::new("ls -l".to_owned(), Some("multiple\nlines".to_owned()), None);
+        let command =
+            CrabCommand::new("ls -l".to_owned(), Some("multiple\nlines".to_owned()), None);
         // let mock_shell: Box<dyn Shell> = Box::new(MockShell {});
         let mut mock_shell = MockMyShell::new();
         mock_shell
             .expect_get_builtin_commands()
             .returning(|| vec!["command1".to_string(), "command2".to_string()]);
-        mock_shell
-            .expect_get_history()
-            .returning(|_| {
-                vec![
-                    "ls -l".to_string(),
-                    "command1".to_string(),
-                    "cmp a.txt b.txt".to_string(),
-                ]
-            });
+        mock_shell.expect_get_history().returning(|_| {
+            vec![
+                "ls -l".to_string(),
+                "command1".to_string(),
+                "cmp a.txt b.txt".to_string(),
+            ]
+        });
         let system_shell: Box<dyn Shell> = Box::new(mock_shell);
 
         assert_eq!(
@@ -182,15 +181,13 @@ mod tests {
         mock_shell
             .expect_get_builtin_commands()
             .returning(|| vec!["command1".to_string(), "command2".to_string()]);
-        mock_shell
-            .expect_get_history()
-            .returning(|_| {
-                vec![
-                    "ls -l".to_string(),
-                    "cmp a.txt b.txt".to_string(),
-                    get_alias()
-                ]
-            });
+        mock_shell.expect_get_history().returning(|_| {
+            vec![
+                "ls -l".to_string(),
+                "cmp a.txt b.txt".to_string(),
+                get_alias(),
+            ]
+        });
         let system_shell: Box<dyn Shell> = Box::new(mock_shell);
         // Skip "cmp a.txt b.txt" because it comes before "crab" (alias)
         assert_eq!(
