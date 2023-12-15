@@ -67,22 +67,21 @@ pub fn get_all_executable() -> Vec<String> {
 }
 
 fn not_corrected(history: &Vec<String>, oc_alias: &String) -> Vec<String> {
-    let mut previous: Option<String> = None;
+    let mut previous: Option<&str> = None;
     let mut result = Vec::new();
 
     for line in history {
-        if let Some(prev) = &previous {
+        if let Some(prev) = previous {
             if line != oc_alias {
-                result.push(prev.clone());
+                result.push(prev.to_string());
             }
         }
-        previous = Some(line.clone());
+        previous = Some(line);
     }
 
     if let Some(last) = history.last() {
         result.push(last.clone());
     }
-
     result
 }
 
@@ -96,6 +95,7 @@ pub fn get_valid_history_without_current(
     let history = system_shell.get_history(None);
     let mut executables = history.clone();
     executables.extend(system_shell.get_builtin_commands());
+    executables.extend(get_all_executable());
     let executables: HashSet<_> = executables.into_iter().collect();
 
     for line in not_corrected(&history, &get_alias()) {
@@ -132,18 +132,42 @@ pub fn get_valid_history_without_current(
 
 #[cfg(test)]
 mod tests {
-    use mockall::{automock,predicate::*};
+    use crate::{cli::command::CrabCommand, shell::Shell};
 
-    #[automock]
-    trait MockShell {
-        fn get_history<'a>(&self, file_path: Option<&'a str>) -> Vec<String>;
-        fn get_builtin_commands(&self) -> Vec<String>;
+    use super::get_valid_history_without_current;
+
+    struct MockShell;
+
+    impl Shell for MockShell {
+        fn app_alias(&self, alias_name: &str) -> String {
+            "".to_owned()
+        }
+        fn get_shell(&self) -> String {
+            "".to_owned()
+        }
+        fn get_history_file_name(&self) -> String {
+            "".to_owned()
+        }
+        fn script_from_history(&self, command_script: &str) -> String {
+            command_script.to_owned()
+        }
+        fn get_builtin_commands(&self) -> Vec<String> {
+            vec!["command1".to_string(), "command2".to_string()]
+        }
+        fn get_history(&self, file_path: Option<&str>) -> Vec<String> {
+            vec!["ls -l".to_string(), "cd /tmp".to_string(), "cmp a.txt b.txt".to_string()]
+        }
     }
 
-    fn test_get_valid_history_without_current() {
-        let mut mock = MockMyTrait::new();
-        mock.expect_get_history()
 
-        
+    #[test]
+    fn test_get_valid_history_without_current() {
+        let command = CrabCommand::new("ls -l".to_owned(), Some("multiple\nlines".to_owned()), None);
+        let mock_shell: Box<dyn Shell> = Box::new(MockShell{});
+
+        assert_eq!(
+            vec!["cmp a.txt b.txt"],
+            get_valid_history_without_current(&command, &mock_shell)
+        );
     }
 }
