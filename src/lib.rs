@@ -2,6 +2,7 @@
 #![allow(unused_mut)]
 #![allow(unused_imports)]
 #![allow(unused_variables)]
+#![allow(clippy::borrowed_box)]
 
 pub mod cli;
 pub mod rules;
