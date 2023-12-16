@@ -72,7 +72,7 @@ impl CrabCommand {
     }
 }
 
-pub fn run_command(raw_command: Vec<String>, system_shell: &Box<dyn Shell>) -> CrabCommand {
+pub fn run_command(raw_command: Vec<String>, system_shell: &dyn Shell) -> CrabCommand {
     let command = prepare_command(raw_command);
     let mut output = shell_command(&system_shell.get_shell())
         .arg(&command)
@@ -132,7 +132,7 @@ mod tests {
         let command_vec = vec!["echo".to_owned(), "Hello!".to_owned()];
         let command = command_vec.join(" ").trim().to_owned();
         let system_shell: Box<dyn Shell> = Box::new(Bash {});
-        let crab_command = run_command(command_vec, &system_shell);
+        let crab_command = run_command(command_vec, &*system_shell);
         assert_eq!(crab_command.script, command);
         assert_eq!(crab_command.stdout.unwrap(), "Hello!\n");
         assert_eq!(crab_command.stderr.unwrap(), "");

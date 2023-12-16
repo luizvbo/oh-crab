@@ -8,7 +8,7 @@ use which::which;
 
 use super::Rule;
 
-pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&Box<dyn Shell>>) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     which(&command.script_parts[0]).is_err()
         & (if let Some(output) = &command.stderr {
             output.contains("not found") | output.contains("is not recognized as")
@@ -28,7 +28,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&Box<dyn Shell
 
 pub fn get_new_command(
     command: &CrabCommand,
-    system_shell: Option<&Box<dyn Shell>>,
+    system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
     let old_command = &command.script_parts[0];
     let old_parameters = {

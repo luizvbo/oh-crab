@@ -2,13 +2,13 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 
 use super::Rule;
 
-pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&Box<dyn Shell>>) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     command.script == "cargo"
 }
 
 pub fn get_new_command(
     command: &CrabCommand,
-    system_shell: Option<&Box<dyn Shell>>,
+    system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
     vec!["cargo build".to_owned()]
 }

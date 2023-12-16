@@ -110,7 +110,7 @@ fn not_corrected(history: &Vec<String>, oc_alias: &String) -> Vec<String> {
 /// * A vector of valid history commands as strings.
 pub fn get_valid_history_without_current(
     command: &CrabCommand,
-    system_shell: &Box<dyn Shell>,
+    system_shell: &dyn Shell,
 ) -> Vec<String> {
     let mut corrected: Vec<String> = Vec::new();
     let mut valid_history: Vec<String> = Vec::new();
@@ -158,7 +158,6 @@ mod tests {
     fn test_get_valid_history_without_current() {
         let command =
             CrabCommand::new("ls -l".to_owned(), Some("multiple\nlines".to_owned()), None);
-        // let mock_shell: Box<dyn Shell> = Box::new(MockShell {});
         let mut mock_shell = MockMyShell::new();
         mock_shell
             .expect_get_builtin_commands()
@@ -174,7 +173,7 @@ mod tests {
 
         assert_eq!(
             vec!["command1", "cmp a.txt b.txt"],
-            get_valid_history_without_current(&command, &system_shell)
+            get_valid_history_without_current(&command, &*system_shell)
         );
 
         let mut mock_shell = MockMyShell::new();
@@ -192,7 +191,7 @@ mod tests {
         // Skip "cmp a.txt b.txt" because it comes before "crab" (alias)
         assert_eq!(
             Vec::<String>::new(),
-            get_valid_history_without_current(&command, &system_shell)
+            get_valid_history_without_current(&command, &*system_shell)
         );
     }
 }
