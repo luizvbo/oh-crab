@@ -14,6 +14,7 @@ mod apt_upgrade;
 mod cargo;
 mod history;
 mod no_command;
+mod tmux;
 
 pub struct Rule {
     name: String,

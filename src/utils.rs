@@ -7,6 +7,40 @@ use std::path::Path;
 use crate::cli::command::CrabCommand;
 use crate::shell::Shell;
 
+use regex::Regex;
+
+pub fn replace_argument(script: &str, from_: &str, to: &str) -> String {
+    let re = Regex::new(&format!(" {}$", regex::escape(from_))).unwrap();
+    let replaced_in_the_end = re.replace(script, &format!(" {}", to));
+
+    if replaced_in_the_end != script {
+        return replaced_in_the_end.into_owned();
+    } else {
+        return script.replace(&format!(" {} ", from_), &format!(" {} ", to));
+    }
+}
+
+pub fn replace_command(
+    command: &CrabCommand,
+    broken: &str,
+    matched: Vec<&str>
+) -> Vec<String>{
+    let candidate_commands = get_close_matches(&broken, &matched);
+    let mut new_commands = Vec::<String>::new();
+    for cmd in candidate_commands{
+        new_commands.push(
+            replace_argument(&command.script, broken, cmd.trim())
+        );
+    }
+    new_commands
+}
+
+// def replace_command(command, broken, matched):
+//     """Helper for *_no_command rules."""
+//     new_cmds = get_close_matches(broken, matched, cutoff=0.1)
+//     return [replace_argument(command.script, broken, new_cmd.strip())
+//             for new_cmd in new_cmds]
+
 /// Gets a list of close matches for a word from a list of possibilities.
 ///
 /// # Arguments
