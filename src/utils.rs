@@ -14,9 +14,9 @@ pub fn replace_argument(script: &str, from_: &str, to: &str) -> String {
     let replaced_in_the_end = re.replace(script, &format!(" {}", to));
 
     if replaced_in_the_end != script {
-        return replaced_in_the_end.into_owned();
+        replaced_in_the_end.into_owned()
     } else {
-        return script.replace(&format!(" {} ", from_), &format!(" {} ", to));
+        script.replace(&format!(" {} ", from_), &format!(" {} ", to))
     }
 }
 
@@ -25,7 +25,7 @@ pub fn replace_command(
     broken: &str,
     matched: Vec<&str>
 ) -> Vec<String>{
-    let candidate_commands = get_close_matches(&broken, &matched);
+    let candidate_commands = get_close_matches(broken, &matched, Some(0.1));
     let mut new_commands = Vec::<String>::new();
     for cmd in candidate_commands{
         new_commands.push(
@@ -51,10 +51,10 @@ pub fn replace_command(
 /// # Returns
 ///
 /// A vector of close matches for the given word.
-pub fn get_close_matches<'a>(word: &'a str, possibilities: &'a [&'a str]) -> Vec<&'a str> {
+pub fn get_close_matches<'a>(word: &'a str, possibilities: &'a [&'a str], cutoff: Option<f32>) -> Vec<&'a str> {
     // TODO: Read parameters from config file
     let n = 3;
-    let cutoff = 0.6;
+    let cutoff = cutoff.unwrap_or(0.6);
     difflib_get_close_matches(word, possibilities, n, cutoff)
 }
 

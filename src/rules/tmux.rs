@@ -12,25 +12,24 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
     false
 }
 
-pub fn get_new_command(
-    command: &CrabCommand,
-    system_shell: Option<&dyn Shell>,
-) -> Vec<String> {
-
+pub fn get_new_command(command: &CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     let re = Regex::new(r"ambiguous command: (.*), could be: (.*)").unwrap();
-    if let Some(stdout) = command.stdout {
-
-        let caps = re.captures(&stdout).unwrap();
+    if let Some(stdout) = &command.stdout {
+        let caps = re.captures(stdout).unwrap();
 
         let old_cmd = caps.get(1).unwrap().as_str();
-        let suggestions: Vec<&str> = caps.get(2).unwrap().as_str().split(',').map(|s| s.trim()).collect();
+        let suggestions: Vec<&str> = caps
+            .get(2)
+            .unwrap()
+            .as_str()
+            .split(',')
+            .map(|s| s.trim())
+            .collect();
 
         replace_command(command, old_cmd, suggestions)
+    } else {
+        Vec::<String>::new()
     }
-    else{
-        Vec::<String>::new();
-    }
-
 }
 pub fn get_rule() -> Rule {
     Rule::new(
@@ -44,18 +43,15 @@ pub fn get_rule() -> Rule {
     )
 }
 
+#[cfg(test)]
+mod tests {
+    use crate::cli::command::CrabCommand;
 
-// @for_app('tmux')
-// def match(command):
-//     return ('ambiguous command:' in command.output
-//             and 'could be:' in command.output)
-//
-//
-// def get_new_command(command):
-//     cmd = re.match(r"ambiguous command: (.*), could be: (.*)",
-//                    command.output)
-//
-//     old_cmd = cmd.group(1)
-//     suggestions = [c.strip() for c in cmd.group(2).split(',')]
-//
-//     return replace_command(command, old_cmd, suggestions)
+    use super::get_new_command;
+
+    #[test]
+    fn test_get_new_command() {
+        let command = CrabCommand::new("tmux list".to_owned(), Some("ambiguous command: list, could be: list-buffers, list-clients, list-commands, list-keys, list-panes, list-sessions, list-windows".to_owned()), None);
+        assert_eq!(get_new_command(&command, None), vec!["tmux list-keys", "tmux list-panes", "tmux list-buffers"]);
+    }
+}
