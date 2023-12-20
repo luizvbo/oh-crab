@@ -7,6 +7,34 @@ use std::path::Path;
 use crate::cli::command::CrabCommand;
 use crate::shell::Shell;
 
+use regex::Regex;
+
+pub fn replace_argument(script: &str, from_: &str, to: &str) -> String {
+    let re = Regex::new(&format!(" {}$", regex::escape(from_))).unwrap();
+    let replaced_in_the_end = re.replace(script, &format!(" {}", to));
+
+    if replaced_in_the_end != script {
+        replaced_in_the_end.into_owned()
+    } else {
+        script.replace(&format!(" {} ", from_), &format!(" {} ", to))
+    }
+}
+
+pub fn replace_command(command: &CrabCommand, broken: &str, matched: Vec<&str>) -> Vec<String> {
+    let candidate_commands = get_close_matches(broken, &matched, Some(0.1));
+    let mut new_commands = Vec::<String>::new();
+    for cmd in candidate_commands {
+        new_commands.push(replace_argument(&command.script, broken, cmd.trim()));
+    }
+    new_commands
+}
+
+// def replace_command(command, broken, matched):
+//     """Helper for *_no_command rules."""
+//     new_cmds = get_close_matches(broken, matched, cutoff=0.1)
+//     return [replace_argument(command.script, broken, new_cmd.strip())
+//             for new_cmd in new_cmds]
+
 /// Gets a list of close matches for a word from a list of possibilities.
 ///
 /// # Arguments
@@ -17,10 +45,14 @@ use crate::shell::Shell;
 /// # Returns
 ///
 /// A vector of close matches for the given word.
-pub fn get_close_matches<'a>(word: &'a str, possibilities: &'a [&'a str]) -> Vec<&'a str> {
+pub fn get_close_matches<'a>(
+    word: &'a str,
+    possibilities: &'a [&'a str],
+    cutoff: Option<f32>,
+) -> Vec<&'a str> {
     // TODO: Read parameters from config file
     let n = 3;
-    let cutoff = 0.6;
+    let cutoff = cutoff.unwrap_or(0.6);
     difflib_get_close_matches(word, possibilities, n, cutoff)
 }
 
@@ -110,7 +142,7 @@ fn not_corrected(history: &Vec<String>, oc_alias: &String) -> Vec<String> {
 /// * A vector of valid history commands as strings.
 pub fn get_valid_history_without_current(
     command: &CrabCommand,
-    system_shell: &Box<dyn Shell>,
+    system_shell: &dyn Shell,
 ) -> Vec<String> {
     let mut corrected: Vec<String> = Vec::new();
     let mut valid_history: Vec<String> = Vec::new();
@@ -158,7 +190,6 @@ mod tests {
     fn test_get_valid_history_without_current() {
         let command =
             CrabCommand::new("ls -l".to_owned(), Some("multiple\nlines".to_owned()), None);
-        // let mock_shell: Box<dyn Shell> = Box::new(MockShell {});
         let mut mock_shell = MockMyShell::new();
         mock_shell
             .expect_get_builtin_commands()
@@ -174,7 +205,7 @@ mod tests {
 
         assert_eq!(
             vec!["command1", "cmp a.txt b.txt"],
-            get_valid_history_without_current(&command, &system_shell)
+            get_valid_history_without_current(&command, &*system_shell)
         );
 
         let mut mock_shell = MockMyShell::new();
@@ -192,7 +223,7 @@ mod tests {
         // Skip "cmp a.txt b.txt" because it comes before "crab" (alias)
         assert_eq!(
             Vec::<String>::new(),
-            get_valid_history_without_current(&command, &system_shell)
+            get_valid_history_without_current(&command, &*system_shell)
         );
     }
 }

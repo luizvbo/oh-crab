@@ -22,9 +22,9 @@ fn main() {
     if let Some(command) = arg_matches.remove_many::<String>("command") {
         let command_vec = command.collect();
         log::debug!("Retrieved command(s): {:?}", command_vec);
-        let mut crab_command = run_command(command_vec, &system_shell);
+        let mut crab_command = run_command(command_vec, &*system_shell);
         log::debug!("Crab command: {:?}", crab_command);
-        let corrected_commands = get_corrected_commands(&mut crab_command, &system_shell);
+        let corrected_commands = get_corrected_commands(&mut crab_command, &*system_shell);
         log::debug!(
             "Candidate command(s): {:?}",
             corrected_commands

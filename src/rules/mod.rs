@@ -14,14 +14,15 @@ mod apt_upgrade;
 mod cargo;
 mod history;
 mod no_command;
+mod tmux;
 
 pub struct Rule {
     name: String,
     enabled_by_default: bool,
     priority: u16,
     requires_output: bool,
-    pub match_rule: fn(&mut CrabCommand, Option<&Box<dyn Shell>>) -> bool,
-    get_new_command: fn(&CrabCommand, Option<&Box<dyn Shell>>) -> Vec<String>,
+    pub match_rule: fn(&mut CrabCommand, Option<&dyn Shell>) -> bool,
+    get_new_command: fn(&CrabCommand, Option<&dyn Shell>) -> Vec<String>,
     side_effect: Option<fn(CrabCommand, &String)>,
 }
 
@@ -37,8 +38,8 @@ impl Rule {
         enabled_by_default: Option<bool>,
         priority: Option<u16>,
         requires_output: Option<bool>,
-        match_rule: fn(&mut CrabCommand, Option<&Box<dyn Shell>>) -> bool,
-        get_new_command: fn(&CrabCommand, Option<&Box<dyn Shell>>) -> Vec<String>,
+        match_rule: fn(&mut CrabCommand, Option<&dyn Shell>) -> bool,
+        get_new_command: fn(&CrabCommand, Option<&dyn Shell>) -> Vec<String>,
         side_effect: Option<fn(CrabCommand, &String)>,
     ) -> Self {
         Self {
@@ -53,7 +54,7 @@ impl Rule {
     }
 
     // Returns `True` if rule matches the command.
-    fn is_match(&self, mut command: CrabCommand, system_shell: &Box<dyn Shell>) -> bool {
+    fn is_match(&self, mut command: CrabCommand, system_shell: &dyn Shell) -> bool {
         let script_only = command.stdout.is_none() && command.stderr.is_none();
         if script_only && self.requires_output {
             return false;
@@ -67,7 +68,7 @@ impl Rule {
     fn get_corrected_commands(
         &self,
         command: &CrabCommand,
-        system_shell: &Box<dyn Shell>,
+        system_shell: &dyn Shell,
     ) -> Vec<CorrectedCommand> {
         let mut new_commands: Vec<CorrectedCommand> = vec![];
         for (n, new_command) in (self.get_new_command)(command, Some(system_shell))
@@ -111,7 +112,7 @@ pub fn match_without_sudo(
 /// input `CrabCommand`.
 pub fn get_corrected_commands(
     command: &mut CrabCommand,
-    system_shell: &Box<dyn Shell>,
+    system_shell: &dyn Shell,
 ) -> Vec<CorrectedCommand> {
     let mut corrected_commands: Vec<CorrectedCommand> = vec![];
     for rule in get_rules() {
@@ -136,9 +137,10 @@ pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&C
 
 pub fn get_rules() -> Vec<Rule> {
     vec![
-        cargo::get_rule(),
-        no_command::get_rule(),
         apt_upgrade::get_rule(),
+        cargo::get_rule(),
         history::get_rule(),
+        no_command::get_rule(),
+        tmux::get_rule(),
     ]
 }

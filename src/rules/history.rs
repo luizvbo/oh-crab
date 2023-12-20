@@ -3,7 +3,7 @@ use crate::cli::command::CrabCommand;
 use crate::shell::Shell;
 use crate::utils::{get_close_matches, get_valid_history_without_current};
 
-pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&Box<dyn Shell>>) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     !get_close_matches(
         &command.script,
         get_valid_history_without_current(command, system_shell.unwrap())
@@ -11,14 +11,12 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&Box<dyn Shell
             .map(|s| s.as_str())
             .collect::<Vec<&str>>()
             .as_slice(),
+        None,
     )
     .is_empty()
 }
 
-pub fn get_new_command(
-    command: &CrabCommand,
-    system_shell: Option<&Box<dyn Shell>>,
-) -> Vec<String> {
+pub fn get_new_command(command: &CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     get_close_matches(
         &command.script,
         get_valid_history_without_current(command, system_shell.unwrap())
@@ -26,6 +24,7 @@ pub fn get_new_command(
             .map(|s| s.as_str())
             .collect::<Vec<&str>>()
             .as_slice(),
+        None,
     )
     .iter()
     .map(|&s| s.to_string())
