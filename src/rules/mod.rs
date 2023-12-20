@@ -137,9 +137,10 @@ pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&C
 
 pub fn get_rules() -> Vec<Rule> {
     vec![
-        cargo::get_rule(),
-        no_command::get_rule(),
         apt_upgrade::get_rule(),
+        cargo::get_rule(),
         history::get_rule(),
+        no_command::get_rule(),
+        tmux::get_rule(),
     ]
 }

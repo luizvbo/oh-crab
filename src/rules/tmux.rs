@@ -52,6 +52,9 @@ mod tests {
     #[test]
     fn test_get_new_command() {
         let command = CrabCommand::new("tmux list".to_owned(), Some("ambiguous command: list, could be: list-buffers, list-clients, list-commands, list-keys, list-panes, list-sessions, list-windows".to_owned()), None);
-        assert_eq!(get_new_command(&command, None), vec!["tmux list-keys", "tmux list-panes", "tmux list-buffers"]);
+        assert_eq!(
+            get_new_command(&command, None),
+            vec!["tmux list-keys", "tmux list-panes", "tmux list-buffers"]
+        );
     }
 }

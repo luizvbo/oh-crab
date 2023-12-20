@@ -20,17 +20,11 @@ pub fn replace_argument(script: &str, from_: &str, to: &str) -> String {
     }
 }
 
-pub fn replace_command(
-    command: &CrabCommand,
-    broken: &str,
-    matched: Vec<&str>
-) -> Vec<String>{
+pub fn replace_command(command: &CrabCommand, broken: &str, matched: Vec<&str>) -> Vec<String> {
     let candidate_commands = get_close_matches(broken, &matched, Some(0.1));
     let mut new_commands = Vec::<String>::new();
-    for cmd in candidate_commands{
-        new_commands.push(
-            replace_argument(&command.script, broken, cmd.trim())
-        );
+    for cmd in candidate_commands {
+        new_commands.push(replace_argument(&command.script, broken, cmd.trim()));
     }
     new_commands
 }
@@ -51,7 +45,11 @@ pub fn replace_command(
 /// # Returns
 ///
 /// A vector of close matches for the given word.
-pub fn get_close_matches<'a>(word: &'a str, possibilities: &'a [&'a str], cutoff: Option<f32>) -> Vec<&'a str> {
+pub fn get_close_matches<'a>(
+    word: &'a str,
+    possibilities: &'a [&'a str],
+    cutoff: Option<f32>,
+) -> Vec<&'a str> {
     // TODO: Read parameters from config file
     let n = 3;
     let cutoff = cutoff.unwrap_or(0.6);
