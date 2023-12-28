@@ -34,10 +34,8 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        cli::command::CrabCommand,
-        rules::apt_upgrade::{_match_rule, match_rule},
-    };
+    use crate::cli::command::CrabCommand;
+    use super::{_match_rule, match_rule};
 
     #[test]
     fn test_match_rule() {
