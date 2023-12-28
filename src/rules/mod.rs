@@ -98,6 +98,19 @@ pub fn match_without_sudo(
     }
 }
 
+pub fn get_new_command_without_sudo(
+    match_function: fn(&CrabCommand) -> Vec<String>,
+    command: &mut CrabCommand,
+) -> Vec<String> {
+    if !command.script.starts_with("sudo ") {
+        match_function(command)
+    } else {
+        let new_script = command.script[5..].to_owned();
+        command.script = new_script;
+        match_function(command)
+    }
+}
+
 /// Generate a list of corrected commands for the given CrabCommand.
 ///
 /// This function takes a `CrabCommand` as input and iterates through the registered
