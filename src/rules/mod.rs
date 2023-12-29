@@ -12,6 +12,7 @@ use crate::{
 mod apt_get;
 mod apt_upgrade;
 mod cargo;
+mod cd_correction;
 mod history;
 mod no_command;
 mod tmux;
@@ -22,7 +23,7 @@ pub struct Rule {
     priority: u16,
     requires_output: bool,
     pub match_rule: fn(&mut CrabCommand, Option<&dyn Shell>) -> bool,
-    get_new_command: fn(&CrabCommand, Option<&dyn Shell>) -> Vec<String>,
+    get_new_command: fn(&mut CrabCommand, Option<&dyn Shell>) -> Vec<String>,
     side_effect: Option<fn(CrabCommand, &String)>,
 }
 
@@ -39,7 +40,7 @@ impl Rule {
         priority: Option<u16>,
         requires_output: Option<bool>,
         match_rule: fn(&mut CrabCommand, Option<&dyn Shell>) -> bool,
-        get_new_command: fn(&CrabCommand, Option<&dyn Shell>) -> Vec<String>,
+        get_new_command: fn(&mut CrabCommand, Option<&dyn Shell>) -> Vec<String>,
         side_effect: Option<fn(CrabCommand, &String)>,
     ) -> Self {
         Self {
@@ -67,7 +68,7 @@ impl Rule {
 
     fn get_corrected_commands(
         &self,
-        command: &CrabCommand,
+        command: &mut CrabCommand,
         system_shell: &dyn Shell,
     ) -> Vec<CorrectedCommand> {
         let mut new_commands: Vec<CorrectedCommand> = vec![];
@@ -99,17 +100,18 @@ pub fn match_without_sudo(
 }
 
 pub fn get_new_command_without_sudo(
-    match_function: fn(&CrabCommand) -> Vec<String>,
+    get_command_function: fn(&CrabCommand) -> Vec<String>,
     command: &mut CrabCommand,
 ) -> Vec<String> {
     if !command.script.starts_with("sudo ") {
-        match_function(command)
+        get_command_function(command)
     } else {
         let new_script = command.script[5..].to_owned();
         command.script = new_script;
-        match_function(command)
+        get_command_function(command)
     }
 }
+
 
 /// Generate a list of corrected commands for the given CrabCommand.
 ///
@@ -152,6 +154,7 @@ pub fn get_rules() -> Vec<Rule> {
     vec![
         apt_upgrade::get_rule(),
         cargo::get_rule(),
+        cd_correction::get_rule(),
         history::get_rule(),
         no_command::get_rule(),
         tmux::get_rule(),

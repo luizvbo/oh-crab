@@ -27,7 +27,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
         .is_empty()
 }
 
-pub fn get_new_command(command: &CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     let old_command = &command.script_parts[0];
     let old_parameters = {
         if command.script_parts.len() > 1 {
