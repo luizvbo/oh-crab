@@ -12,6 +12,7 @@ use crate::{
 mod apt_get;
 mod apt_upgrade;
 mod cargo;
+mod cd_cs;
 mod history;
 mod no_command;
 mod tmux;
@@ -139,6 +140,7 @@ pub fn get_rules() -> Vec<Rule> {
     vec![
         apt_upgrade::get_rule(),
         cargo::get_rule(),
+        cd_cs::get_rule(),
         history::get_rule(),
         no_command::get_rule(),
         tmux::get_rule(),
