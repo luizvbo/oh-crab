@@ -12,7 +12,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
     false
 }
 
-pub fn get_new_command(command: &CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     let re = Regex::new(r"ambiguous command: (.*), could be: (.*)").unwrap();
     if let Some(stdout) = &command.stdout {
         let caps = re.captures(stdout).unwrap();
@@ -59,7 +59,7 @@ mod tests {
             None,
         );
         assert_eq!(
-            get_new_command(&command, None),
+            get_new_command(&mut CrabCommand::new("tmux list".to_owned(), Some("ambiguous command: list, could be: list-buffers, list-clients, list-commands, list-keys, list-panes, list-sessions, list-windows".to_owned()), None), None),
             vec!["tmux list-keys", "tmux list-panes", "tmux list-buffers"]
         );
     }

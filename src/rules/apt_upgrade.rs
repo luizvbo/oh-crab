@@ -16,7 +16,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
     match_without_sudo(_match_rule, command)
 }
 
-pub fn get_new_command(command: &CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     vec!["apt upgrade".to_owned()]
 }
 
@@ -34,10 +34,8 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        cli::command::CrabCommand,
-        rules::apt_upgrade::{_match_rule, match_rule},
-    };
+    use super::{_match_rule, match_rule};
+    use crate::cli::command::CrabCommand;
 
     #[test]
     fn test_match_rule() {
