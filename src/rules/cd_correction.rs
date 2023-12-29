@@ -10,15 +10,12 @@ use super::{get_new_command_without_sudo, match_without_sudo, Rule};
 fn get_sub_dirs(parent: &str) -> Vec<String> {
     let mut sub_dirs = Vec::new();
     if let Ok(entries) = fs::read_dir(parent) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                if let Ok(metadata) = entry.metadata() {
-                    if metadata.is_dir() {
-                        sub_dirs.push(String::from(entry.path().to_str().unwrap()));
-                    }
-                }
-            }
-        }
+        let sub_dirs: Vec<String> = entries
+            .into_iter()
+            .flatten()
+            .filter(|entry| entry.metadata().map_or(false, |m| m.is_dir()))
+            .map(|entry| entry.path().to_str().unwrap().to_string())
+            .collect();
     }
     sub_dirs
 }
@@ -44,7 +41,7 @@ fn _get_new_command(command: &CrabCommand) -> Vec<String> {
         if dest.last() == Some(&"") {
             dest.pop();
         }
-        if dest[0] == "" {
+        if dest[0].is_empty() {
             cwd = MAIN_SEPARATOR.to_string();
             dest.remove(0);
         } else {
@@ -68,7 +65,7 @@ fn _get_new_command(command: &CrabCommand) -> Vec<String> {
             let best_matches = get_close_matches(directory, &sub_dirs, None);
             if !best_matches.is_empty() {
                 cwd = Path::new(&cwd)
-                    .join(&best_matches[0])
+                    .join(best_matches[0])
                     .to_str()
                     .unwrap()
                     .to_string();
