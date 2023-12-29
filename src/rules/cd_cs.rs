@@ -6,7 +6,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
     command.script_parts[0] == "cs"
 }
 
-pub fn get_new_command(command: &CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     vec!["cd".to_owned() + &command.script[2..]]
 }
 

@@ -150,7 +150,6 @@ mod tests {
         match_rule_4: ("cd /foo/bar/", "cd: The directory \"/foo/bar/\" does not exist"),
     }
 
-
     parameterized_unmatch_rule_tests! {
         unmatch_rule_1: ("cd foo", ""),
         unmatch_rule_2: ("", ""),

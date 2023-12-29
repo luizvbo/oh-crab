@@ -113,7 +113,6 @@ pub fn get_new_command_without_sudo(
     }
 }
 
-
 /// Generate a list of corrected commands for the given CrabCommand.
 ///
 /// This function takes a `CrabCommand` as input and iterates through the registered
