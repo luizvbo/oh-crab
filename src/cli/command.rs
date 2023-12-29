@@ -56,13 +56,13 @@ impl fmt::Display for CrabCommand {
 
 impl CrabCommand {
     pub fn new(script: String, stdout: Option<String>, stderr: Option<String>) -> Self {
-        let split_command = CrabCommand::split_command(&script);
+        let split_parts = CrabCommand::split_command(&script);
 
         CrabCommand {
             script,
             stdout,
             stderr,
-            script_parts: split_command,
+            script_parts: split_parts,
         }
     }
 
