@@ -47,14 +47,30 @@ pub fn get_rule() -> Rule {
 mod tests {
     use crate::cli::command::CrabCommand;
 
-    use super::get_new_command;
+    use super::{get_new_command, match_rule};
+
+    const TMUX_AMBIGUOUS: &str = "ambiguous command: list, could be: list-buffers, list-clients, list-commands, list-keys, list-panes, list-sessions, list-windows";
 
     #[test]
     fn test_get_new_command() {
-        let command = CrabCommand::new("tmux list".to_owned(), Some("ambiguous command: list, could be: list-buffers, list-clients, list-commands, list-keys, list-panes, list-sessions, list-windows".to_owned()), None);
+        let command = CrabCommand::new(
+            "tmux list".to_owned(),
+            Some(TMUX_AMBIGUOUS.to_owned()),
+            None,
+        );
         assert_eq!(
             get_new_command(&command, None),
             vec!["tmux list-keys", "tmux list-panes", "tmux list-buffers"]
         );
+    }
+
+    #[test]
+    fn test_match() {
+        let mut command = CrabCommand::new(
+            "tmux list".to_owned(),
+            Some(TMUX_AMBIGUOUS.to_owned()),
+            None,
+        );
+        match_rule(&mut command, None);
     }
 }
