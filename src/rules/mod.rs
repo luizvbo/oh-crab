@@ -102,15 +102,18 @@ pub fn match_without_sudo(
 }
 
 pub fn get_new_command_without_sudo(
-    get_command_function: fn(&CrabCommand) -> Vec<String>,
+    get_new_command_function: fn(&CrabCommand) -> Vec<String>,
     command: &mut CrabCommand,
 ) -> Vec<String> {
     if !command.script.starts_with("sudo ") {
-        get_command_function(command)
+        get_new_command_function(command)
     } else {
         let new_script = command.script[5..].to_owned();
         command.script = new_script;
-        get_command_function(command)
+        get_new_command_function(command)
+            .iter()
+            .map(|cmd| "sudo ".to_owned() + cmd)
+            .collect()
     }
 }
 
