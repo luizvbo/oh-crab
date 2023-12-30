@@ -39,6 +39,9 @@ pub trait Shell {
         }
         history
     }
+    fn and(&self, commands: Vec<&str>) -> String {
+        commands.join(" && ")
+    }
 
     fn get_builtin_commands(&self) -> Vec<String> {
         vec![

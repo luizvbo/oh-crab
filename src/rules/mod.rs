@@ -9,11 +9,11 @@ use crate::{
     ui::interactive_menu,
 };
 
-mod apt_get;
 mod apt_upgrade;
 mod cargo;
 mod cd_correction;
 mod cd_cs;
+mod chmod_x;
 mod history;
 mod no_command;
 mod tmux;
@@ -152,10 +152,12 @@ pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&C
 
 pub fn get_rules() -> Vec<Rule> {
     vec![
+
         apt_upgrade::get_rule(),
         cargo::get_rule(),
         cd_correction::get_rule(),
         cd_cs::get_rule(),
+        chmod_x;history(),
         history::get_rule(),
         no_command::get_rule(),
         tmux::get_rule(),
