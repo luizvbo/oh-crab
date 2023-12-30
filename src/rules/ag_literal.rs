@@ -3,7 +3,6 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 use super::Rule;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    println!("{:?}", command);
     if let Some(stdout) = &command.stdout {
         stdout.ends_with("run ag with -Q\n")
     } else {
@@ -29,7 +28,7 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use super::match_rule;
+    use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
 
     const OUTPUT: &str = "ERR: Bad regex! pcre_compile() failed at position 1: missing )\nIf you meant to search for a literal string, run ag with -Q\n";
@@ -68,11 +67,32 @@ mod tests {
         }
     }
 
+    macro_rules! parameterized_get_new_command_tests {
+        ($($name:ident: $value:expr,)*) => {
+            $(
+                #[test]
+                fn $name() {
+                    let (script, expected) = $value;
+                    let mut command = CrabCommand::new(
+                                script.to_owned(),
+                                Some(OUTPUT.to_owned()),
+                                None
+                            );
+                    assert_eq!(get_new_command(&mut command, None)[0], expected);
+                }
+            )*
+        }
+    }
+
     parameterized_match_rule_tests! {
         match_rule_1: ("ag \\(", OUTPUT),
     }
 
     parameterized_unmatch_rule_tests! {
         unmatch_rule_1: ("ag foo", ""),
+    }
+
+    parameterized_get_new_command_tests! {
+        get_new_command_1: ("ag \\(", "ag -Q \\("),
     }
 }
