@@ -10,6 +10,7 @@ use crate::{
 };
 
 mod apt_get;
+mod apt_list_upgradable;
 mod apt_upgrade;
 mod cargo;
 mod cd_correction;
@@ -153,6 +154,7 @@ pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&C
 pub fn get_rules() -> Vec<Rule> {
     vec![
         apt_upgrade::get_rule(),
+        apt_list_upgradable::get_rule(),
         cargo::get_rule(),
         cd_correction::get_rule(),
         cd_cs::get_rule(),
