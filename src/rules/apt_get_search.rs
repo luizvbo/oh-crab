@@ -24,8 +24,8 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use super::{match_rule,get_new_command};
-    use crate::{cli::command::CrabCommand};
+    use super::{get_new_command, match_rule};
+    use crate::cli::command::CrabCommand;
 
     macro_rules! parameterized_match_rule_tests {
         ($($name:ident: $value:expr,)*) => {
@@ -61,6 +61,23 @@ mod tests {
         }
     }
 
+    macro_rules! parameterized_get_new_command_tests {
+        ($($name:ident: $value:expr,)*) => {
+            $(
+                #[test]
+                fn $name() {
+                    let (script, expected) = $value;
+                    let mut command = CrabCommand::new(
+                                script.to_owned(),
+                                Some("".to_owned()),
+                                None
+                            );
+                    assert_eq!(get_new_command(&mut command, None)[0], expected);
+                }
+            )*
+        }
+    }
+
     parameterized_match_rule_tests! {
         match_rule_1: ("apt-get search foo", ""),
     }
@@ -77,9 +94,7 @@ mod tests {
         unmatch_rule_9: ("apt-get update", ""),
     }
 
-    #[test]
-    fn test_get_new_command() {
-        let mut command = CrabCommand::new("apt-get search foo".to_owned(), Some("".to_owned()), None);
-        assert_eq!(get_new_command(&mut command, None)[0], "apt-cache search foo");
+    parameterized_get_new_command_tests! {
+        get_new_command_1: ("apt-get search foo", "apt-cache search foo"),
     }
 }
