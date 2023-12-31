@@ -16,19 +16,19 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    let reference = vec!["choco", "cinst", "install"];
+    let reference = ["choco", "cinst", "install"];
     for script_part in &command.script_parts {
         if
         // These are certainly parameters
-        !script_part.contains("=") && !script_part.contains("/") &&
+        !script_part.contains('=') && !script_part.contains('/') &&
             // Leading hyphens are parameters; some packages contain them though
-            !script_part.starts_with("-") &&
+            !script_part.starts_with('-') &&
             // Need exact match (bc chocolatey is a package)
             !reference.contains(&script_part.as_str())
         {
             return vec![command
                 .script
-                .replace(script_part, &(script_part.to_owned() + &".install".to_owned()))];
+                .replace(script_part, &(script_part.to_owned() + ".install"))];
         }
     }
     vec![]
