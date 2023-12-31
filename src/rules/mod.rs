@@ -14,6 +14,7 @@ mod apt_upgrade;
 mod cargo;
 mod cd_correction;
 mod cd_cs;
+mod cp_create_destination;
 mod history;
 mod no_command;
 mod tmux;
@@ -156,6 +157,7 @@ pub fn get_rules() -> Vec<Rule> {
         cargo::get_rule(),
         cd_correction::get_rule(),
         cd_cs::get_rule(),
+        cp_create_destination::get_rule(),
         history::get_rule(),
         no_command::get_rule(),
         tmux::get_rule(),
