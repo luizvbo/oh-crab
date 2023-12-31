@@ -9,9 +9,9 @@ use crate::{
     ui::interactive_menu,
 };
 
-mod apt_list_upgradable;
 mod ag_literal;
 mod apt_get_search;
+mod apt_list_upgradable;
 mod apt_upgrade;
 mod brew_update_formula;
 mod cargo;
