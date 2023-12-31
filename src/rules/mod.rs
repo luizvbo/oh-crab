@@ -9,6 +9,7 @@ use crate::{
     ui::interactive_menu,
 };
 
+mod ag_literal;
 mod apt_get;
 mod apt_upgrade;
 mod brew_update_formula;
@@ -153,6 +154,7 @@ pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&C
 
 pub fn get_rules() -> Vec<Rule> {
     vec![
+        ag_literal::get_rule(),
         apt_upgrade::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
