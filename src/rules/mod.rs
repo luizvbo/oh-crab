@@ -10,7 +10,10 @@ use crate::{
 };
 
 mod apt_get_search;
+mod ag_literal;
+mod apt_get;
 mod apt_upgrade;
+mod brew_update_formula;
 mod cargo;
 mod cd_correction;
 mod cd_cs;
@@ -153,7 +156,9 @@ pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&C
 pub fn get_rules() -> Vec<Rule> {
     vec![
         apt_get_search::get_rule(),
+        ag_literal::get_rule(),
         apt_upgrade::get_rule(),
+        brew_update_formula::get_rule(),
         cargo::get_rule(),
         cd_correction::get_rule(),
         cd_cs::get_rule(),
