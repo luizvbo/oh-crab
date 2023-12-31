@@ -11,6 +11,7 @@ use crate::{
 
 mod ag_literal;
 mod apt_get_search;
+mod apt_list_upgradable;
 mod apt_upgrade;
 mod brew_update_formula;
 mod cargo;
@@ -103,15 +104,18 @@ pub fn match_without_sudo(
 }
 
 pub fn get_new_command_without_sudo(
-    get_command_function: fn(&CrabCommand) -> Vec<String>,
+    get_new_command_function: fn(&CrabCommand) -> Vec<String>,
     command: &mut CrabCommand,
 ) -> Vec<String> {
     if !command.script.starts_with("sudo ") {
-        get_command_function(command)
+        get_new_command_function(command)
     } else {
         let new_script = command.script[5..].to_owned();
         command.script = new_script;
-        get_command_function(command)
+        get_new_command_function(command)
+            .iter()
+            .map(|cmd| "sudo ".to_owned() + cmd)
+            .collect()
     }
 }
 
@@ -157,6 +161,7 @@ pub fn get_rules() -> Vec<Rule> {
         ag_literal::get_rule(),
         apt_get_search::get_rule(),
         apt_upgrade::get_rule(),
+        apt_list_upgradable::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
         cd_correction::get_rule(),
