@@ -18,6 +18,7 @@ mod cargo;
 mod cd_correction;
 mod cd_cs;
 mod cd_mkdir;
+mod cd_parent;
 mod history;
 mod no_command;
 mod tmux;
@@ -167,6 +168,7 @@ pub fn get_rules() -> Vec<Rule> {
         cargo::get_rule(),
         cd_correction::get_rule(),
         cd_cs::get_rule(),
+        cd_parent::get_rule(),
         cd_mkdir::get_rule(),
         history::get_rule(),
         no_command::get_rule(),
