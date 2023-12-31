@@ -9,7 +9,6 @@ use crate::{
     ui::interactive_menu,
 };
 
-mod apt_get;
 mod apt_list_upgradable;
 mod ag_literal;
 mod apt_get_search;
