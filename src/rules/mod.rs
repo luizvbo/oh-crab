@@ -19,6 +19,7 @@ mod cd_correction;
 mod cd_cs;
 mod cd_mkdir;
 mod cd_parent;
+mod chmod_x;
 mod choco_install;
 mod history;
 mod no_command;
@@ -169,6 +170,7 @@ pub fn get_rules() -> Vec<Rule> {
         cargo::get_rule(),
         cd_correction::get_rule(),
         cd_cs::get_rule(),
+        chmod_x::get_rule(),
         choco_install::get_rule(),
         cd_parent::get_rule(),
         cd_mkdir::get_rule(),
