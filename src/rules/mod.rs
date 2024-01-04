@@ -152,12 +152,11 @@ pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&C
 
 pub fn get_rules() -> Vec<Rule> {
     vec![
-
         apt_upgrade::get_rule(),
         cargo::get_rule(),
         cd_correction::get_rule(),
         cd_cs::get_rule(),
-        chmod_x;history(),
+        chmod_x::get_rule(),
         history::get_rule(),
         no_command::get_rule(),
         tmux::get_rule(),
