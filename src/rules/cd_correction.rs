@@ -1,3 +1,4 @@
+use crate::rules::cd_mkdir::get_new_command_mkdir;
 use crate::utils::get_close_matches;
 use crate::{cli::command::CrabCommand, shell::Shell};
 use regex::Regex;
@@ -70,21 +71,12 @@ fn _get_new_command(command: &CrabCommand) -> Vec<String> {
                     .unwrap()
                     .to_string();
             } else {
-                return get_new_command_mkdir(command, None);
+                return get_new_command_mkdir(command);
             }
         }
         return vec![format!("cd \"{}\"", cwd)];
     }
     vec![]
-}
-
-pub fn get_new_command_mkdir(
-    command: &CrabCommand,
-    system_shell: Option<&dyn Shell>,
-) -> Vec<String> {
-    let re = Regex::new(r"^cd (.*)").unwrap();
-    let repl = |caps: &regex::Captures| format!("mkdir -p {} && cd {}", &caps[1], &caps[1]);
-    vec![re.replace(&command.script, repl).to_string()]
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
