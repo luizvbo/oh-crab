@@ -1,12 +1,10 @@
-name: CD
-
 on:
   push:
     tags:
       - '*'
 
-name: Publish
-
+name: Release
+  
 jobs:
   build_and_test_linux:
     name: Build and Test (Linux)
