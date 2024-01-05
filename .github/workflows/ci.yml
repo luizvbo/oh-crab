@@ -66,14 +66,11 @@ jobs:
       - name: 'Build and test'
         run: cargo nextest run --workspace --all-features
 
-  build_and_test_windows:
-    name: Build and Test (Windows)
-    runs-on: windows-latest
-    timeout-minutes: 20
+  build_and_test_macos:
+    name: Build and Test (MacOS)
+    runs-on: macos-latest
+    timeout-minutes: 10
     steps:
-      - name: Prepare symlink configuration
-        run: git config --global core.symlinks true
-
       - name: Checkout sources
         uses: actions/checkout@v4
 
@@ -83,3 +80,21 @@ jobs:
       - uses: taiki-e/install-action@nextest
       - name: 'Build and test'
         run: cargo nextest run --workspace --all-features
+
+  # build_and_test_windows:
+  #   name: Build and Test (Windows)
+  #   runs-on: windows-latest
+  #   timeout-minutes: 20
+  #   steps:
+  #     - name: Prepare symlink configuration
+  #       run: git config --global core.symlinks true
+  #
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Install stable toolchain
+  #       uses: dtolnay/rust-toolchain@stable
+  #
+  #     - uses: taiki-e/install-action@nextest
+  #     - name: 'Build and test'
+  #       run: cargo nextest run --workspace --all-features
