@@ -1,7 +1,7 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
+use is_executable::IsExecutable;
 use regex::Regex;
 use std::fs;
-use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 
 use super::{get_new_command_without_sudo, match_without_sudo, Rule};
@@ -25,9 +25,8 @@ fn _match_rule(
                 if let Some(file_access) = mock_file_access {
                     !file_access
                 } else {
-                    let metadata = fs::metadata(&command.script_parts[0]).unwrap();
-                    let permissions = metadata.permissions();
-                    permissions.mode() & 0o100 == 0
+                    let path = Path::new(&command.script_parts[0]);
+                    !path.is_executable()
                 }
             }
     } else {

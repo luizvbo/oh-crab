@@ -22,7 +22,7 @@ jobs:
     outputs:
       msrv: ${{ steps.crate_metadata.outputs.msrv }}
 
-  lints:
+  lint:
     name: Lint
     runs-on: ubuntu-latest
     steps:
@@ -51,23 +51,50 @@ jobs:
           command: clippy
           args: -- -D warnings
 
-  test:
-    name: Test
+  build_and_test_linux:
+    name: Build and Test (Linux)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
 
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        continue-on-error: false
-        with:
-          command: test
+      - uses: taiki-e/install-action@nextest
+      - name: 'Build and test'
+        run: cargo nextest run --workspace --all-features
 
+  build_and_test_macos:
+    name: Build and Test (MacOS)
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: taiki-e/install-action@nextest
+      - name: 'Build and test'
+        run: cargo nextest run --workspace --all-features
+
+  # build_and_test_windows:
+  #   name: Build and Test (Windows)
+  #   runs-on: windows-latest
+  #   timeout-minutes: 20
+  #   steps:
+  #     - name: Prepare symlink configuration
+  #       run: git config --global core.symlinks true
+  #
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Install stable toolchain
+  #       uses: dtolnay/rust-toolchain@stable
+  #
+  #     - uses: taiki-e/install-action@nextest
+  #     - name: 'Build and test'
+  #       run: cargo nextest run --workspace --all-features
