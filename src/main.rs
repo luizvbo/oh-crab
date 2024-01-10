@@ -1,15 +1,27 @@
-extern crate ohcrab;
+#![allow(dead_code)]
+#![allow(unused_mut)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(clippy::type_complexity)]
 
+pub mod cli;
+pub mod rules;
+pub mod shell;
+mod ui;
+mod utils;
+
+use cli::{
+    command::run_command,
+    parser::{get_parser, prepare_arguments},
+};
+use rules::{get_corrected_commands, selected_command};
+use shell::get_bash_type;
 use std::env;
 
-use ohcrab::{
-    cli::{
-        command::run_command,
-        parser::{get_parser, prepare_arguments},
-    },
-    rules::{get_corrected_commands, selected_command},
-    shell::get_bash_type,
-};
+const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
+const ENV_VAR_NAME_HISTORY: &str = "OHCRAB_COMMAND_HISTORY";
+const ENV_VAR_NAME_ALIAS: &str = "OHCRAB_ALIAS";
+const ENV_VAR_NAME_SHELL: &str = "OHCRAB_SHELL";
 
 fn main() {
     env_logger::init();
