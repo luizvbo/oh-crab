@@ -10,6 +10,7 @@ use crate::{
 };
 
 mod ag_literal;
+mod apt_get;
 mod apt_get_search;
 mod apt_list_upgradable;
 mod apt_upgrade;
@@ -162,6 +163,7 @@ pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&C
 
 pub fn get_rules() -> Vec<Rule> {
     vec![
+        apt_get::get_rule(),
         ag_literal::get_rule(),
         apt_get_search::get_rule(),
         apt_upgrade::get_rule(),
@@ -179,3 +181,4 @@ pub fn get_rules() -> Vec<Rule> {
         tmux::get_rule(),
     ]
 }
+
