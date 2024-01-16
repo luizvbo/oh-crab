@@ -229,7 +229,6 @@ mod tests {
             .expect("Command not found")
             .collect::<Vec<_>>();
         let shell_type = vec_matches.remove_one::<String>("shell");
-        println!("{:?}", command);
         assert_eq!(command, ["arg1", "arg2"]);
         assert_eq!(shell_type, Some("custom_bash".to_owned()));
     }

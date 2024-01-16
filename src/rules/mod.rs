@@ -14,6 +14,7 @@ mod apt_get;
 mod apt_get_search;
 mod apt_list_upgradable;
 mod apt_upgrade;
+mod brew_install;
 mod brew_update_formula;
 mod cargo;
 mod cd_correction;
@@ -168,6 +169,7 @@ pub fn get_rules() -> Vec<Rule> {
         apt_get_search::get_rule(),
         apt_upgrade::get_rule(),
         apt_list_upgradable::get_rule(),
+        brew_install::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
         cd_correction::get_rule(),
