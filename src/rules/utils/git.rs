@@ -1,5 +1,5 @@
-use regex::Regex;
 use crate::{cli::command::CrabCommand, shell::Shell};
+use regex::Regex;
 use std::path::Path;
 
 /// Checks if a given command is an application.
@@ -36,9 +36,9 @@ fn is_app(command: &CrabCommand, app_names: Vec<&str>, at_least: Option<usize>) 
 /// # Returns
 ///
 /// * `bool` - Returns the result of the function `func`.
-fn git_support<F>(func: F, mut command: CrabCommand) -> bool
+pub fn match_rule_with_git_support<F>(func: F, command: &mut CrabCommand) -> bool
 where
-    F: Fn(CrabCommand) -> bool,
+    F: Fn(&CrabCommand) -> bool,
 {
     // supports GitHub's `hub` command
     // which is recommended to be used with `alias git=hub`
@@ -58,17 +58,66 @@ where
                 //     'commit' '--amend'
                 // which is surprising and does not allow to easily test for
                 // eg. 'git commit'
-                let expansion = search.get(2).map_or("", |m| m.as_str())
+                let expansion = search
+                    .get(2)
+                    .map_or("", |m| m.as_str())
                     .split_whitespace()
-                    .map(|part| format!("\"{}\"", part))  // shell.quote(part)
+                    .map(|part| format!("\"{}\"", part)) // shell.quote(part)
                     .collect::<Vec<_>>()
                     .join(" ");
-                let new_script = command.script.replace(&format!(r"\b{}\b", alias), &expansion);
+                let new_script = command
+                    .script
+                    .replace(&format!(r"\b{}\b", alias), &expansion);
 
                 command.script = new_script;
             }
         }
     }
 
-    func(command)
+    func(&command)
+}
+
+pub fn get_command_with_git_support<F>(
+    func: F,
+    command: &mut CrabCommand,
+    system_shell: Option<&dyn Shell>,
+) -> Vec<String>
+where
+    F: Fn(&CrabCommand, Option<&dyn Shell>) -> Vec<String>,
+{
+    // supports GitHub's `hub` command
+    // which is recommended to be used with `alias git=hub`
+    // but at this point, shell aliases have already been resolved
+    if !is_app(&command, vec!["git", "hub"], None) {
+        return Vec::<String>::new();
+    }
+
+    // perform git aliases expansion
+    if let Some(stdout) = &command.stdout {
+        if stdout.contains("trace: alias expansion:") {
+            let re = Regex::new(r"trace: alias expansion: ([^ ]*) => ([^\n]*)").unwrap();
+            if let Some(search) = re.captures(stdout) {
+                let alias = search.get(1).map_or("", |m| m.as_str());
+
+                // by default git quotes everything, for example:
+                //     'commit' '--amend'
+                // which is surprising and does not allow to easily test for
+                // eg. 'git commit'
+                let expansion = search
+                    .get(2)
+                    .map_or("", |m| m.as_str())
+                    .split_whitespace()
+                    .map(|part| format!("\"{}\"", part)) // shell.quote(part)
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                let new_script = command
+                    .script
+                    .replace(&format!(r"\b{}\b", alias), &expansion);
+
+                command.script = new_script;
+            }
+        }
+    }
+
+    func(&command, system_shell)
 }
