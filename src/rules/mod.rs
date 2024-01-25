@@ -23,9 +23,11 @@ mod cd_mkdir;
 mod cd_parent;
 mod chmod_x;
 mod choco_install;
+mod git_add;
 mod history;
 mod no_command;
 mod tmux;
+mod utils;
 
 pub struct Rule {
     name: String,
@@ -178,6 +180,7 @@ pub fn get_rules() -> Vec<Rule> {
         choco_install::get_rule(),
         cd_parent::get_rule(),
         cd_mkdir::get_rule(),
+        git_add::get_rule(),
         history::get_rule(),
         no_command::get_rule(),
         tmux::get_rule(),
