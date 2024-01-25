@@ -1,6 +1,5 @@
 pub mod git;
 
-
 #[macro_export]
 macro_rules! parameterized_match_rule_tests {
     ($($name:ident: $value:expr,)*) => {

@@ -43,7 +43,7 @@ where
     // supports GitHub's `hub` command
     // which is recommended to be used with `alias git=hub`
     // but at this point, shell aliases have already been resolved
-    if !is_app(&command, vec!["git", "hub"], None) {
+    if !is_app(command, vec!["git", "hub"], None) {
         return false;
     }
 
@@ -74,7 +74,7 @@ where
         }
     }
 
-    func(&command)
+    func(command)
 }
 
 pub fn get_command_with_git_support<F>(
@@ -88,7 +88,7 @@ where
     // supports GitHub's `hub` command
     // which is recommended to be used with `alias git=hub`
     // but at this point, shell aliases have already been resolved
-    if !is_app(&command, vec!["git", "hub"], None) {
+    if !is_app(command, vec!["git", "hub"], None) {
         return Vec::<String>::new();
     }
 
@@ -119,5 +119,5 @@ where
         }
     }
 
-    func(&command, system_shell)
+    func(command, system_shell)
 }

@@ -9,7 +9,6 @@ use crate::{
     ui::interactive_menu,
 };
 
-mod utils;
 mod ag_literal;
 mod apt_get;
 mod apt_get_search;
@@ -28,6 +27,7 @@ mod git_add;
 mod history;
 mod no_command;
 mod tmux;
+mod utils;
 
 pub struct Rule {
     name: String,

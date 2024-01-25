@@ -13,29 +13,24 @@ fn get_missing_file(command: &CrabCommand, path_exists: Option<bool>) -> Option<
     if let Some(stdout) = &command.stdout {
         let re = Regex::new(r"error: pathspec '([^']*)' did not match any file\(s\) known to git.")
             .unwrap();
-        let pathspec = re
-            .captures(stdout)
-            .and_then(|cap| cap.get(0))
-            .map(|m| m.as_str().to_string());
 
-        match pathspec {
-            Some(path) => {
-                println!("{:?}", path);
-                if let Some(path_exists) = path_exists {
-                    if path_exists {
-                        Some(path)
-                    } else {
-                        None
-                    }
+        if let Some(captures) = re.captures(stdout) {
+            let path = &captures[1];
+            if path.is_empty() {
+                None
+            } else if let Some(path_exists) = path_exists {
+                if path_exists {
+                    Some(path.to_owned())
                 } else {
-                    if Path::new(&path).exists() {
-                        Some(path)
-                    } else {
-                        None
-                    }
+                    None
                 }
+            } else if Path::new(&path).exists() {
+                Some(path.to_owned())
+            } else {
+                None
             }
-            None => None,
+        } else {
+            None
         }
     } else {
         None
@@ -105,14 +100,14 @@ mod tests {
             $(
                 #[test]
                 fn $name() {
-                    let (script, target) = $value;
+                    let (script, target, path_exists, check_eq) = $value;
                     let stdout = format!("error: pathspec '{}' did not match any file(s) known to git.", target);
                     let mut command = CrabCommand::new(
                                 script.to_owned(),
                                 Some(stdout.to_owned()),
                                 None
                             );
-                    assert!(mockable_match_rule(&mut command, Some(true)));
+                    assert_eq!(mockable_match_rule(&mut command, Some(path_exists)), check_eq);
                 }
             )*
         }
@@ -138,14 +133,14 @@ mod tests {
     }
 
     parameterized_match_rule_tests! {
-        match_rule_1: ("git submodule update unknown", "unknown"),
-        match_rule_2: ("git commit unknown", "unknown"),
+        match_rule_1: ("git submodule update unknown", "unknown", true, true),
+        match_rule_2: ("git commit unknown", "unknown", true, true),
     }
 
-    // parameterized_unmatch_rule_tests! {
-    //     unmatch_rule_1: ("cd foo", ""),
-    //     unmatch_rule_2: ("", ""),
-    // }
+    parameterized_match_rule_tests! {
+        unmatch_rule_1: ("git submodule update known", "", true, false),
+        unmatch_rule_2: ("git commit known", "", true, false),
+    }
 
     parameterized_get_new_command_tests! {
         get_new_command_1: ("git submodule update unknown", "unknown", "git add -- unknown && git submodule update unknown"),
