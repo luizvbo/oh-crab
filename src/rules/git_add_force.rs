@@ -49,7 +49,7 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use super::{match_rule,get_new_command};
+    use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
     use crate::shell::Bash;
     use crate::{parameterized_get_new_command_tests, parameterized_match_rule_tests};
@@ -66,7 +66,7 @@ Use -f if you really want to add them.\n";
         unmatch_rule_1: ("git add dist/*.js", "", false),
     }
 
-    parameterized_get_new_command_tests!{
+    parameterized_get_new_command_tests! {
         get_new_command,
         get_new_command_1: ("git add dist/*.js", OUTPUT, "git add --force dist/*.js"),
     }
