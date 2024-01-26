@@ -24,6 +24,7 @@ mod cd_parent;
 mod chmod_x;
 mod choco_install;
 mod git_add;
+mod git_add_force;
 mod history;
 mod no_command;
 mod tmux;
@@ -181,6 +182,7 @@ pub fn get_rules() -> Vec<Rule> {
         cd_parent::get_rule(),
         cd_mkdir::get_rule(),
         git_add::get_rule(),
+        git_add_force::get_rule(),
         history::get_rule(),
         no_command::get_rule(),
         tmux::get_rule(),
