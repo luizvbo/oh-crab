@@ -102,6 +102,7 @@ new rules or improving the crate.
 - [X] git_add
 - [X] git_add_force
 - [X] git_clone
+- [X] git_clone_missing
 - [X] history
 - [X] no_command
 - [X] tmux
@@ -147,7 +148,6 @@ new rules or improving the crate.
 - [ ] git_branch_exists
 - [ ] git_branch_list
 - [ ] git_checkout
-- [ ] git_clone_missing
 - [ ] git_commit_add
 - [ ] git_commit_amend
 - [ ] git_commit_reset
