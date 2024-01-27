@@ -4,10 +4,7 @@ use crate::{
 use regex::Regex;
 use std::path::Path;
 
-use super::{
-    get_new_command_without_sudo, match_without_sudo, utils::git::get_command_with_git_support,
-    Rule,
-};
+use super::{utils::git::get_command_with_git_support, Rule};
 
 fn get_missing_file(command: &CrabCommand, path_exists: Option<bool>) -> Option<String> {
     if let Some(stdout) = &command.stdout {

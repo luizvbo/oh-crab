@@ -1,4 +1,4 @@
-use crate::cli::command::{CorrectedCommand, CrabCommand};
+use crate::cli::command::CorrectedCommand;
 use console::{style, Key, Term};
 use std::io::{self, Write};
 

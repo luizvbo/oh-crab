@@ -1,7 +1,7 @@
 use crate::rules::cd_mkdir::get_new_command_mkdir;
 use crate::utils::get_close_matches;
 use crate::{cli::command::CrabCommand, shell::Shell};
-use regex::Regex;
+
 use std::env;
 use std::fs;
 use std::path::{Path, MAIN_SEPARATOR};
@@ -97,7 +97,7 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use super::{_match_rule, match_rule};
+    use super::_match_rule;
     use crate::cli::command::CrabCommand;
 
     macro_rules! parameterized_match_rule_tests {

@@ -1,13 +1,7 @@
-use clap::{command, parser::ValueSource, Arg, ArgAction};
+use clap::{command, Arg, ArgAction};
 use std::env;
 
-use crate::{
-    cli::command::{run_command, CrabCommand},
-    rules::{get_corrected_commands, get_rules, selected_command},
-    shell::{get_bash_type, Shell},
-    shell::{Bash, Zsh},
-    ARGUMENT_PLACEHOLDER, ENV_VAR_NAME_ALIAS, ENV_VAR_NAME_HISTORY, ENV_VAR_NAME_SHELL,
-};
+use crate::{ARGUMENT_PLACEHOLDER, ENV_VAR_NAME_ALIAS, ENV_VAR_NAME_HISTORY, ENV_VAR_NAME_SHELL};
 
 /// Prepares arguments by:
 /// - Removing placeholder and moving arguments after it to beginning, we need this

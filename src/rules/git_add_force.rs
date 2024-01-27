@@ -3,13 +3,8 @@ use crate::{
     rules::utils::{common::replace_argument, git::match_rule_with_git_support},
     shell::Shell,
 };
-use regex::Regex;
-use std::path::Path;
 
-use super::{
-    get_new_command_without_sudo, match_without_sudo, utils::git::get_command_with_git_support,
-    Rule,
-};
+use super::{utils::git::get_command_with_git_support, Rule};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.stdout {
@@ -51,7 +46,6 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
-    use crate::shell::Bash;
     use crate::{parameterized_get_new_command_tests, parameterized_match_rule_tests};
 
     const OUTPUT: &str = "The following paths are ignored by one of your .gitignore files:\n\

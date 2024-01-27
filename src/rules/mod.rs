@@ -2,10 +2,7 @@ use crate::shell::Shell;
 use core::fmt;
 
 use crate::{
-    cli::{
-        command::CorrectedCommand,
-        command::{self, CrabCommand},
-    },
+    cli::{command::CorrectedCommand, command::CrabCommand},
     ui::interactive_menu,
 };
 
@@ -26,11 +23,38 @@ mod choco_install;
 mod git_add;
 mod git_add_force;
 mod git_clone;
+mod git_clone_missing;
 mod history;
 mod no_command;
 mod tmux;
+
 mod utils;
 
+pub fn get_rules() -> Vec<Rule> {
+    vec![
+        apt_get::get_rule(),
+        ag_literal::get_rule(),
+        apt_get_search::get_rule(),
+        apt_upgrade::get_rule(),
+        apt_list_upgradable::get_rule(),
+        brew_install::get_rule(),
+        brew_update_formula::get_rule(),
+        cargo::get_rule(),
+        cd_correction::get_rule(),
+        cd_cs::get_rule(),
+        chmod_x::get_rule(),
+        choco_install::get_rule(),
+        cd_parent::get_rule(),
+        cd_mkdir::get_rule(),
+        git_add::get_rule(),
+        git_add_force::get_rule(),
+        git_clone::get_rule(),
+        git_clone_missing::get_rule(),
+        history::get_rule(),
+        no_command::get_rule(),
+        tmux::get_rule(),
+    ]
+}
 pub struct Rule {
     name: String,
     enabled_by_default: bool,
@@ -164,29 +188,4 @@ pub fn organize_commands(mut corrected_commands: Vec<CorrectedCommand>) -> Vec<C
 
 pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&CorrectedCommand> {
     interactive_menu(corrected_commands)
-}
-
-pub fn get_rules() -> Vec<Rule> {
-    vec![
-        apt_get::get_rule(),
-        ag_literal::get_rule(),
-        apt_get_search::get_rule(),
-        apt_upgrade::get_rule(),
-        apt_list_upgradable::get_rule(),
-        brew_install::get_rule(),
-        brew_update_formula::get_rule(),
-        cargo::get_rule(),
-        cd_correction::get_rule(),
-        cd_cs::get_rule(),
-        chmod_x::get_rule(),
-        choco_install::get_rule(),
-        cd_parent::get_rule(),
-        cd_mkdir::get_rule(),
-        git_add::get_rule(),
-        git_add_force::get_rule(),
-        git_clone::get_rule(),
-        history::get_rule(),
-        no_command::get_rule(),
-        tmux::get_rule(),
-    ]
 }

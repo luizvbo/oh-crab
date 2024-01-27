@@ -1,12 +1,9 @@
-use crate::{
-    cli::command::CrabCommand,
-    shell::Shell,
-};
+use crate::{cli::command::CrabCommand, shell::Shell};
 use regex::Regex;
 
 use which::which;
 
-use super::{Rule};
+use super::Rule;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     let stdout = command.stdout.clone().unwrap_or("".to_owned());
@@ -47,7 +44,6 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
-    use crate::shell::Bash;
     use crate::{parameterized_get_new_command_tests, parameterized_match_rule_tests};
 
     parameterized_match_rule_tests! {
