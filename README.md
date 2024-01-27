@@ -32,19 +32,22 @@ In order for `ohcrab` to work in your terminal, you need to export the correct
 function for your shell. Currently, we support `bash` and `zsh`. Copy and paste
 the respective command to your terminal:
 
-* For `bash`, use:
+- For `bash`, use:
+
 ```shell
 eval $(ohcrab --shell bash)
 ```
-* For `zsh`, use:
+
+- For `zsh`, use:
+
 ```shell
 eval $(ohcrab --shell zsh)
 ```
 
 ### Loading `ohcrab` automatically
 
-In order to load `ohcrab` every time you open a terminal, add the `eval`
-command above to your .bash_profile, .bashrc, .zshrc or other startup script.
+In order to load `ohcrab` every time you open a terminal, add the `eval` command
+above to your .bash_profile, .bashrc, .zshrc or other startup script.
 
 ### Changing the alias
 
@@ -70,14 +73,17 @@ new rules or improving the crate.
 
 ## Road map
 
-- [X] Add `sudo` support 
+- [x] Add `sudo` support
 - [ ] Inform the user which shell type is being used when the `ohcrab` shell
-  function is generated.
+      function is generated.
 - [ ] Add support to user shell aliases.
 - [ ] Distribute binaries for Linux, MacOs and Windows.
 - [ ] Add support to PowerShell
 
 ### Rules
+
+<details>
+  <summary>Implemented</summary>
 
 - [X] ag_literal
 - [X] apt_get
@@ -94,9 +100,17 @@ new rules or improving the crate.
 - [X] chmod_x
 - [X] choco_install
 - [X] git_add
+- [X] git_add_force
+- [X] git_clone
 - [X] history
 - [X] no_command
 - [X] tmux
+
+</details>
+
+<details>
+  <summary>To be Implemented</summary>
+
 - [ ] adb_unknown_command
 - [ ] apt_invalid_operation
 - [ ] aws_cli
@@ -126,7 +140,6 @@ new rules or improving the crate.
 - [ ] fix_alt_space
 - [ ] fix_file
 - [ ] gem_unknown_command
-- [ ] git_add_force
 - [ ] git_bisect_usage
 - [ ] git_branch_0flag
 - [ ] git_branch_delete
@@ -134,7 +147,6 @@ new rules or improving the crate.
 - [ ] git_branch_exists
 - [ ] git_branch_list
 - [ ] git_checkout
-- [ ] git_clone_git_clone
 - [ ] git_clone_missing
 - [ ] git_commit_add
 - [ ] git_commit_amend
@@ -248,3 +260,5 @@ new rules or improving the crate.
 - [ ] yarn_command_replaced
 - [ ] yarn_help
 - [ ] yum_invalid_operation
+
+</details>
