@@ -103,6 +103,7 @@ new rules or improving the crate.
 - [X] git_add_force
 - [X] git_clone
 - [X] git_clone_missing
+- [X] git_pull
 - [X] history
 - [X] no_command
 - [X] tmux

@@ -46,6 +46,7 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
+    use crate::shell::Bash;
     use crate::{parameterized_get_new_command_tests, parameterized_match_rule_tests};
 
     const OUTPUT: &str = "The following paths are ignored by one of your .gitignore files:\n\

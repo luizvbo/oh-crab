@@ -4,10 +4,8 @@ use regex::Regex;
 use super::{get_new_command_without_sudo, match_without_sudo, Rule};
 
 fn _match_rule(command: &CrabCommand) -> bool {
-    println!("{:?}", command);
     if let Some(stdout) = &command.stdout {
         let stdout = stdout.to_lowercase();
-        println!("{:?}", stdout);
         command.script.starts_with("cd ")
             && (stdout.contains("no such file or directory")
                 || stdout.contains("cd: can't cd to")
