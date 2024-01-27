@@ -6,7 +6,7 @@ use super::{utils::git::get_command_with_git_support, Rule};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.stdout {
-        stdout.contains("fatal: Too many arguments.") && command.script.contains(" git clone ")
+        command.script.contains("pull") && stdout.contains("set-upstream")
     } else {
         false
     }
@@ -20,7 +20,21 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    vec![command.script.replacen(" git clone ", " ", 1)]
+    if let Some(stdout) = &command.stdout {
+        let lines: Vec<&str> = stdout.lines().collect();
+        let line = lines[lines.len() - 3].trim();
+
+        let words: Vec<&str> = line.split_whitespace().collect();
+        let branch = words.last().unwrap_or(&"");
+        let set_upstream = line
+            .replace("<remote>", "origin")
+            .replace("<branch>", branch);
+        vec![system_shell
+            .unwrap()
+            .and(vec![&set_upstream, &command.script])]
+    } else {
+        Vec::<String>::new()
+    }
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
@@ -29,7 +43,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
 
 pub fn get_rule() -> Rule {
     Rule::new(
-        "git_clone".to_owned(),
+        "git_pull".to_owned(),
         None,
         None,
         None,
@@ -46,23 +60,28 @@ mod tests {
     use crate::shell::Bash;
     use crate::{parameterized_get_new_command_tests, parameterized_match_rule_tests};
 
-    const OUTPUT_CLEAN: &str = r#"
-fatal: Too many arguments.
+    const OUTPUT: &str = r#"There is no tracking information for the current branch.
+Please specify which branch you want to merge with.
+See git-pull(1) for details
 
-usage: git clone [<options>] [--] <repo> [<dir>]
+    git pull <remote> <branch>
+
+If you wish to set tracking information for this branch you can do so with:
+
+    git branch --set-upstream-to=<remote>/<branch> master
+
+
 "#;
 
     parameterized_match_rule_tests! {
         match_rule,
-        match_rule_1: ("git clone git clone foo", OUTPUT_CLEAN, true),
-        unmatch_rule_1: ("", "", false),
-        unmatch_rule_2: ("git branch", "", false),
-        unmatch_rule_3: ("git clone foo", "", false),
-        unmatch_rule_4: ("git clone foo bar baz", OUTPUT_CLEAN, false),
+        match_rule_01: ("git pull", OUTPUT, true),
+        unmatch_rule_01: ("git pull", "", false),
+        unmatch_rule_02: ("ls", OUTPUT, false),
     }
 
     parameterized_get_new_command_tests! {
         get_new_command,
-        get_new_command_1: ("git clone git clone foo", OUTPUT_CLEAN, "git clone foo"),
+        get_new_command_1: ("git pull", OUTPUT, "git branch --set-upstream-to=origin/master master && git pull"),
     }
 }
