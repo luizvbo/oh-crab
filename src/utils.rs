@@ -1,7 +1,7 @@
 use similar::get_close_matches as difflib_get_close_matches;
 use std::collections::HashSet;
 use std::env;
-use std::iter::FromIterator;
+
 use std::path::Path;
 
 use crate::cli::command::CrabCommand;
@@ -168,7 +168,7 @@ pub fn get_valid_history_without_current(
 
 #[cfg(test)]
 mod tests {
-    use mockall::{mock, predicate};
+    use mockall::mock;
 
     use crate::{cli::command::CrabCommand, shell::Shell, utils::get_alias};
 

@@ -1,8 +1,8 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
-use regex::Regex;
+
 use which::which;
 
-use super::{get_new_command_without_sudo, match_without_sudo, Rule};
+use super::Rule;
 
 fn get_executable(command: &CrabCommand) -> &str {
     if command.script_parts[0] == "sudo" {

@@ -1,7 +1,6 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
-use regex::Regex;
 
-use super::{get_new_command_without_sudo, match_without_sudo, Rule};
+use super::Rule;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     command.script == "cd.."

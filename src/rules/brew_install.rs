@@ -1,7 +1,7 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
 use regex::Regex;
 
-use super::{get_new_command_without_sudo, match_without_sudo, Rule};
+use super::Rule;
 
 fn get_suggestions(str: String) -> Vec<String> {
     str.replace(" or ", ", ")

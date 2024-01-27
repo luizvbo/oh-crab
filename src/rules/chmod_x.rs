@@ -1,10 +1,9 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
 use is_executable::IsExecutable;
-use regex::Regex;
-use std::fs;
+
 use std::path::Path;
 
-use super::{get_new_command_without_sudo, match_without_sudo, Rule};
+use super::Rule;
 
 fn _match_rule(
     command: &mut CrabCommand,

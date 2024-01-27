@@ -3,7 +3,6 @@ use crate::{
     shell::Shell,
     utils::{get_all_executable, get_close_matches},
 };
-use similar::DiffableStr;
 use which::which;
 
 use super::Rule;
