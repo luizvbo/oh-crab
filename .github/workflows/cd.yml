@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.1
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: taiki-e/install-action@nextest
@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
 
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -43,7 +43,7 @@ jobs:
   #   runs-on: ubuntu-latest
   #   timeout-minutes: 25
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4.1.1
   #     - uses: dtolnay/rust-toolchain@stable
   #
   #     - name: cargo-release Cache
@@ -113,7 +113,7 @@ jobs:
             os_name: Linux_x86_64
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
