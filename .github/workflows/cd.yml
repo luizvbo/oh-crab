@@ -33,10 +33,78 @@ jobs:
       - name: 'Build and test'
         run: cargo nextest run --workspace --all-features
 
+
+  build_and_release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os_name: Linux_x86_64
+          - target: i686-unknown-linux-gnu
+            os_name: Linux_32-bit
+          - target: x86_64-apple-darwin
+            os_name: Darwin_x86_64
+          - target: aarch64-apple-darwin
+            os_name: Darwin_arm64
+          # - target: i686-unknown-freebsd
+          #   os_name: freebsd_32-bit
+          # - target: aarch64-unknown-freebsd
+          #   os_name: freebsd_arm64
+          # - target: armv6-unknown-freebsd
+          #   os_name: freebsd_armv6
+          # - target: x86_64-unknown-freebsd
+          #   os_name: freebsd_x86_64
+          # - target: aarch64-unknown-linux-gnu
+          #   os_name: Linux_arm64
+          # - target: armv6-unknown-linux-gnueabihf
+          #   os_name: Linux_armv6
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.1
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Install cross
+        run: cargo install cross
+
+      - name: Build
+        run: cross build --target ${{ matrix.target }} --release
+
+      - name: Rename binary
+        run: |
+          # Convert to lower case and replace '-' with '_'
+          target=${{ matrix.target }}
+          target_modified=$(echo "$target" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
+
+          # Get the current tag
+          current_tag=$(git describe --tags)
+          prefix=_"${target_modified}"_"${current_tag}".bin
+
+          # Rename the file
+          mv ./target/${{ matrix.target }}/release/ohcrab{,$prefix}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: ./target/${{ matrix.target }}/release/ohcrab*.bin
+
   # crates_io_publish:
   #   name: Publish (crates.io)
   #   needs:
   #     # - audit
+  #     - build_and_release
   #     - build_and_test_linux
   #     - build_and_test_macos
   #
@@ -84,69 +152,3 @@ jobs:
   #           --no-confirm \
   #           --no-verify \
   #           --execute
-
-  build_and_release:
-    name: Build and Release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    strategy:
-      matrix:
-        include:
-          - target: aarch64-apple-darwin
-            os_name: Darwin_arm64
-          - target: x86_64-apple-darwin
-            os_name: Darwin_x86_64
-          - target: i686-unknown-freebsd
-            os_name: freebsd_32-bit
-          - target: aarch64-unknown-freebsd
-            os_name: freebsd_arm64
-          - target: armv6-unknown-freebsd
-            os_name: freebsd_armv6
-          - target: x86_64-unknown-freebsd
-            os_name: freebsd_x86_64
-          - target: i686-unknown-linux-gnu
-            os_name: Linux_32-bit
-          - target: aarch64-unknown-linux-gnu
-            os_name: Linux_arm64
-          - target: armv6-unknown-linux-gnueabihf
-            os_name: Linux_armv6
-          - target: x86_64-unknown-linux-gnu
-            os_name: Linux_x86_64
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.1
-
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          target: ${{ matrix.target }}
-          override: true
-
-      - name: Install cross
-        run: cargo install cross
-
-      - name: Build
-        run: cross build --target ${{ matrix.target }} --release
-
-      - name: Rename binary
-        run: |
-          # Convert to lower case and replace '-' with '_'
-          target=${{ matrix.target }}
-          target_modified=$(echo "$target" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
-
-          # Get the current tag
-          current_tag=$(git describe --tags)
-          prefix=_"${target_modified}"_"${current_tag}".bin
-
-          # Rename the file
-          mv ./target/${{ matrix.target }}/release/ohcrab{,$prefix}
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: ./target/${{ matrix.target }}/release/ohcrab*.bin
