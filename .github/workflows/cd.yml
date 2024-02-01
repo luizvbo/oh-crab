@@ -93,24 +93,24 @@ jobs:
     strategy:
       matrix:
         include:
-          # - target: aarch64-apple-darwin
-          #   os_name: Darwin_arm64
-          # - target: x86_64-apple-darwin
-          #   os_name: Darwin_x86_64
-          # - target: i686-unknown-freebsd
-          #   os_name: freebsd_32-bit
-          # - target: aarch64-unknown-freebsd
-          #   os_name: freebsd_arm64
-          # - target: armv6-unknown-freebsd
-          #   os_name: freebsd_armv6
-          # - target: x86_64-unknown-freebsd
-          #   os_name: freebsd_x86_64
-          # - target: i686-unknown-linux-gnu
-          #   os_name: Linux_32-bit
+          - target: aarch64-apple-darwin
+            os_name: Darwin_arm64
+          - target: x86_64-apple-darwin
+            os_name: Darwin_x86_64
+          - target: i686-unknown-freebsd
+            os_name: freebsd_32-bit
+          - target: aarch64-unknown-freebsd
+            os_name: freebsd_arm64
+          - target: armv6-unknown-freebsd
+            os_name: freebsd_armv6
+          - target: x86_64-unknown-freebsd
+            os_name: freebsd_x86_64
+          - target: i686-unknown-linux-gnu
+            os_name: Linux_32-bit
           - target: aarch64-unknown-linux-gnu
             os_name: Linux_arm64
-          # - target: armv6-unknown-linux-gnueabihf
-          #   os_name: Linux_armv6
+          - target: armv6-unknown-linux-gnueabihf
+            os_name: Linux_armv6
           - target: x86_64-unknown-linux-gnu
             os_name: Linux_x86_64
     steps:
@@ -139,7 +139,7 @@ jobs:
 
           # Get the current tag
           current_tag=$(git describe --tags)
-          prefix="${target_modified}"_"${current_tag}".bin
+          prefix=_"${target_modified}"_"${current_tag}".bin
 
           # Rename the file
           mv ./target/${{ matrix.target }}/release/ohcrab{,$prefix}
