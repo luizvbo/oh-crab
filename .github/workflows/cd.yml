@@ -107,8 +107,8 @@ jobs:
           #   os_name: freebsd_x86_64
           # - target: i686-unknown-linux-gnu
           #   os_name: Linux_32-bit
-          # - target: aarch64-unknown-linux-gnu
-          #   os_name: Linux_arm64
+          - target: aarch64-unknown-linux-gnu
+            os_name: Linux_arm64
           # - target: armv6-unknown-linux-gnueabihf
           #   os_name: Linux_armv6
           - target: x86_64-unknown-linux-gnu
@@ -131,9 +131,22 @@ jobs:
       - name: Build
         run: cross build --target ${{ matrix.target }} --release
 
+      - name: Rename binary
+        run: |
+          # Convert to lower case and replace '-' with '_'
+          target=${{ matrix.target }}
+          target_modified=$(echo "$target" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
+
+          # Get the current tag
+          current_tag=$(git describe --tags)
+          prefix="${target_modified}"_"${current_tag}".bin
+
+          # Rename the file
+          mv ./target/${{ matrix.target }}/release/ohcrab{,$prefix}
+
       - name: Release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ./target/${{ matrix.target }}/release/ohcrab
+          files: ./target/${{ matrix.target }}/release/ohcrab*.bin
