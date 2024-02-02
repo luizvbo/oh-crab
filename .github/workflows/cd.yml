@@ -89,7 +89,8 @@ jobs:
           target_modified=$(echo "$target" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
 
           # Get the current tag
-          current_tag=$(git describe --tags)
+          # current_tag=$(git describe --tags)
+          current_tag="0.0.0"
           prefix=_"${target_modified}"_"${current_tag}".bin
 
           # Rename the file
@@ -150,7 +151,8 @@ jobs:
           target_modified=$(echo "$target" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
 
           # Get the current tag
-          current_tag=$(git describe --tags)
+          # current_tag=$(git describe --tags)
+          current_tag="0.0.0"
           prefix=_"${target_modified}"_"${current_tag}".bin
 
           # Rename the file
