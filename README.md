@@ -173,7 +173,9 @@ new rules or improving the crate.
 - [x] git_add_force
 - [x] git_clone
 - [x] git_clone_missing
+- [X] git_merge
 - [x] git_pull
+- [X] git_pull_clone
 - [x] history
 - [x] no_command
 - [x] tmux
@@ -230,11 +232,9 @@ new rules or improving the crate.
 - [ ] git_hook_bypass
 - [ ] git_lfs_mistype
 - [ ] git_main_master
-- [ ] git_merge
 - [ ] git_merge_unrelated
 - [ ] git_not_command
 - [ ] git_pull
-- [ ] git_pull_clone
 - [ ] git_pull_uncommitted_changes
 - [ ] git_push
 - [ ] git_push_different_branch_names
