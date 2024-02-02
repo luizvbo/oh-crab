@@ -93,7 +93,9 @@ jobs:
           prefix=_"${target_modified}"_"${current_tag}".bin
 
           # Rename the file
-          mv ./target/${{ matrix.target }}/release/ohcrab{,$prefix}
+          cd ./target/${{ matrix.target }}/release/
+          ls -lah
+          mv ohcrab ohcrab"$prefix"
 
       # - name: Release
       #   uses: softprops/action-gh-release@v1
@@ -130,7 +132,7 @@ jobs:
       #   run: rustup target add ${{ matrix.target }}
 
       - name: Install the linker
-        run: brew install FiloSottile/musl-cross/musl-cross@0.9.9_2
+        run: brew install FiloSottile/musl-cross/musl-cross
 
       # - name: Install cross
       #   run: cargo install cross
