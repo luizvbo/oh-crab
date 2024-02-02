@@ -24,6 +24,7 @@ mod git_add;
 mod git_add_force;
 mod git_clone;
 mod git_clone_missing;
+mod git_merge;
 mod git_pull;
 mod history;
 mod no_command;
@@ -51,6 +52,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_add_force::get_rule(),
         git_clone::get_rule(),
         git_clone_missing::get_rule(),
+        git_merge::get_rule(),
         git_pull::get_rule(),
         history::get_rule(),
         no_command::get_rule(),
