@@ -15,7 +15,7 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     }
 }
 
-fn get_upstream_option_index(command_parts: &Vec<String>) -> Option<usize> {
+fn get_upstream_option_index(command_parts: &[String]) -> Option<usize> {
     if command_parts.contains(&"--set-upstream".to_owned()) {
         command_parts.iter().position(|r| r == "--set-upstream")
     } else if command_parts.contains(&"-u".to_owned()) {
@@ -48,19 +48,15 @@ fn auxiliary_get_new_command(
         } else {
             let push_idx = command_parts.iter().position(|r| r == "push").unwrap() + 1;
             while command_parts.len() > push_idx
-                && command_parts[command_parts.len() - 1]
-                    .chars()
-                    .next()
-                    .unwrap()
-                    != '-'
+                && !command_parts[command_parts.len() - 1].starts_with('-')
             {
                 command_parts.pop();
             }
         }
 
         let re = Regex::new(r"git push (.*)").unwrap();
-        let arguments = re.captures(&stdout).unwrap()[1]
-            .replace("'", r"\'")
+        let arguments = re.captures(stdout).unwrap()[1]
+            .replace('\'', r"\'")
             .trim()
             .to_string();
         vec![replace_argument(
