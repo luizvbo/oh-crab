@@ -29,11 +29,20 @@ pub fn replace_command(command: &CrabCommand, broken: &str, matched: Vec<&str>) 
     new_commands
 }
 
-// def replace_command(command, broken, matched):
-//     """Helper for *_no_command rules."""
-//     new_cmds = get_close_matches(broken, matched, cutoff=0.1)
-//     return [replace_argument(command.script, broken, new_cmd.strip())
-//             for new_cmd in new_cmds]
+pub fn get_closest<'a>(
+    word: &'a str,
+    possibilities: &'a [&'a str],
+    cutoff: Option<f32>,
+    fallback_to_first: bool,
+) -> &'a str {
+    let cutoff = cutoff.unwrap_or(0.6);
+    let matches = difflib_get_close_matches(word, possibilities, 1, cutoff);
+    if matches.len() == 0 && fallback_to_first{
+        possibilities[0]
+    }else {
+        matches[0]
+    }
+}
 
 /// Gets a list of close matches for a word from a list of possibilities.
 ///
