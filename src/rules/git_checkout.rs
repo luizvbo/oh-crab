@@ -7,8 +7,8 @@ use crate::{
 };
 use regex::Regex;
 
-use std::str;
 use std::process::Command;
+use std::str;
 
 fn get_branches(mock_output: Option<&str>) -> Vec<String> {
     let mut stdout: String;
@@ -98,7 +98,6 @@ fn mockable_get_new_command(
     }
 }
 
-
 fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
@@ -124,7 +123,7 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use super::{mockable_get_new_command, match_rule, get_branches};
+    use super::{get_branches, match_rule, mockable_get_new_command};
     use crate::cli::command::CrabCommand;
     use crate::shell::Bash;
 
@@ -177,18 +176,25 @@ mod tests {
         assert_eq!(get_branches(Some(&branches)), branch_list)
     }
 
-
-    // #[rstest]
-    // #[case("git submodule update unknown", did_not_match("unknown", true))]
-    // #[case("git checkout known", "")]
-    // #[case("git commit known", "")]
-    // fn test_not_match(#[case] command: &str, #[case] output: String) {
-    //     let output = Command::new(command)
-    //         .output()
-    //         .expect("failed to execute process");
-    //
-    //     assert_ne!(str::from_utf8(&output.stdout).unwrap(), output);
-    // }
-    //
-    // ... continue with the rest of the functions
+    #[rstest]
+    #[case(
+        "",
+        "git checkout unknown",
+        did_not_match("unknown", false),
+        "git checkout -b unknown"
+    )]
+    fn test_get_new_command(
+        #[case] branches: String,
+        #[case] command: String,
+        #[case] output: String,
+        #[case] new_command: String,
+    ) {
+        let crab_command = &mut CrabCommand::new(command.to_owned(), Some(output), None);
+        let system_shell = Bash {};
+        assert_eq!(mockable_get_new_command(
+            crab_command,
+            Some(&system_shell),
+            Some(&branches)
+        )[0], new_command);
+    }
 }
