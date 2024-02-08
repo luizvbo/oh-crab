@@ -7,8 +7,8 @@ use crate::{
 };
 use regex::Regex;
 
-use std::str;
 use std::process::Command;
+use std::str;
 
 fn get_branches(mock_output: Option<&str>) -> Vec<String> {
     let mut stdout: String;
@@ -16,7 +16,7 @@ fn get_branches(mock_output: Option<&str>) -> Vec<String> {
         stdout = mock_output_str.to_owned();
     } else {
         let output = Command::new("git")
-            .args(&["branch", "-a", "--no-color", "--no-column"])
+            .args(["branch", "-a", "--no-color", "--no-column"])
             .output()
             .expect("Failed to execute command");
         stdout = str::from_utf8(&output.stdout).unwrap().to_owned();
@@ -34,7 +34,7 @@ fn get_branches(mock_output: Option<&str>) -> Vec<String> {
             line = line.split_whitespace().nth(1).unwrap().to_string();
         }
         if line.trim().starts_with("remotes/") {
-            line = line.split("/").skip(2).collect::<Vec<&str>>().join("/");
+            line = line.split('/').skip(2).collect::<Vec<&str>>().join("/");
         }
         branches.push(line.trim().to_string());
     }
@@ -68,15 +68,20 @@ fn mockable_get_new_command(
 
             let branches = get_branches(mock_output);
             let branches: Vec<&str> = branches.iter().map(|s| s.as_str()).collect();
+
+            println!("{:?}", mock_output);
+            println!("{:?}", missing_file);
+            println!("{:?}", branches);
+
             let closest_branch = get_closest(missing_file, &branches, None, false);
 
             let mut new_commands = Vec::new();
 
-            if !closest_branch.is_empty() {
+            if let Some(closest_branch) = closest_branch {
                 new_commands.push(replace_argument(
                     &command.script,
                     missing_file,
-                    &closest_branch,
+                    closest_branch,
                 ));
             }
             if command.script_parts.len() > 1 && command.script_parts[1] == "checkout" {
@@ -97,7 +102,6 @@ fn mockable_get_new_command(
         Vec::<String>::new()
     }
 }
-
 
 fn auxiliary_get_new_command(
     command: &CrabCommand,
@@ -129,8 +133,6 @@ mod tests {
     use crate::shell::Bash;
 
     use rstest::rstest;
-    use std::io::Cursor;
-    use std::process::Command;
     use std::str;
 
     fn did_not_match(target: &str, did_you_forget: bool) -> String {
@@ -182,20 +184,39 @@ mod tests {
         "",
         "git checkout unknown",
         did_not_match("unknown", false),
-        "git checkout -b unknown"
+        vec!["git checkout -b unknown"]
+    )]
+    #[case(
+        "",
+        "git commit unknown",
+        did_not_match("unknown", false),
+        vec!["git branch unknown && git commit unknown"]
+    )]
+    #[case(
+        "  test-random-branch-123",
+        "git checkout tst-rdm-brnch-123",
+        did_not_match("tst-rdm-brnch-123", false),
+            vec![
+                "git checkout test-random-branch-123",
+                "git checkout -b tst-rdm-brnch-123",
+            ]
+    )]
+    #[case(
+        "  test-random-branch-123",
+        "git commit tst-rdm-brnch-123", did_not_match("tst-rdm-brnch-123", false),
+        vec!["git commit test-random-branch-123"]
     )]
     fn test_get_new_command(
         #[case] branches: String,
         #[case] command: String,
         #[case] output: String,
-        #[case] new_command: String,
+        #[case] new_command: Vec<&str>,
     ) {
         let crab_command = &mut CrabCommand::new(command.to_owned(), Some(output), None);
         let system_shell = Bash {};
-        assert_eq!(mockable_get_new_command(
-            crab_command,
-            Some(&system_shell),
-            Some(&branches)
-        )[0], new_command);
+        assert_eq!(
+            mockable_get_new_command(crab_command, Some(&system_shell), Some(&branches)),
+            new_command
+        );
     }
 }

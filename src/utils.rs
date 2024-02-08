@@ -29,18 +29,34 @@ pub fn replace_command(command: &CrabCommand, broken: &str, matched: Vec<&str>) 
     new_commands
 }
 
+/// Returns the closest match for a given word from a list of possibilities.
+///
+/// # Arguments
+///
+/// * `word` - A string slice that holds the word for which to find the closest match.
+/// * `possibilities` - A slice of string slices that holds the list of words to check against.
+/// * `cutoff` - An Option that holds the cutoff similarity ratio. The function returns the closest match that has a similarity ratio greater than or equal to the cutoff. If the cutoff is None, it defaults to 0.6.
+/// * `fallback_to_first` - A boolean that indicates whether to return the first word from the list of possibilities if no match is found that meets the cutoff.
+///
+/// # Returns
+///
+/// * An Option that contains a string slice. If a match is found, it contains the closest match. If no match is found, it contains None, unless `fallback_to_first` is true, in which case it contains the first word from the list of possibilities.
 pub fn get_closest<'a>(
     word: &'a str,
     possibilities: &'a [&'a str],
     cutoff: Option<f32>,
     fallback_to_first: bool,
-) -> &'a str {
+) -> Option<&'a str> {
     let cutoff = cutoff.unwrap_or(0.6);
     let matches = difflib_get_close_matches(word, possibilities, 1, cutoff);
-    if matches.len() == 0 && fallback_to_first{
-        possibilities[0]
-    }else {
-        matches[0]
+    if matches.is_empty() {
+        if fallback_to_first {
+            Some(possibilities[0])
+        } else {
+            None
+        }
+    } else {
+        Some(matches[0])
     }
 }
 
