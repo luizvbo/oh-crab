@@ -155,30 +155,32 @@ new rules or improving the crate.
 <details>
   <summary>Implemented</summary>
 
-- [x] ag_literal
-- [x] apt_get
-- [x] apt_get_search
-- [x] apt_list_upgradable
-- [x] apt_upgrade
-- [x] brew_install
-- [x] brew_update_formula
-- [x] cargo
-- [x] cd_correction
-- [x] cd_cs
-- [x] cd_mkdir
-- [x] cd_parent
-- [x] chmod_x
-- [x] choco_install
-- [x] git_add
-- [x] git_add_force
-- [x] git_clone
-- [x] git_clone_missing
+- [X] ag_literal
+- [X] apt_get
+- [X] apt_get_search
+- [X] apt_list_upgradable
+- [X] apt_upgrade
+- [X] brew_install
+- [X] brew_update_formula
+- [X] cargo
+- [X] cd_correction
+- [X] cd_cs
+- [X] cd_mkdir
+- [X] cd_parent
+- [X] chmod_x
+- [X] choco_install
+- [X] git_add
+- [X] git_add_force
+- [X] git_commit_add
+- [X] git_checkout
+- [X] git_clone
+- [X] git_clone_missing
 - [X] git_merge
-- [x] git_pull
-- [X] git_pull_clone
-- [x] history
-- [x] no_command
-- [x] tmux
+- [X] git_pull
+- [X] git_push
+- [X] history
+- [X] no_command
+- [X] tmux
 
 </details>
 
@@ -220,8 +222,6 @@ new rules or improving the crate.
 - [ ] git_branch_delete_checked_out
 - [ ] git_branch_exists
 - [ ] git_branch_list
-- [ ] git_checkout
-- [ ] git_commit_add
 - [ ] git_commit_amend
 - [ ] git_commit_reset
 - [ ] git_diff_no_index
@@ -234,9 +234,8 @@ new rules or improving the crate.
 - [ ] git_main_master
 - [ ] git_merge_unrelated
 - [ ] git_not_command
-- [ ] git_pull
+- [ ] git_pull_clone
 - [ ] git_pull_uncommitted_changes
-- [ ] git_push
 - [ ] git_push_different_branch_names
 - [ ] git_push_force
 - [ ] git_push_pull
