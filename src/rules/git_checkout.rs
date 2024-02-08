@@ -124,7 +124,7 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use super::{mockable_get_new_command, match_rule};
+    use super::{get_branches, match_rule, mockable_get_new_command};
     use crate::cli::command::CrabCommand;
     use crate::shell::Bash;
 
@@ -152,17 +152,50 @@ mod tests {
         assert!(match_rule(crab_command, None));
     }
 
-    // #[rstest]
-    // #[case("git submodule update unknown", did_not_match("unknown", true))]
-    // #[case("git checkout known", "")]
-    // #[case("git commit known", "")]
-    // fn test_not_match(#[case] command: &str, #[case] output: String) {
-    //     let output = Command::new(command)
-    //         .output()
-    //         .expect("failed to execute process");
-    //
-    //     assert_ne!(str::from_utf8(&output.stdout).unwrap(), output);
-    // }
-    //
-    // ... continue with the rest of the functions
+    #[rstest]
+    #[case("git submodule update unknown", did_not_match("unknown", true))]
+    #[case("git checkout known", "")]
+    #[case("git commit known", "")]
+    fn test_not_match(#[case] command: &str, #[case] output: String) {
+        let crab_command = &mut CrabCommand::new(command.to_owned(), Some(output), None);
+        assert!(!match_rule(crab_command, None));
+    }
+
+    #[rstest]
+    #[case("", vec![])]
+    #[case("* master", vec!["master"])]
+    #[case("  remotes/origin/master", vec!["master"])]
+    #[case("  remotes/origin/test/1", vec!["test/1"])]
+    #[case("  remotes/origin/test/1/2/3", vec!["test/1/2/3"])]
+    #[case("  test/1", vec!["test/1"])]
+    #[case("  test/1/2/3", vec!["test/1/2/3"])]
+    #[case("  remotes/origin/HEAD -> origin/master", vec![])]
+    #[case("  just-another-branch", vec!["just-another-branch"])]
+    #[case("* master\n  just-another-branch", vec!["master", "just-another-branch"])]
+    #[case("* master\n  remotes/origin/master\n  just-another-branch", vec!["master", "master", "just-another-branch"])]
+    fn test_get_branches(#[case] branches: String, #[case] branch_list: Vec<&str>) {
+        assert_eq!(get_branches(Some(&branches)), branch_list)
+    }
+
+    #[rstest]
+    #[case(
+        "",
+        "git checkout unknown",
+        did_not_match("unknown", false),
+        "git checkout -b unknown"
+    )]
+    fn test_get_new_command(
+        #[case] branches: String,
+        #[case] command: String,
+        #[case] output: String,
+        #[case] new_command: String,
+    ) {
+        let crab_command = &mut CrabCommand::new(command.to_owned(), Some(output), None);
+        let system_shell = Bash {};
+        assert_eq!(mockable_get_new_command(
+            crab_command,
+            Some(&system_shell),
+            Some(&branches)
+        )[0], new_command);
+    }
 }
