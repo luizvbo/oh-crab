@@ -9,6 +9,20 @@ use crate::shell::Shell;
 
 use regex::Regex;
 
+/// Replaces an argument in a script.
+///
+/// This function takes a script and two strings `from_` and `to`. It replaces the last occurrence of `from_` in the script with `to`.
+/// If `from_` does not occur at the end of the script, it replaces all occurrences of `from_` in the script with `to`.
+///
+/// # Arguments
+///
+/// * `script` - A string slice that holds the script.
+/// * `from_` - The string to be replaced.
+/// * `to` - The string to replace with.
+///
+/// # Returns
+///
+/// This function returns a new string with the replaced argument.
 pub fn replace_argument(script: &str, from_: &str, to: &str) -> String {
     let re = Regex::new(&format!(" {}$", regex::escape(from_))).unwrap();
     let replaced_in_the_end = re.replace(script, &format!(" {}", to));
@@ -20,8 +34,22 @@ pub fn replace_argument(script: &str, from_: &str, to: &str) -> String {
     }
 }
 
+/// Replaces a command in a `CrabCommand`.
+///
+/// This function takes a `CrabCommand`, a `broken` string, and a vector of `matched` strings. It finds close matches to `broken` in `matched`,
+/// and for each match, it replaces `broken` in the command's script with the match. The function returns a vector of new commands.
+///
+/// # Arguments
+///
+/// * `command` - A `CrabCommand` that holds the command.
+/// * `broken` - The string to be replaced in the command's script.
+/// * `matched` - A vector of strings to match against `broken`.
+///
+/// # Returns
+///
+/// This function returns a vector of new commands with the replaced argument.
 pub fn replace_command(command: &CrabCommand, broken: &str, matched: Vec<&str>) -> Vec<String> {
-    let candidate_commands = get_close_matches(broken, &matched, Some(0.1));
+    let candidate_commands = get_close_matches(broken, &matched, None, Some(0.1));
     let mut new_commands = Vec::<String>::new();
     for cmd in candidate_commands {
         new_commands.push(replace_argument(&command.script, broken, cmd.trim()));
@@ -73,10 +101,11 @@ pub fn get_closest<'a>(
 pub fn get_close_matches<'a>(
     word: &'a str,
     possibilities: &'a [&'a str],
+    n: Option<usize>,
     cutoff: Option<f32>,
 ) -> Vec<&'a str> {
     // TODO: Read parameters from config file
-    let n = 3;
+    let n = n.unwrap_or(3);
     let cutoff = cutoff.unwrap_or(0.6);
     difflib_get_close_matches(word, possibilities, n, cutoff)
 }
@@ -189,6 +218,49 @@ pub fn get_valid_history_without_current(
     }
 
     valid_history
+}
+
+/// Returns a vector of matched commands from the given stderr string.
+///
+/// This function iterates over each line in `stderr`. If a line contains any of the separators,
+/// it sets a flag `should_yield` to true. For each subsequent line, if `should_yield` is true and
+/// the line is not empty, the function adds the line to the vector of matched commands.
+///
+/// # Arguments
+///
+/// * `stderr` - A string slice that holds the standard error output.
+/// * `separator_option` - An Option that contains a vector of separator strings. If this option is None,
+///   the function uses ["Did you mean"] as the default separator.
+///
+/// # Returns
+///
+/// This function returns a vector of matched commands. Each command is a string that follows a line
+/// containing a separator and does not contain a separator itself.
+///
+/// # Example
+///
+/// ```
+/// let stderr = "error: pathspec 'feature/test_commit' did not match any file(s) known to git\nDid you mean this?\n    origin/feature/test_commit";
+/// let commands = get_all_matched_commands(stderr, None);
+/// assert_eq!(commands, vec!["origin/feature/test_commit"]);
+/// ```
+pub fn get_all_matched_commands(stderr: &str, separator_option: Option<Vec<&str>>) -> Vec<String> {
+    let separator = match separator_option {
+        None => vec!["Did you mean"],
+        Some(sep) => sep,
+    };
+    let mut should_yield = false;
+    let mut matched_commands = Vec::new();
+
+    for line in stderr.lines() {
+        if separator.iter().any(|&sep| line.contains(sep)) {
+            should_yield = true;
+        } else if should_yield && !line.is_empty() {
+            matched_commands.push(line.trim().to_string());
+        }
+    }
+
+    matched_commands
 }
 
 #[cfg(test)]

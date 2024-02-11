@@ -15,7 +15,7 @@ rust-version = "1.70.0"
 clap = { version = "4.4.7", features = ["cargo", "env"] }
 shellwords = "1.1.0"
 which = "4.4.0"
-similar = "2.2.1"
+similar = "2.4.0"
 console = "0.15.7"
 log = "0.4.20"
 env_logger = "0.10.0"
