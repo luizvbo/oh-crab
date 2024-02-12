@@ -23,6 +23,7 @@ mod choco_install;
 mod git_add;
 mod git_add_force;
 mod git_branch_list;
+mod git_branch_delete;
 mod git_clone;
 mod git_clone_missing;
 mod git_merge;
@@ -53,6 +54,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_add::get_rule(),
         git_add_force::get_rule(),
         git_branch_list::get_rule(),
+        git_branch_delete::get_rule(),
         git_clone::get_rule(),
         git_clone_missing::get_rule(),
         git_merge::get_rule(),
