@@ -63,10 +63,14 @@ If you are sure you want to delete it, run 'git branch -D branch'.
     }
 
     #[rstest]
-    #[case("git branch list", vec!["git branch --delete list && git branch"])]
-    fn test_get_new_command(#[case] command: &str, #[case] expected: Vec<&str>) {
+    #[case("git branch -d branch", OUTPUT, vec!["git branch -D branch"])]
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] output: &str,
+        #[case] expected: Vec<&str>,
+    ) {
         let system_shell = Bash {};
-        let mut command = CrabCommand::new(command.to_owned(), Some("".to_owned()), None);
+        let mut command = CrabCommand::new(command.to_owned(), Some(output.to_owned()), None);
         assert_eq!(get_new_command(&mut command, Some(&system_shell)), expected);
     }
 }
