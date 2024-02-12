@@ -25,6 +25,7 @@ mod git_add_force;
 mod git_branch_list;
 mod git_clone;
 mod git_clone_missing;
+mod git_commit_add;
 mod git_merge;
 mod git_pull;
 mod git_push;
@@ -53,8 +54,10 @@ pub fn get_rules() -> Vec<Rule> {
         git_add::get_rule(),
         git_add_force::get_rule(),
         git_branch_list::get_rule(),
+        git_checkout::get_rule(),
         git_clone::get_rule(),
         git_clone_missing::get_rule(),
+        git_commit_add::get_rule(),
         git_merge::get_rule(),
         git_pull::get_rule(),
         git_push::get_rule(),
