@@ -23,6 +23,7 @@ mod choco_install;
 mod git_add;
 mod git_add_force;
 mod git_branch_list;
+mod git_checkout;
 mod git_clone;
 mod git_clone_missing;
 mod git_commit_add;
