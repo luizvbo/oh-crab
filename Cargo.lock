@@ -299,6 +299,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fuzzt"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a445c3f240ddac43345d068125033809dfaf0c8050ab0a22e8cfc7c2dae6105c"
+
+[[package]]
 name = "getrandom"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -441,13 +447,13 @@ dependencies = [
  "console",
  "dirs",
  "env_logger",
+ "fuzzt",
  "is_executable",
  "log",
  "mockall",
  "regex",
  "rstest",
  "shellwords",
- "similar",
  "tempfile",
  "which",
 ]
@@ -642,12 +648,6 @@ dependencies = [
  "lazy_static",
  "regex",
 ]
-
-[[package]]
-name = "similar"
-version = "2.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2aeaf503862c419d66959f5d7ca015337d864e9c49485d771b732e2a20453597"
 
 [[package]]
 name = "slab"
