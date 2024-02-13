@@ -202,6 +202,6 @@ pub fn organize_commands(mut corrected_commands: Vec<CorrectedCommand>) -> Vec<C
     corrected_commands
 }
 
-pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&CorrectedCommand> {
+pub fn selected_command(corrected_commands: &[CorrectedCommand]) -> Option<&CorrectedCommand> {
     interactive_menu(corrected_commands)
 }
