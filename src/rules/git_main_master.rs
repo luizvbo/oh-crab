@@ -1,7 +1,5 @@
 use crate::{
-    cli::command::CrabCommand,
-    rules::utils::{common::replace_argument, git::match_rule_with_git_support},
-    shell::Shell,
+    cli::command::CrabCommand, rules::utils::git::match_rule_with_git_support, shell::Shell,
 };
 
 use super::{utils::git::get_command_with_git_support, Rule};
@@ -95,7 +93,8 @@ mod tests {
         #[case] expected: Vec<&str>,
     ) {
         let system_shell = Bash {};
-        let mut command = CrabCommand::new(command.to_owned(), Some(output_branch(branch_name)), None);
+        let mut command =
+            CrabCommand::new(command.to_owned(), Some(output_branch(branch_name)), None);
         assert_eq!(get_new_command(&mut command, Some(&system_shell)), expected);
     }
 }
