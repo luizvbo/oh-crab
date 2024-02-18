@@ -26,7 +26,7 @@ fn auxiliary_get_new_command(
         let re_usage = Regex::new(r"usage: git bisect \[([^\]]+)\]").unwrap();
 
         let broken = re_broken.captures(&command.script);
-        let usage = re_usage.captures(stdout);
+        let usage = re_broken.captures(stdout);
         if let (Some(broken), Some(usage)) = (broken, usage) {
             replace_command(command, &broken[1], usage[1].split('|').collect())
         } else {
