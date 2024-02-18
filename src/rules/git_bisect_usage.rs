@@ -1,5 +1,5 @@
 use super::{utils::git::get_command_with_git_support, Rule};
-use crate::utils::{replace_command};
+use crate::utils::replace_command;
 use crate::{
     cli::command::CrabCommand, rules::utils::git::match_rule_with_git_support, shell::Shell,
 };
@@ -27,12 +27,8 @@ fn auxiliary_get_new_command(
 
         let broken = re_broken.captures(&command.script);
         let usage = re_broken.captures(stdout);
-        if broken.is_some() && usage.is_some() {
-            replace_command(
-                command,
-                &broken.unwrap()[1],
-                usage.unwrap()[1].split('|').collect(),
-            )
+        if let (Some(broken), Some(usage)) = (broken, usage) {
+            replace_command(command, &broken[1], usage[1].split('|').collect())
         } else {
             Vec::<String>::new()
         }
@@ -90,7 +86,13 @@ mod tests {
     ) {
         let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
-        let new_command = expected.iter().map(|s| format!("git bisect {}", s)).collect::<Vec<_>>();
-        assert_eq!(get_new_command(&mut command, Some(&system_shell)), new_command);
+        let new_command = expected
+            .iter()
+            .map(|s| format!("git bisect {}", s))
+            .collect::<Vec<_>>();
+        assert_eq!(
+            get_new_command(&mut command, Some(&system_shell)),
+            new_command
+        );
     }
 }
