@@ -58,7 +58,7 @@ pub fn get_rule() -> Rule {
     Rule::new(
         "no_command".to_owned(),
         None,
-        None,
+        Some(3000),
         None,
         match_rule,
         get_new_command,
