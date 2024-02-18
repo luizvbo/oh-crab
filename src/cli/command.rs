@@ -74,8 +74,8 @@ impl CrabCommand {
     ) -> CrabCommand {
         CrabCommand::new(
             script.unwrap_or(self.script.to_owned()),
-            stdout.map_or(self.stdout.to_owned(), |s| Some(s)),
-            stderr.map_or(self.stderr.to_owned(), |s| Some(s)),
+            stdout.map_or(self.stdout.to_owned(), Some),
+            stderr.map_or(self.stderr.to_owned(), Some),
         )
     }
 

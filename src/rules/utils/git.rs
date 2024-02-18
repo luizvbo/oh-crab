@@ -130,7 +130,7 @@ where
 mod tests {
     use super::{get_command_with_git_support, is_app, match_rule_with_git_support};
     use crate::cli::command::CrabCommand;
-    use crate::shell::{Bash, Shell};
+    use crate::shell::Shell;
     use rstest::rstest;
 
     #[rstest]
@@ -152,21 +152,6 @@ mod tests {
     ) {
         let mut command = CrabCommand::new(script.to_owned(), None, None);
         assert_eq!(is_app(&command, app_names, at_least), is_app_bool);
-    }
-
-    #[rstest]
-    #[case("git co", "git checkout", vec!["19:22:36.299340 git.c:282   trace: alias expansion: co => 'checkout'"])]
-    #[case("git com file", "git commit --verbose file", vec!["19:23:25.470911 git.c:282   trace: alias expansion: com => 'commit' '--verbose'"])]
-    #[case("git com -m \"Initial commit\"", "git commit -m \"Initial commit\"", vec!["19:22:36.299340 git.c:282   trace: alias expansion: com => \"commit\""])]
-    #[case("git br -d some_branch", "git branch -d some_branch", vec!["19:22:36.299340 git.c:282   trace: alias expansion: br => 'branch'"])]
-    fn test_match_rule_with_git_support(
-        #[case] script: &str,
-        #[case] output: &str,
-        #[case] expected: Vec<&str>,
-    ) {
-        let mut command = CrabCommand::new(script.to_owned(), Some(output.to_owned()), None);
-        let func = |command: &CrabCommand| true;
-        assert_eq!(match_rule_with_git_support(func, &mut command), true);
     }
 
     #[rstest]
@@ -201,6 +186,34 @@ mod tests {
         assert_eq!(
             get_command_with_git_support(func, &mut command, None),
             vec![expected]
+        );
+    }
+
+    #[rstest]
+    #[case("git pull", Some("".to_string()), true)]
+    #[case("hub pull", Some("".to_owned()), true)]
+    #[case("git push --set-upstream origin foo", Some("".to_owned()), true)]
+    #[case("hub push --set-upstream origin foo", Some("".to_owned()), true)]
+    #[case("ls", Some("".to_owned()), false)]
+    #[case("cat git", Some("".to_owned()), false)]
+    #[case("cat hub", Some("".to_owned()), false)]
+    #[case("git pull", None, true)]
+    #[case("hub pull", None, true)]
+    #[case("git push --set-upstream origin foo", None, true)]
+    #[case("hub push --set-upstream origin foo", None, true)]
+    #[case("ls", None, false)]
+    #[case("cat git", None, false)]
+    #[case("cat hub", None, false)]
+    fn test_match_rule_with_git_support(
+        #[case] script: &str,
+        #[case] output: Option<String>,
+        #[case] is_git_command: bool,
+    ) {
+        let mut command = CrabCommand::new(script.to_owned(), output, None);
+        let func = |command: &CrabCommand| true;
+        assert_eq!(
+            match_rule_with_git_support(func, &mut command),
+            is_git_command
         );
     }
 }
