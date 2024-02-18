@@ -1,4 +1,4 @@
-use shellwords;
+use shlex::split;
 use std::process::{Command, Stdio};
 use std::{fmt, str};
 
@@ -66,9 +66,22 @@ impl CrabCommand {
         }
     }
 
+    pub fn update(
+        &self,
+        script: Option<String>,
+        stdout: Option<String>,
+        stderr: Option<String>,
+    ) -> CrabCommand {
+        CrabCommand::new(
+            script.unwrap_or(self.script.to_owned()),
+            stdout.map_or(self.stdout.to_owned(), Some),
+            stderr.map_or(self.stderr.to_owned(), Some),
+        )
+    }
+
     fn split_command(command: &str) -> Vec<String> {
         // Split the command using shell-like syntax.
-        shellwords::split(command).expect("")
+        split(command).expect("")
     }
 }
 
@@ -96,7 +109,7 @@ fn prepare_command(raw_command: Vec<String>) -> String {
 }
 
 pub fn shell_command(words_str: &str) -> Command {
-    let mut words_vec = shellwords::split(words_str).expect("empty shell command");
+    let mut words_vec = split(words_str).expect("empty shell command");
     let mut words = words_vec.iter_mut();
     let first_cmd = words.next().expect("absent shell binary");
     let dash_c = if words_str.contains("cmd.exe") {
