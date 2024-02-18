@@ -37,7 +37,7 @@ pub fn get_rule() -> Rule {
     Rule::new(
         "history".to_owned(),
         None,
-        None,
+        Some(9999),
         None,
         match_rule,
         get_new_command,

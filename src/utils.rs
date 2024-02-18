@@ -1,4 +1,4 @@
-use similar::get_close_matches as difflib_get_close_matches;
+use fuzzt::fuzzy::get_top_n;
 use std::collections::HashSet;
 use std::env;
 
@@ -72,11 +72,11 @@ pub fn replace_command(command: &CrabCommand, broken: &str, matched: Vec<&str>) 
 pub fn get_closest<'a>(
     word: &'a str,
     possibilities: &'a [&'a str],
-    cutoff: Option<f32>,
+    cutoff: Option<f64>,
     fallback_to_first: bool,
 ) -> Option<&'a str> {
     let cutoff = cutoff.unwrap_or(0.6);
-    let matches = difflib_get_close_matches(word, possibilities, 1, cutoff);
+    let matches = get_top_n(word, possibilities, cutoff, Some(1), None, None);
     if matches.is_empty() {
         if fallback_to_first {
             Some(possibilities[0])
@@ -101,13 +101,12 @@ pub fn get_closest<'a>(
 pub fn get_close_matches<'a>(
     word: &'a str,
     possibilities: &'a [&'a str],
-    n: Option<usize>,
-    cutoff: Option<f32>,
+    cutoff: Option<f64>,
 ) -> Vec<&'a str> {
     // TODO: Read parameters from config file
-    let n = n.unwrap_or(3);
+    let n = Some(3);
     let cutoff = cutoff.unwrap_or(0.6);
-    difflib_get_close_matches(word, possibilities, n, cutoff)
+    get_top_n(word, possibilities, cutoff, n, None, None)
 }
 
 /// Gets the alias for the OC_ALIAS environment variable or defaults to "crab".

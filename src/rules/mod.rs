@@ -22,10 +22,14 @@ mod chmod_x;
 mod choco_install;
 mod git_add;
 mod git_add_force;
+mod git_bisect_usage;
+mod git_branch_delete;
+mod git_branch_list;
 mod git_checkout;
 mod git_clone;
 mod git_clone_missing;
 mod git_commit_add;
+mod git_main_master;
 mod git_merge;
 mod git_not_command;
 mod git_pull;
@@ -54,10 +58,14 @@ pub fn get_rules() -> Vec<Rule> {
         cd_mkdir::get_rule(),
         git_add::get_rule(),
         git_add_force::get_rule(),
+        git_branch_list::get_rule(),
+        git_branch_delete::get_rule(),
         git_checkout::get_rule(),
         git_clone::get_rule(),
         git_clone_missing::get_rule(),
         git_commit_add::get_rule(),
+        git_bisect_usage::get_rule(),
+        git_main_master::get_rule(),
         git_merge::get_rule(),
         git_not_command::get_rule(),
         git_pull::get_rule(),
@@ -198,6 +206,6 @@ pub fn organize_commands(mut corrected_commands: Vec<CorrectedCommand>) -> Vec<C
     corrected_commands
 }
 
-pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&CorrectedCommand> {
+pub fn selected_command(corrected_commands: &[CorrectedCommand]) -> Option<&CorrectedCommand> {
     interactive_menu(corrected_commands)
 }

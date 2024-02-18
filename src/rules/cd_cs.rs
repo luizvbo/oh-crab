@@ -21,7 +21,7 @@ pub fn get_rule() -> Rule {
     Rule::new(
         "cd_cs".to_owned(),
         None,
-        None,
+        Some(900),
         None,
         match_rule,
         get_new_command,
