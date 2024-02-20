@@ -171,10 +171,16 @@ new rules or improving the crate.
 - [X] choco_install
 - [X] git_add
 - [X] git_add_force
-- [X] git_commit_add
+- [X] git_bisect_usage
+- [X] git_branch_delete
+- [X] git_branch_delete_checked_out
+- [X] git_branch_exists
+- [X] git_branch_list
 - [X] git_checkout
 - [X] git_clone
+- [X] git_commit_add
 - [X] git_clone_missing
+- [X] git_main_master
 - [X] git_merge
 - [X] git_pull
 - [X] git_push
@@ -216,12 +222,7 @@ new rules or improving the crate.
 - [ ] fix_alt_space
 - [ ] fix_file
 - [ ] gem_unknown_command
-- [ ] git_bisect_usage
 - [ ] git_branch_0flag
-- [ ] git_branch_delete
-- [ ] git_branch_delete_checked_out
-- [ ] git_branch_exists
-- [ ] git_branch_list
 - [ ] git_commit_amend
 - [ ] git_commit_reset
 - [ ] git_diff_no_index
@@ -231,7 +232,6 @@ new rules or improving the crate.
 - [ ] git_help_aliased
 - [ ] git_hook_bypass
 - [ ] git_lfs_mistype
-- [ ] git_main_master
 - [ ] git_merge_unrelated
 - [ ] git_not_command
 - [ ] git_pull_clone
