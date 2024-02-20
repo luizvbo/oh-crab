@@ -24,7 +24,7 @@ fn auxiliary_get_new_command(
         let re_branch_name = Regex::new(r"fatal: A branch named '(.+)' already exists.").unwrap();
         if let Some(captures) = re_branch_name.captures(stdout) {
             let mut new_commands = Vec::<String>::new();
-            let branch_name = &captures[1].replace("'", r"\'");
+            let branch_name = &captures[1].replace('\'', r"\'");
             let new_command_templates = vec![
                 vec!["git branch -d", "git branch"],
                 vec!["git branch -d", "git checkout -b"],
@@ -35,7 +35,7 @@ fn auxiliary_get_new_command(
             for new_command_template in new_command_templates {
                 let new_command_with_branch = new_command_template
                     .iter()
-                    .map(|s| format!("{} {}", s.to_string(),  branch_name))
+                    .map(|s| format!("{} {}", s, branch_name))
                     .collect::<Vec<String>>();
                 new_commands.push(
                     system_shell
@@ -87,7 +87,7 @@ mod tests {
         #[case] src_branch_name: &str,
         #[case] stdout_template: &str,
     ) {
-        let stdout = stdout_template.replace("#", src_branch_name);
+        let stdout = stdout_template.replace('#', src_branch_name);
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout), None);
         assert!(match_rule(&mut command, None));
     }
@@ -116,7 +116,7 @@ mod tests {
         #[case] branch_name: &str,
         #[case] stdout_template: &str,
     ) {
-        let expected: Vec<String> = vec![
+        let expected: Vec<String> = [
             "git branch -d # && git branch #",
             "git branch -d # && git checkout -b #",
             "git branch -D # && git branch #",
@@ -124,9 +124,9 @@ mod tests {
             "git checkout #",
         ]
         .iter()
-        .map(|s| s.replace("#", branch_name))
+        .map(|s| s.replace('#', branch_name))
         .collect();
-        let stdout = stdout_template.replace("#", src_branch_name);
+        let stdout = stdout_template.replace('#', src_branch_name);
         let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(get_new_command(&mut command, Some(&system_shell)), expected);
