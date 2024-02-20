@@ -43,7 +43,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
 
 pub fn get_rule() -> Rule {
     Rule::new(
-        "git_merge".to_owned(),
+        "git_bisect_usage".to_owned(),
         None,
         None,
         None,
