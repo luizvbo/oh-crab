@@ -1,13 +1,14 @@
 use super::{utils::git::get_command_with_git_support, Rule};
-use crate::utils::replace_command;
+use crate::utils::replace_argument;
 use crate::{
     cli::command::CrabCommand, rules::utils::git::match_rule_with_git_support, shell::Shell,
 };
-use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.stdout {
-        command.script.contains("bisect") && stdout.contains("usage: git bisect")
+        (command.script.contains("branch -d") || command.script.contains("branch -D"))
+            && stdout.contains("error: Cannot delete branch '")
+            && stdout.contains("' checked out at '")
     } else {
         false
     }
@@ -21,20 +22,10 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    if let Some(stdout) = &command.stdout {
-        let re_broken = Regex::new(r"git bisect ([^ $]*).*").unwrap();
-        let re_usage = Regex::new(r"usage: git bisect \[([^\]]+)\]").unwrap();
-
-        let broken = re_broken.captures(&command.script);
-        let usage = re_broken.captures(stdout);
-        if let (Some(broken), Some(usage)) = (broken, usage) {
-            replace_command(command, &broken[1], usage[1].split('|').collect())
-        } else {
-            Vec::<String>::new()
-        }
-    } else {
-        Vec::<String>::new()
-    }
+    vec![system_shell.unwrap().and(vec![
+        "git checkout master",
+        &replace_argument(&command.script, "-d", "-D"),
+    ])]
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
@@ -43,7 +34,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
 
 pub fn get_rule() -> Rule {
     Rule::new(
-        "git_merge".to_owned(),
+        "git_branch_delete_checked_out".to_owned(),
         None,
         None,
         None,
@@ -59,26 +50,23 @@ mod tests {
     use crate::cli::command::CrabCommand;
     use crate::shell::Bash;
 
-    const OUTPUT: &str = "usage: git bisect [help|start|bad|good|new|old|terms|skip|next|reset|visualize|replay|log|run]";
+    const OUTPUT: &str = "error: Cannot delete branch 'foo' checked out at '/bar/foo'";
 
     use rstest::rstest;
 
     #[rstest]
-    #[case("git bisect strt", OUTPUT, true)]
-    #[case("git bisect rset", OUTPUT, true)]
-    #[case("git bisect goood", OUTPUT, true)]
-    #[case("git bisect", "", false)]
-    #[case("git bisect start", "", false)]
-    #[case("git bisect good", "", false)]
+    #[case("git branch -d foo", OUTPUT, true)]
+    #[case("git branch -D foo", OUTPUT, true)]
+    #[case("git branch -d foo", "Deleted branch foo (was a1b2c3d).", false)]
+    #[case("git branch -D foo", "Deleted branch foo (was a1b2c3d).", false)]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(match_rule(&mut command, None), is_match);
     }
 
     #[rstest]
-    #[case("git bisect goood", OUTPUT, vec!["good", "old", "bad"])]
-    #[case("git bisect strt", OUTPUT, vec!["start", "next", "skip"])]
-    #[case("git bisect rset", OUTPUT, vec!["reset", "new", "next"])]
+    #[case("git branch -d foo", OUTPUT, vec!["git checkout master && git branch -D foo"])]
+    #[case("git branch -D foo", OUTPUT, vec!["git checkout master && git branch -D foo"])]
     fn test_get_new_command(
         #[case] command: &str,
         #[case] stdout: &str,
@@ -86,13 +74,6 @@ mod tests {
     ) {
         let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
-        let new_command = expected
-            .iter()
-            .map(|s| format!("git bisect {}", s))
-            .collect::<Vec<_>>();
-        assert_eq!(
-            get_new_command(&mut command, Some(&system_shell)),
-            new_command
-        );
+        assert_eq!(get_new_command(&mut command, Some(&system_shell)), expected);
     }
 }
