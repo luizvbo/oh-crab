@@ -9,6 +9,20 @@ use crate::shell::Shell;
 
 use regex::Regex;
 
+/// Replaces an argument in a script.
+///
+/// This function takes a script and two strings `from_` and `to`. It replaces the last occurrence of `from_` in the script with `to`.
+/// If `from_` does not occur at the end of the script, it replaces all occurrences of `from_` in the script with `to`.
+///
+/// # Arguments
+///
+/// * `script` - A string slice that holds the script.
+/// * `from_` - The string to be replaced.
+/// * `to` - The string to replace with.
+///
+/// # Returns
+///
+/// This function returns a new string with the replaced argument.
 pub fn replace_argument(script: &str, from_: &str, to: &str) -> String {
     let re = Regex::new(&format!(" {}$", regex::escape(from_))).unwrap();
     let replaced_in_the_end = re.replace(script, &format!(" {}", to));
@@ -191,13 +205,58 @@ pub fn get_valid_history_without_current(
     valid_history
 }
 
+/// Returns a vector of matched commands from the given stderr string.
+///
+/// This function iterates over each line in `stderr`. If a line contains any of the separators,
+/// it sets a flag `should_yield` to true. For each subsequent line, if `should_yield` is true and
+/// the line is not empty, the function adds the line to the vector of matched commands.
+///
+/// # Arguments
+///
+/// * `stderr` - A string slice that holds the standard error output.
+/// * `separator_option` - An Option that contains a vector of separator strings. If this option is None,
+///   the function uses ["Did you mean"] as the default separator.
+///
+/// # Returns
+///
+/// This function returns a vector of matched commands. Each command is a string that follows a line
+/// containing a separator and does not contain a separator itself.
+///
+/// # Example
+///
+/// ```
+/// let stderr = "error: pathspec 'feature/test_commit' did not match any file(s) known to git\nDid you mean this?\n    origin/feature/test_commit";
+/// let commands = get_all_matched_commands(stderr, None);
+/// assert_eq!(commands, vec!["origin/feature/test_commit"]);
+/// ```
+pub fn get_all_matched_commands(stderr: &str, separator_option: Option<Vec<&str>>) -> Vec<String> {
+    let separator = match separator_option {
+        None => vec!["Did you mean"],
+        Some(sep) => sep,
+    };
+    let mut should_yield = false;
+    let mut matched_commands = Vec::new();
+
+    for line in stderr.lines() {
+        if separator.iter().any(|&sep| line.contains(sep)) {
+            should_yield = true;
+        } else if should_yield && !line.is_empty() {
+            matched_commands.push(line.trim().to_string());
+        }
+    }
+
+    matched_commands
+}
+
 #[cfg(test)]
 mod tests {
     use mockall::mock;
 
     use crate::{cli::command::CrabCommand, shell::Shell, utils::get_alias};
 
+    use super::get_all_matched_commands;
     use super::get_valid_history_without_current;
+    use rstest::rstest;
 
     mock! {
         pub MyShell {}
@@ -250,5 +309,13 @@ mod tests {
             Vec::<String>::new(),
             get_valid_history_without_current(&command, &*system_shell)
         );
+    }
+
+    #[rstest]
+    #[case("git: 'cone' is not a git command. See 'git --help'.\n\nDid you mean one of these?\n\tclone", vec!["clone"])]
+    #[case("git: 're' is not a git command. See 'git --help'.\n\nDid you mean one of these?\n\trebase\n\treset\n\tgrep\n\trm", vec!["rebase", "reset", "grep", "rm"])]
+    #[case("tsuru: \"target\" is not a tsuru command. See \"tsuru help\".\n\nDid you mean one of these?\n\tservice-add\n\tservice-bind\n\tservice-doc\n\tservice-info\n\tservice-list\n\tservice-remove\n\tservice-status\n\tservice-unbind", vec![ "service-add", "service-bind", "service-doc", "service-info", "service-list", "service-remove", "service-status", "service-unbind"])]
+    fn test_get_all_matched_commands(#[case] stderr: &str, #[case] result: Vec<&str>) {
+        assert_eq!(get_all_matched_commands(stderr, None), result);
     }
 }

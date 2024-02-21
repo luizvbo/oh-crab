@@ -67,11 +67,6 @@ fn mockable_get_new_command(
 
             let branches = get_branches(mock_output);
             let branches: Vec<&str> = branches.iter().map(|s| s.as_str()).collect();
-
-            println!("{:?}", mock_output);
-            println!("{:?}", missing_file);
-            println!("{:?}", branches);
-
             let closest_branch = get_closest(missing_file, &branches, None, false);
 
             let mut new_commands = Vec::new();
