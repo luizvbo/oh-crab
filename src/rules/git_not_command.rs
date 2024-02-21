@@ -36,7 +36,6 @@ fn auxiliary_get_new_command(
             stdout,
             Some(vec!["The most similar command", "Did you mean"]),
         );
-        println!(">> {:?}, {:?}", matched, broken_cmd);
         replace_command(
             command,
             broken_cmd,
@@ -87,30 +86,25 @@ stats
 git: 'tags' is not a git command. See 'git --help'.
 
 The most similar commands are
-\tstage
-\ttag
+    stage
+    tag
 "#;
     const GIT_COMMAND: &str = "* master";
 
     #[rstest]
-    #[case("git brnch", GIT_NOT_COMMAND.to_owned())]
-    #[case("git st", GIT_NOT_COMMAND_ONE_OF_THIS.to_owned())]
-    fn test_match(#[case] script: &str, #[case] output: String) {
+    #[case("git brnch", GIT_NOT_COMMAND.to_owned(), true)]
+    #[case("git st", GIT_NOT_COMMAND_ONE_OF_THIS.to_owned(), true)]
+    #[case("ls brnch", GIT_NOT_COMMAND.to_owned(), false)]
+    #[case("git branch", GIT_COMMAND.to_owned(), false)]
+    fn test_match(#[case] script: &str, #[case] output: String, #[case] is_match: bool) {
         let crab_command = &mut CrabCommand::new(script.to_owned(), Some(output), None);
-        assert!(match_rule(crab_command, None));
+        assert_eq!(match_rule(crab_command, None), is_match);
     }
 
-    #[rstest]
-    #[case("ls brnch", GIT_NOT_COMMAND.to_owned())]
-    #[case("git branch", GIT_COMMAND.to_owned())]
-    fn test_not_match(#[case] script: &str, #[case] output: String) {
-        let crab_command = &mut CrabCommand::new(script.to_owned(), Some(output), None);
-        assert!(!match_rule(crab_command, None));
-    }
 
     #[rstest]
     #[case("git brnch", GIT_NOT_COMMAND.to_owned(), vec!["git branch"])]
-    #[case("git st", GIT_NOT_COMMAND_ONE_OF_THIS.to_owned(), vec!["git stats", "git stash", "git stage"])]
+    #[case("git st", GIT_NOT_COMMAND_ONE_OF_THIS.to_owned(), vec!["git reset", "git stage", "git stash"])]
     #[case("git tags", GIT_NOT_COMMAND_CLOSEST.to_owned(), vec!["git tag", "git stage"])]
     fn test_get_new_command(
         #[case] script: &str,
