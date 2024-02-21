@@ -101,7 +101,6 @@ The most similar commands are
         assert_eq!(match_rule(crab_command, None), is_match);
     }
 
-
     #[rstest]
     #[case("git brnch", GIT_NOT_COMMAND.to_owned(), vec!["git branch"])]
     #[case("git st", GIT_NOT_COMMAND_ONE_OF_THIS.to_owned(), vec!["git reset", "git stage", "git stash"])]
