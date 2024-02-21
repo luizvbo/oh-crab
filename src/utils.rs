@@ -9,6 +9,20 @@ use crate::shell::Shell;
 
 use regex::Regex;
 
+/// Replaces an argument in a script.
+///
+/// This function takes a script and two strings `from_` and `to`. It replaces the last occurrence of `from_` in the script with `to`.
+/// If `from_` does not occur at the end of the script, it replaces all occurrences of `from_` in the script with `to`.
+///
+/// # Arguments
+///
+/// * `script` - A string slice that holds the script.
+/// * `from_` - The string to be replaced.
+/// * `to` - The string to replace with.
+///
+/// # Returns
+///
+/// This function returns a new string with the replaced argument.
 pub fn replace_argument(script: &str, from_: &str, to: &str) -> String {
     let re = Regex::new(&format!(" {}$", regex::escape(from_))).unwrap();
     let replaced_in_the_end = re.replace(script, &format!(" {}", to));
