@@ -299,6 +299,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fuzzt"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a445c3f240ddac43345d068125033809dfaf0c8050ab0a22e8cfc7c2dae6105c"
+
+[[package]]
 name = "getrandom"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -435,19 +441,19 @@ dependencies = [
 
 [[package]]
 name = "ohcrab"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "clap",
  "console",
  "dirs",
  "env_logger",
+ "fuzzt",
  "is_executable",
  "log",
  "mockall",
  "regex",
  "rstest",
- "shellwords",
- "similar",
+ "shlex",
  "tempfile",
  "which",
 ]
@@ -634,20 +640,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b97ed7a9823b74f99c7742f5336af7be5ecd3eeafcb1507d1fa93347b1d589b0"
 
 [[package]]
-name = "shellwords"
-version = "1.1.0"
+name = "shlex"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89e515aa4699a88148ed5ef96413ceef0048ce95b43fbc955a33bde0a70fcae6"
-dependencies = [
- "lazy_static",
- "regex",
-]
-
-[[package]]
-name = "similar"
-version = "2.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32fea41aca09ee824cc9724996433064c89f7777e60762749a4170a14abbfa21"
+checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
 name = "slab"

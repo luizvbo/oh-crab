@@ -22,7 +22,6 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
                 .collect::<Vec<&str>>()
                 .as_slice(),
             None,
-            None,
         )
         .is_empty()
 }
@@ -44,7 +43,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
         .iter()
         .map(|s| s.as_str())
         .collect::<Vec<&str>>();
-    for cmd in get_close_matches(old_command, &str_executables, None, None) {
+    for cmd in get_close_matches(old_command, &str_executables, None) {
         if !new_cmds.contains(&cmd) {
             new_cmds.push(cmd);
         }
