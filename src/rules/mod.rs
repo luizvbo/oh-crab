@@ -24,6 +24,8 @@ mod git_add;
 mod git_add_force;
 mod git_bisect_usage;
 mod git_branch_delete;
+mod git_branch_delete_checked_out;
+mod git_branch_exists;
 mod git_branch_list;
 mod git_checkout;
 mod git_clone;
@@ -58,13 +60,15 @@ pub fn get_rules() -> Vec<Rule> {
         cd_mkdir::get_rule(),
         git_add::get_rule(),
         git_add_force::get_rule(),
-        git_branch_list::get_rule(),
+        git_bisect_usage::get_rule(),
         git_branch_delete::get_rule(),
+        git_branch_delete_checked_out::get_rule(),
+        git_branch_exists::get_rule(),
+        git_branch_list::get_rule(),
         git_checkout::get_rule(),
         git_clone::get_rule(),
         git_clone_missing::get_rule(),
         git_commit_add::get_rule(),
-        git_bisect_usage::get_rule(),
         git_main_master::get_rule(),
         git_merge::get_rule(),
         git_not_command::get_rule(),
