@@ -63,7 +63,7 @@ fn _get_new_command(command: &CrabCommand) -> Vec<String> {
             }
             let sub_dirs = get_sub_dirs(&cwd);
             let sub_dirs = sub_dirs.iter().map(|s| s.as_str()).collect::<Vec<&str>>();
-            let best_matches = get_close_matches(directory, &sub_dirs, None);
+            let best_matches = get_close_matches(directory, &sub_dirs, None, None);
             if !best_matches.is_empty() {
                 cwd = Path::new(&cwd)
                     .join(best_matches[0])

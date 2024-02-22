@@ -39,6 +39,7 @@ mod git_merge;
 mod git_not_command;
 mod git_pull;
 mod git_push;
+mod git_rebase_merge_dir;
 mod history;
 mod no_command;
 mod tmux;
@@ -80,6 +81,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_not_command::get_rule(),
         git_pull::get_rule(),
         git_push::get_rule(),
+        git_rebase_merge_dir::get_rule(),
         history::get_rule(),
         no_command::get_rule(),
         tmux::get_rule(),

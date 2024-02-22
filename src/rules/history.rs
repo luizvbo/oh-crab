@@ -12,6 +12,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
             .collect::<Vec<&str>>()
             .as_slice(),
         None,
+        None,
     )
     .is_empty()
 }
@@ -24,6 +25,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
             .map(|s| s.as_str())
             .collect::<Vec<&str>>()
             .as_slice(),
+        None,
         None,
     )
     .iter()
