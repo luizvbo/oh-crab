@@ -24,7 +24,7 @@ fn auxiliary_get_new_command(
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
     if let Some(stdout) = &command.stdout {
-        let rm_cmd_split: Vec<&str> = stdout.split("\n").collect();
+        let rm_cmd_split: Vec<&str> = stdout.split('\n').collect();
         if rm_cmd_split.len() > 4 {
             let command_list = vec![
                 "git rebase --continue",

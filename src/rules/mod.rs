@@ -9,7 +9,6 @@ use crate::{
 mod ag_literal;
 mod apt_get;
 mod apt_get_search;
-mod git_rebase_merge_dir;
 mod apt_list_upgradable;
 mod apt_upgrade;
 mod brew_install;
@@ -40,6 +39,7 @@ mod git_merge;
 mod git_not_command;
 mod git_pull;
 mod git_push;
+mod git_rebase_merge_dir;
 mod history;
 mod no_command;
 mod tmux;
