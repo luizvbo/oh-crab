@@ -9,6 +9,7 @@ use crate::{
 mod ag_literal;
 mod apt_get;
 mod apt_get_search;
+mod git_rebase_merge_dir;
 mod apt_list_upgradable;
 mod apt_upgrade;
 mod brew_install;
@@ -78,6 +79,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_not_command::get_rule(),
         git_pull::get_rule(),
         git_push::get_rule(),
+        git_rebase_merge_dir::get_rule(),
         history::get_rule(),
         no_command::get_rule(),
         tmux::get_rule(),
