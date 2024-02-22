@@ -66,25 +66,30 @@ mod tests {
     use crate::cli::command::CrabCommand;
 
     use rstest::rstest;
+
+    const OUTPUT: &str = "\n\nIt seems that there is already a rebase-merge directory, and\n\
+        I wonder if you are in the middle of another rebase.  If that is the\n\
+        case, please try\n\tgit rebase (--continue | --abort | --skip)\n\
+        If that is not the case, please\n\trm -fr \"/foo/bar/baz/egg/.git/rebase-merge\"\n\
+        and run me again.  I am stopping in case you still have something\nvaluable there.\n";
+
     #[rstest]
-    #[case("git help st", "`git st' is aliased to `status'", true)]
-    #[case("git help ds", "`git ds' is aliased to `diff --staged'", true)]
-    #[case("git help status", "GIT-STATUS(1)...Git Manual...GIT-STATUS(1)", false)]
-    #[case("git help diff", "GIT-DIFF(1)...Git Manual...GIT-DIFF(1)", false)]
+    #[case("git rebase master", OUTPUT, true)]
+    #[case("git rebase -skip", OUTPUT, true)]
+    #[case("git rebase", OUTPUT, true)]
+    #[case("git rebase master", "", false)]
+    #[case("git rebase -abort", "", false)]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(match_rule(&mut command, None), is_match);
     }
 
     #[rstest]
-    #[case("git help st", "`git st' is aliased to `status'", "git help status")]
-    #[case(
-        "git help ds",
-        "`git ds' is aliased to `diff --staged'",
-        "git help diff"
-    )]
-    fn test_get_new_command(#[case] command: &str, #[case] stdout: &str, #[case] expected: &str) {
+    #[case("git rebase master", OUTPUT, vec!["git rebase --abort", "git rebase --skip", "git rebase --continue", "rm -fr \"/foo/bar/baz/egg/.git/rebase-merge\""])]
+    #[case("git rebase -skip", OUTPUT, vec!["git rebase --skip", "git rebase --abort", "git rebase --continue", "rm -fr \"/foo/bar/baz/egg/.git/rebase-merge\""])]
+    #[case("git rebase", OUTPUT, vec!["git rebase --skip", "git rebase --abort", "git rebase --continue", "rm -fr \"/foo/bar/baz/egg/.git/rebase-merge\""])]
+    fn test_get_new_command(#[case] command: &str, #[case] stdout: &str, #[case] expected: Vec<&str>) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
-        assert_eq!(get_new_command(&mut command, None), vec![expected]);
+        assert_eq!(get_new_command(&mut command, None), expected);
     }
 }
