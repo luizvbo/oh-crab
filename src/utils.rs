@@ -35,7 +35,7 @@ pub fn replace_argument(script: &str, from_: &str, to: &str) -> String {
 }
 
 pub fn replace_command(command: &CrabCommand, broken: &str, matched: Vec<&str>) -> Vec<String> {
-    let candidate_commands = get_close_matches(broken, &matched, Some(0.1));
+    let candidate_commands = get_close_matches(broken, &matched, None, Some(0.1));
     let mut new_commands = Vec::<String>::new();
     for cmd in candidate_commands {
         new_commands.push(replace_argument(&command.script, broken, cmd.trim()));
@@ -87,6 +87,7 @@ pub fn get_closest<'a>(
 pub fn get_close_matches<'a>(
     word: &'a str,
     possibilities: &'a [&'a str],
+    n_matches: Option<usize>,
     cutoff: Option<f64>,
 ) -> Vec<&'a str> {
     // TODO: Read parameters from config file
