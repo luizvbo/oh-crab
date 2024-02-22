@@ -179,9 +179,12 @@ new rules or improving the crate.
 - [X] git_checkout
 - [X] git_clone
 - [X] git_commit_add
+- [X] git_commit_amend
 - [X] git_clone_missing
+- [X] git_diff_staged
 - [X] git_main_master
 - [X] git_merge
+- [X] git_not_command
 - [X] git_pull
 - [X] git_push
 - [X] history
@@ -223,17 +226,14 @@ new rules or improving the crate.
 - [ ] fix_file
 - [ ] gem_unknown_command
 - [ ] git_branch_0flag
-- [ ] git_commit_amend
 - [ ] git_commit_reset
 - [ ] git_diff_no_index
-- [ ] git_diff_staged
 - [ ] git_fix_stash
 - [ ] git_flag_after_filename
 - [ ] git_help_aliased
 - [ ] git_hook_bypass
 - [ ] git_lfs_mistype
 - [ ] git_merge_unrelated
-- [ ] git_not_command
 - [ ] git_pull_clone
 - [ ] git_pull_uncommitted_changes
 - [ ] git_push_different_branch_names
