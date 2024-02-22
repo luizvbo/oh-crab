@@ -85,10 +85,14 @@ mod tests {
     }
 
     #[rstest]
-    #[case("git rebase master", OUTPUT, vec!["git rebase --abort", "git rebase --skip", "git rebase --continue", "rm -fr \"/foo/bar/baz/egg/.git/rebase-merge\""])]
+    #[case("git rebase master", OUTPUT, vec!["git rebase --skip", "git rebase --abort", "git rebase --continue", "rm -fr \"/foo/bar/baz/egg/.git/rebase-merge\""])]
     #[case("git rebase -skip", OUTPUT, vec!["git rebase --skip", "git rebase --abort", "git rebase --continue", "rm -fr \"/foo/bar/baz/egg/.git/rebase-merge\""])]
     #[case("git rebase", OUTPUT, vec!["git rebase --skip", "git rebase --abort", "git rebase --continue", "rm -fr \"/foo/bar/baz/egg/.git/rebase-merge\""])]
-    fn test_get_new_command(#[case] command: &str, #[case] stdout: &str, #[case] expected: Vec<&str>) {
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] stdout: &str,
+        #[case] expected: Vec<&str>,
+    ) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(get_new_command(&mut command, None), expected);
     }

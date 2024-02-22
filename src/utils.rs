@@ -91,9 +91,9 @@ pub fn get_close_matches<'a>(
     cutoff: Option<f64>,
 ) -> Vec<&'a str> {
     // TODO: Read parameters from config file
-    let n = Some(3);
+    let n = n_matches.unwrap_or(3);
     let cutoff = cutoff.unwrap_or(0.6);
-    get_top_n(word, possibilities, cutoff, n, None, None)
+    get_top_n(word, possibilities, cutoff, Some(n), None, None)
 }
 
 /// Gets the alias for the OC_ALIAS environment variable or defaults to "crab".
