@@ -34,6 +34,7 @@ mod git_clone_missing;
 mod git_commit_add;
 mod git_commit_amend;
 mod git_diff_staged;
+mod git_help_aliased;
 mod git_main_master;
 mod git_merge;
 mod git_not_command;
@@ -74,6 +75,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_commit_add::get_rule(),
         git_commit_amend::get_rule(),
         git_diff_staged::get_rule(),
+        git_help_aliased::get_rule(),
         git_main_master::get_rule(),
         git_merge::get_rule(),
         git_not_command::get_rule(),
