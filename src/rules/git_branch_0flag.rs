@@ -1,12 +1,4 @@
 use super::{utils::git::get_command_with_git_support, Rule};
-use crate::utils::replace_command;
-use crate::{
-    cli::command::CrabCommand, rules::utils::git::match_rule_with_git_support, shell::Shell,
-};
-use regex::Regex;
-
-use super::{utils::git::get_command_with_git_support, Rule};
-use crate::utils::replace_command;
 use crate::{
     cli::command::CrabCommand, rules::utils::git::match_rule_with_git_support, shell::Shell,
 };
@@ -18,11 +10,8 @@ fn first_0flag(script_parts: &Vec<String>) -> Option<&String> {
 }
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(script_parts) = &command.script_parts {
-        script_parts.get(1) == Some(&"branch".to_string()) && first_0flag(script_parts).is_some()
-    } else {
-        false
-    }
+    command.script_parts.get(1) == Some(&"branch".to_owned())
+        && first_0flag(&command.script_parts).is_some()
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
@@ -33,20 +22,19 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    if let Some(script_parts) = &command.script_parts {
-        if let Some(branch_name) = first_0flag(script_parts) {
-            let fixed_flag = branch_name.replace("0", "-");
-            let fixed_script = command.script.replace(branch_name, &fixed_flag);
-            if let Some(stdout) = &command.stdout {
-                if stdout.contains("A branch named '") && stdout.contains("' already exists.") {
-                    let delete_branch = format!("git branch -D {}", branch_name);
-                    return vec![delete_branch, fixed_script];
-                }
+    if let Some(branch_name) = first_0flag(&command.script_parts) {
+        let fixed_flag = branch_name.replace("0", "-");
+        let fixed_script = command.script.replace(branch_name, &fixed_flag);
+        if let Some(stdout) = &command.stdout {
+            if stdout.contains("A branch named '") && stdout.contains("' already exists.") {
+                let delete_branch = format!("git branch -D {}", branch_name);
+                vec![delete_branch, fixed_script]
             }
-            return vec![fixed_script];
         }
+        vec![fixed_script]
+    } else {
+        Vec::<String>::new()
     }
-    Vec::<String>::new()
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
@@ -106,9 +94,6 @@ mod tests {
     ) {
         let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
-        assert_eq!(
-            get_new_command(&mut command, Some(&system_shell)),
-            expected
-        );
+        assert_eq!(get_new_command(&mut command, Some(&system_shell)), expected);
     }
 }
