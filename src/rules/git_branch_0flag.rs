@@ -29,9 +29,12 @@ fn auxiliary_get_new_command(
             if stdout.contains("A branch named '") && stdout.contains("' already exists.") {
                 let delete_branch = format!("git branch -D {}", branch_name);
                 vec![delete_branch, fixed_script]
+            } else {
+                vec![fixed_script]
             }
+        } else {
+            vec![fixed_script]
         }
-        vec![fixed_script]
     } else {
         Vec::<String>::new()
     }
@@ -56,9 +59,9 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
-    use crate::shell::Bash;
 
     const OUTPUT_BRANCH_EXISTS: &str = "fatal: A branch named 'bar' already exists.";
+    const OUTPUT_NOT_VALID_OBJECT: &str = "fatal: Not a valid object name: 'bar'.";
 
     use rstest::rstest;
 
@@ -92,8 +95,26 @@ mod tests {
         #[case] stdout: &str,
         #[case] expected: Vec<&str>,
     ) {
-        let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
-        assert_eq!(get_new_command(&mut command, Some(&system_shell)), expected);
+        assert_eq!(get_new_command(&mut command, None), expected);
+    }
+
+    #[rstest]
+    #[case("git branch 0l 'maint-*'", OUTPUT_NOT_VALID_OBJECT, vec!["-l 'maint-*'"])]
+    #[case("git branch 0u upstream", OUTPUT_NOT_VALID_OBJECT, vec!["-u upstream"])]
+    fn test_get_new_command_not_valid_object(
+        #[case] command: &str,
+        #[case] stdout: &str,
+        #[case] expected: Vec<&str>,
+    ) {
+        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        let new_command = expected
+            .iter()
+            .map(|s| format!("git branch {}", s))
+            .collect::<Vec<_>>();
+        assert_eq!(
+            get_new_command(&mut command, None),
+            new_command
+        );
     }
 }
