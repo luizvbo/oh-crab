@@ -3,10 +3,10 @@ use crate::{
     cli::command::CrabCommand, rules::utils::git::match_rule_with_git_support, shell::Shell,
 };
 
-fn first_0flag(script_parts: &Vec<String>) -> Option<&String> {
+fn first_0flag(script_parts: &[String]) -> Option<&String> {
     script_parts
         .iter()
-        .find(|p| p.len() == 2 && p.starts_with("0"))
+        .find(|p| p.len() == 2 && p.starts_with('0'))
 }
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
@@ -23,7 +23,7 @@ fn auxiliary_get_new_command(
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
     if let Some(branch_name) = first_0flag(&command.script_parts) {
-        let fixed_flag = branch_name.replace("0", "-");
+        let fixed_flag = branch_name.replace('0', "-");
         let fixed_script = command.script.replace(branch_name, &fixed_flag);
         if let Some(stdout) = &command.stdout {
             if stdout.contains("A branch named '") && stdout.contains("' already exists.") {
@@ -112,9 +112,6 @@ mod tests {
             .iter()
             .map(|s| format!("git branch {}", s))
             .collect::<Vec<_>>();
-        assert_eq!(
-            get_new_command(&mut command, None),
-            new_command
-        );
+        assert_eq!(get_new_command(&mut command, None), new_command);
     }
 }
