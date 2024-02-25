@@ -104,7 +104,7 @@ The most similar commands are
     #[rstest]
     #[case("git brnch", GIT_NOT_COMMAND.to_owned(), vec!["git branch"])]
     #[case("git st", GIT_NOT_COMMAND_ONE_OF_THIS.to_owned(), vec!["git reset", "git stage", "git stash"])]
-    #[case("git tags", GIT_NOT_COMMAND_CLOSEST.to_owned(), vec!["git tag", "git stage"])]
+    #[case("git tags", GIT_NOT_COMMAND_CLOSEST.to_owned(), vec!["git stage", "git tag"])]
     fn test_get_new_command(
         #[case] script: &str,
         #[case] output: String,

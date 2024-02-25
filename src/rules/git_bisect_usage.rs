@@ -76,9 +76,9 @@ mod tests {
     }
 
     #[rstest]
-    #[case("git bisect goood", OUTPUT, vec!["good", "old", "bad"])]
-    #[case("git bisect strt", OUTPUT, vec!["start", "next", "skip"])]
-    #[case("git bisect rset", OUTPUT, vec!["reset", "new", "next"])]
+    #[case("git bisect goood", OUTPUT, vec!["good", "log", "old"])]
+    #[case("git bisect strt", OUTPUT, vec!["start", "reset", "terms"])]
+    #[case("git bisect rset", OUTPUT, vec!["reset", "terms", "start"])]
     fn test_get_new_command(
         #[case] command: &str,
         #[case] stdout: &str,

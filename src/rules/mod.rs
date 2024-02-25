@@ -36,6 +36,7 @@ mod git_commit_amend;
 mod git_commit_reset;
 mod git_diff_no_index;
 mod git_diff_staged;
+mod git_fix_stash;
 mod git_help_aliased;
 mod git_main_master;
 mod git_merge;
@@ -51,20 +52,20 @@ mod utils;
 
 pub fn get_rules() -> Vec<Rule> {
     vec![
-        apt_get::get_rule(),
         ag_literal::get_rule(),
+        apt_get::get_rule(),
         apt_get_search::get_rule(),
-        apt_upgrade::get_rule(),
         apt_list_upgradable::get_rule(),
+        apt_upgrade::get_rule(),
         brew_install::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
         cd_correction::get_rule(),
         cd_cs::get_rule(),
+        cd_mkdir::get_rule(),
+        cd_parent::get_rule(),
         chmod_x::get_rule(),
         choco_install::get_rule(),
-        cd_parent::get_rule(),
-        cd_mkdir::get_rule(),
         git_add::get_rule(),
         git_add_force::get_rule(),
         git_bisect_usage::get_rule(),
@@ -81,6 +82,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_commit_reset::get_rule(),
         git_diff_no_index::get_rule(),
         git_diff_staged::get_rule(),
+        git_fix_stash::get_rule(),
         git_help_aliased::get_rule(),
         git_main_master::get_rule(),
         git_merge::get_rule(),
