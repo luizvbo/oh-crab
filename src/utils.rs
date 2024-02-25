@@ -1,4 +1,4 @@
-use fuzzt::{get_top_n, algorithms::SequenceMatcher};
+use fuzzt::{algorithms::SequenceMatcher, get_top_n};
 use std::collections::HashSet;
 use std::env;
 
@@ -62,7 +62,14 @@ pub fn get_closest<'a>(
     fallback_to_first: bool,
 ) -> Option<&'a str> {
     let cutoff = cutoff.unwrap_or(0.6);
-    let matches = get_top_n(word, possibilities, Some(cutoff), Some(1), None, Some(&SequenceMatcher));
+    let matches = get_top_n(
+        word,
+        possibilities,
+        Some(cutoff),
+        Some(1),
+        None,
+        Some(&SequenceMatcher),
+    );
     if matches.is_empty() {
         if fallback_to_first {
             Some(possibilities[0])
@@ -93,7 +100,14 @@ pub fn get_close_matches<'a>(
     // TODO: Read parameters from config file
     let n = n_matches.unwrap_or(3);
     let cutoff = cutoff.unwrap_or(0.6);
-    get_top_n(word, possibilities, Some(cutoff), Some(n), None, Some(&SequenceMatcher))
+    get_top_n(
+        word,
+        possibilities,
+        Some(cutoff),
+        Some(n),
+        None,
+        Some(&SequenceMatcher),
+    )
 }
 
 /// Gets the alias for the OC_ALIAS environment variable or defaults to "crab".
