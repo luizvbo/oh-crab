@@ -9,6 +9,28 @@ use crate::shell::Shell;
 
 use regex::Regex;
 
+/// This function prints a message to the console when the program is
+/// compiled in debug mode and does nothing in release mode.
+///
+/// # Arguments
+///
+/// * `message` - A string slice that holds the message to be logged.
+///
+/// # Examples
+///
+/// ```
+/// debug_log("This is a debug log message.");
+/// ```
+#[cfg(debug_assertions)]
+pub fn debug_log(message: &str) {
+    println!("{}", message);
+}
+
+#[cfg(not(debug_assertions))]
+pub fn debug_log(_: &str) {
+    // This function does nothing when not in debug mode.
+}
+
 /// Replaces an argument in a script.
 ///
 /// This function takes a script and two strings `from_` and `to`. It replaces the last occurrence of `from_` in the script with `to`.
