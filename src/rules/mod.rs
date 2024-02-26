@@ -225,7 +225,3 @@ pub fn organize_commands(mut corrected_commands: Vec<CorrectedCommand>) -> Vec<C
     corrected_commands.dedup_by(|a, b| a.script.eq(&b.script));
     corrected_commands
 }
-
-pub fn selected_command(corrected_commands: &[CorrectedCommand]) -> Option<&CorrectedCommand> {
-    interactive_menu(corrected_commands)
-}

@@ -14,9 +14,11 @@ use cli::{
     command::run_command,
     parser::{get_parser, prepare_arguments},
 };
-use rules::{get_corrected_commands, selected_command};
+use rules::get_corrected_commands;
 use shell::get_bash_type;
 use std::env;
+
+use crate::{ui::interactive_menu, utils::debug_log};
 
 const ARGUMENT_PLACEHOLDER: &str = "OHCRAB_ARGUMENT_PLACEHOLDER";
 const ENV_VAR_NAME_HISTORY: &str = "OHCRAB_COMMAND_HISTORY";
@@ -24,7 +26,6 @@ const ENV_VAR_NAME_ALIAS: &str = "OHCRAB_ALIAS";
 const ENV_VAR_NAME_SHELL: &str = "OHCRAB_SHELL";
 
 fn main() {
-    env_logger::init();
     // Skip the first element of `env::args()` (the name of program)
     let args = env::args().skip(1).collect();
     let args = prepare_arguments(args);
@@ -33,22 +34,23 @@ fn main() {
 
     if let Some(command) = arg_matches.remove_many::<String>("command") {
         let command_vec = command.collect();
-        log::debug!("Retrieved command(s): {:?}", command_vec);
+        debug_log(&format!("Retrieved command(s): {:?}", command_vec));
         let mut crab_command = run_command(command_vec, &*system_shell);
-        log::debug!("Crab command: {:?}", crab_command);
+        debug_log(&format!("Crab command: {:?}", crab_command));
         let corrected_commands = get_corrected_commands(&mut crab_command, &*system_shell);
-        log::debug!(
+        debug_log(&format!(
             "Candidate command(s): {:?}",
             corrected_commands
                 .iter()
                 .map(|cmd| cmd.script.to_owned())
                 .collect::<Vec<_>>()
-        );
-        let selected_command = selected_command(&corrected_commands);
+        ));
+        let selected_command = interactive_menu(&corrected_commands);
         // Print a new line after the menu
         eprintln!();
         if let Some(valid_command) = selected_command {
-            log::debug!("Command selected: {:?}", valid_command);
+            let corrected_commands = get_corrected_commands(&mut crab_command, &*system_shell);
+            debug_log(&format!("Command selected: {:?}", valid_command));
             valid_command.run(crab_command);
         }
     } else {
