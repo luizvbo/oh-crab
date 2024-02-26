@@ -15,7 +15,7 @@ enum UpdateOptions {
 ///
 /// * `command` - A reference to a `CorrectedCommand`.
 pub fn confirm_text(command: &CorrectedCommand) {
-    let prefix = "\u{200B}".repeat(10);
+    let prefix = "\r\x1B[K";
     eprint!(
         "\r{}{}{}[{}|{}|{}|{}]",
         prefix,
