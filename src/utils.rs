@@ -9,7 +9,7 @@ use crate::shell::Shell;
 
 use regex::Regex;
 
-/// This function prints a message to the console when the program is 
+/// This function prints a message to the console when the program is
 /// compiled in debug mode and does nothing in release mode.
 ///
 /// # Arguments

@@ -110,6 +110,6 @@ mod tests {
     #[case("", "", false)]
     fn test_match(#[case] command: &str, #[case] stderr: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), None, Some(stderr.to_owned()));
-        assert_eq!(auxiliary_match_rule(&mut command), is_match);
+        assert_eq!(auxiliary_match_rule(&command), is_match);
     }
 }

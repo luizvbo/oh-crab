@@ -1,10 +1,7 @@
 use crate::shell::Shell;
 use core::fmt;
 
-use crate::{
-    cli::{command::CorrectedCommand, command::CrabCommand},
-    ui::interactive_menu,
-};
+use crate::cli::{command::CorrectedCommand, command::CrabCommand};
 
 mod ag_literal;
 mod apt_get;
