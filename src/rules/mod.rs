@@ -13,7 +13,35 @@ mod brew_update_formula;
 mod cargo;
 mod cd_correction;
 mod cd_cs;
+mod cd_mkdir;
+mod cd_parent;
+mod chmod_x;
+mod choco_install;
 mod cp_create_destination;
+mod git_add;
+mod git_add_force;
+mod git_bisect_usage;
+mod git_branch_0flag;
+mod git_branch_delete;
+mod git_branch_delete_checked_out;
+mod git_branch_exists;
+mod git_branch_list;
+mod git_checkout;
+mod git_clone;
+mod git_clone_missing;
+mod git_commit_add;
+mod git_commit_amend;
+mod git_commit_reset;
+mod git_diff_no_index;
+mod git_diff_staged;
+mod git_fix_stash;
+mod git_help_aliased;
+mod git_main_master;
+mod git_merge;
+mod git_not_command;
+mod git_pull;
+mod git_push;
+mod git_rebase_merge_dir;
 mod history;
 mod no_command;
 mod tmux;
@@ -195,21 +223,4 @@ pub fn organize_commands(mut corrected_commands: Vec<CorrectedCommand>) -> Vec<C
     corrected_commands.sort_by(|a, b| a.priority.cmp(&b.priority));
     corrected_commands.dedup_by(|a, b| a.script.eq(&b.script));
     corrected_commands
-}
-
-pub fn selected_command(corrected_commands: &Vec<CorrectedCommand>) -> Option<&CorrectedCommand> {
-    interactive_menu(corrected_commands)
-}
-
-pub fn get_rules() -> Vec<Rule> {
-    vec![
-        apt_upgrade::get_rule(),
-        cargo::get_rule(),
-        cd_correction::get_rule(),
-        cd_cs::get_rule(),
-        cp_create_destination::get_rule(),
-        history::get_rule(),
-        no_command::get_rule(),
-        tmux::get_rule(),
-    ]
 }
