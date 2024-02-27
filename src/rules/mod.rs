@@ -17,6 +17,7 @@ mod cd_mkdir;
 mod cd_parent;
 mod chmod_x;
 mod choco_install;
+mod cp_create_destination;
 mod git_add;
 mod git_add_force;
 mod git_bisect_usage;
@@ -63,6 +64,7 @@ pub fn get_rules() -> Vec<Rule> {
         cd_parent::get_rule(),
         chmod_x::get_rule(),
         choco_install::get_rule(),
+        cp_create_destination::get_rule(),
         git_add::get_rule(),
         git_add_force::get_rule(),
         git_bisect_usage::get_rule(),
