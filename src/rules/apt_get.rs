@@ -48,7 +48,7 @@ pub fn get_rule() -> Rule {
     Rule::new(
         "apt_get".to_owned(),
         None,
-        Some(2000),
+        Some(4000),
         None,
         match_rule,
         get_new_command,

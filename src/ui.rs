@@ -17,7 +17,7 @@ enum UpdateOptions {
 pub fn confirm_text(command: &CorrectedCommand) {
     let prefix = "\r\x1B[K";
     eprint!(
-        "\r{}{}{}[{}|{}|{}|{}]",
+        "\r{}{}{} [{}|{}|{}|{}]",
         prefix,
         style(command.script.to_owned()).for_stderr().bold(),
         if command.side_effect.is_some() {

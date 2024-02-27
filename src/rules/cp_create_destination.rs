@@ -3,8 +3,6 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 
 pub fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
-        println!("{:?}", command);
-        println!("{:?}", output.contains("No such file or directory"));
         output.contains("No such file or directory")
             || (output.starts_with("cp: directory")
                 && output.trim_end().ends_with("does not exist"))
