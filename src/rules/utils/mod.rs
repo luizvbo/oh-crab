@@ -1,4 +1,4 @@
-use crate::{cli::command::CrabCommand};
+use crate::cli::command::CrabCommand;
 use std::path::Path;
 
 pub mod git;
