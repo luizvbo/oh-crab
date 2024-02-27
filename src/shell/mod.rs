@@ -2,7 +2,6 @@ use std::env;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::{ARGUMENT_PLACEHOLDER, ENV_VAR_NAME_ALIAS, ENV_VAR_NAME_HISTORY, ENV_VAR_NAME_SHELL};
 
@@ -38,6 +37,9 @@ pub trait Shell {
             }
         }
         history
+    }
+    fn and(&self, commands: Vec<&str>) -> String {
+        commands.join(" && ")
     }
 
     fn get_builtin_commands(&self) -> Vec<String> {
@@ -203,7 +205,7 @@ impl Shell for Bash {
 #[cfg(test)]
 mod test_zsh {
     use crate::shell::Shell;
-    use std::io::{self, Write};
+    use std::io::Write;
     use tempfile::NamedTempFile;
 
     use super::Zsh;

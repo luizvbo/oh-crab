@@ -1,6 +1,6 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
 
-use super::{match_without_sudo, Rule};
+use super::Rule;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     command.script_parts[0] == "cs"
@@ -21,7 +21,7 @@ pub fn get_rule() -> Rule {
     Rule::new(
         "cd_cs".to_owned(),
         None,
-        None,
+        Some(900),
         None,
         match_rule,
         get_new_command,

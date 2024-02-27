@@ -12,6 +12,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
             .collect::<Vec<&str>>()
             .as_slice(),
         None,
+        None,
     )
     .is_empty()
 }
@@ -25,6 +26,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
             .collect::<Vec<&str>>()
             .as_slice(),
         None,
+        None,
     )
     .iter()
     .map(|&s| s.to_string())
@@ -35,7 +37,7 @@ pub fn get_rule() -> Rule {
     Rule::new(
         "history".to_owned(),
         None,
-        None,
+        Some(9999),
         None,
         match_rule,
         get_new_command,

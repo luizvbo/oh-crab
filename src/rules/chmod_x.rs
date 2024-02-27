@@ -1,52 +1,52 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
+use is_executable::IsExecutable;
 
-use which::which;
+use std::path::Path;
 
 use super::Rule;
 
-fn get_executable(command: &CrabCommand) -> &str {
-    if command.script_parts[0] == "sudo" {
-        &command.script_parts[1]
-    } else {
-        &command.script_parts[0]
-    }
-}
-
 fn _match_rule(
     command: &mut CrabCommand,
-    system_shell: Option<&dyn Shell>,
-    mock_which: Option<bool>,
+    mock_file_exists: Option<bool>,
+    mock_file_access: Option<bool>,
 ) -> bool {
     if let Some(stdout) = &command.output {
-        if stdout.contains("not found") || stdout.contains("not installed") {
-            if let Some(which_return) = mock_which {
-                !which_return
-            } else {
-                which(get_executable(command)).is_err()
+        command.script.starts_with("./")
+            && stdout.to_lowercase().contains("permission denied")
+            && {
+                if let Some(file_exists) = mock_file_exists {
+                    file_exists
+                } else {
+                    Path::new(command.script_parts[0].as_str()).exists()
+                }
             }
-        } else {
-            false
-        }
+            && {
+                if let Some(file_access) = mock_file_access {
+                    !file_access
+                } else {
+                    let path = Path::new(&command.script_parts[0]);
+                    !path.is_executable()
+                }
+            }
     } else {
         false
     }
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    _match_rule(command, system_shell, None)
+    _match_rule(command, None, None)
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    let executable = get_executable(command);
     vec![system_shell.unwrap().and(vec![
-        &("sudo apt-get install ".to_owned() + executable),
+        format!("chmod +x {}", &command.script_parts[0][2..]).as_str(),
         &command.script,
     ])]
 }
 
 pub fn get_rule() -> Rule {
     Rule::new(
-        "apt_get".to_owned(),
+        "chmod_x".to_owned(),
         None,
         None,
         None,
@@ -67,13 +67,13 @@ mod tests {
             $(
                 #[test]
                 fn $name() {
-                    let (script, stdout) = $value;
+                    let (script, stdout, file_exists, file_access) = $value;
                     let mut command = CrabCommand::new(
                                 script.to_owned(),
                                 Some(stdout.to_owned()),
                                 None
                             );
-                    assert!(_match_rule(&mut command, None, Some(false)));
+                    assert!(_match_rule(&mut command, file_exists, file_access));
                 }
             )*
         }
@@ -84,13 +84,13 @@ mod tests {
             $(
                 #[test]
                 fn $name() {
-                    let (script, stdout, mock_which) = $value;
+                    let (script, stdout, file_exists, file_access) = $value;
                     let mut command = CrabCommand::new(
                                 script.to_owned(),
                                 Some(stdout.to_owned()),
                                 None
                             );
-                    assert!(!_match_rule(&mut command, None, mock_which));
+                    assert!(!_match_rule(&mut command, file_exists, file_access));
                 }
             )*
         }
@@ -115,22 +115,19 @@ mod tests {
     }
 
     parameterized_match_rule_tests! {
-        match_rule_1: ("vim", "vim: command not found"),
-        match_rule_2: ("sudo vim", "vim: command not found"),
-        match_rule_3: ("vim", "The program \"vim\" is currently not installed. You can install it by typing: sudo apt install vim"),
+        match_rule_1: ("./gradlew build", "gradlew: Permission denied", Some(true), Some(false)),
+        match_rule_2: ("./install.sh --help", "install.sh: permission denied", Some(true), Some(false)),
     }
 
     parameterized_unmatch_rule_tests! {
-        unmatch_rule_1: ("", "", Some(false)),
-        unmatch_rule_2: ("vim", "", Some(false)),
-        unmatch_rule_4: ("vim", "vim: command not found", Some(true)),
-        unmatch_rule_5: ("sudo vim", "vim: command not found", Some(true)),
+        unmatch_rule_1: ("./gradlew build", "gradlew: Permission denied", Some(true), Some(true)),
+        unmatch_rule_2: ("./gradlew build", "gradlew: Permission denied", Some(false), Some(false)),
+        unmatch_rule_3: ("./gradlew build", "gradlew: error", Some(true), Some(false)),
+        unmatch_rule_4: ("gradlew build", "gradlew: Permission denied", Some(true), Some(false)),
     }
 
     parameterized_get_new_command_tests! {
-        get_new_command_1: ("vim", "", "sudo apt-get install vim && vim"),
-        get_new_command_2: ("git init", "", "sudo apt-get install git && git init"),
-        get_new_command_3: ("sudo vim", "", "sudo apt-get install vim && sudo vim"),
-        get_new_command_4: ("sudo git init", "", "sudo apt-get install git && sudo git init"),
+        get_new_command_1: ("./gradlew build", "", "chmod +x gradlew && ./gradlew build"),
+        get_new_command_2: ("./install.sh --help", "", "chmod +x install.sh && ./install.sh --help"),
     }
 }

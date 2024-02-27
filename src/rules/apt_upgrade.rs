@@ -4,7 +4,7 @@ use super::{match_without_sudo, Rule};
 
 fn _match_rule(command: &CrabCommand) -> bool {
     (command.script == "apt list --upgradable") & {
-        if let Some(stdout) = &command.stdout {
+        if let Some(stdout) = &command.output {
             stdout.trim().split('\n').count() > 1
         } else {
             false

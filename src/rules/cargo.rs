@@ -24,7 +24,7 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use crate::{cli::command::CrabCommand, rules::cargo::match_rule, shell::Zsh};
+    use crate::{cli::command::CrabCommand, rules::cargo::match_rule};
 
     #[test]
     fn test_match_rule() {

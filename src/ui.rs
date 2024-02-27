@@ -1,4 +1,4 @@
-use crate::cli::command::{CorrectedCommand, CrabCommand};
+use crate::cli::command::CorrectedCommand;
 use console::{style, Key, Term};
 use std::io::{self, Write};
 
@@ -15,7 +15,7 @@ enum UpdateOptions {
 ///
 /// * `command` - A reference to a `CorrectedCommand`.
 pub fn confirm_text(command: &CorrectedCommand) {
-    let prefix = "\u{200B}".repeat(10);
+    let prefix = "\r\x1B[K";
     eprint!(
         "\r{}{}{}[{}|{}|{}|{}]",
         prefix,
@@ -43,7 +43,7 @@ pub fn confirm_text(command: &CorrectedCommand) {
 /// # Returns
 ///
 /// The updated index after applying the specified update option.
-fn update_item(items: &Vec<CorrectedCommand>, mut index: usize, increment: UpdateOptions) -> usize {
+fn update_item(items: &[CorrectedCommand], mut index: usize, increment: UpdateOptions) -> usize {
     match increment {
         UpdateOptions::Increment => index = (index + 1) % items.len(),
         UpdateOptions::Decrement => {
@@ -72,7 +72,7 @@ fn update_item(items: &Vec<CorrectedCommand>, mut index: usize, increment: Updat
 /// # Returns
 ///
 /// An optional reference to the selected `CorrectedCommand`.
-pub fn interactive_menu(corrected_commands: &Vec<CorrectedCommand>) -> Option<&CorrectedCommand> {
+pub fn interactive_menu(corrected_commands: &[CorrectedCommand]) -> Option<&CorrectedCommand> {
     if corrected_commands.is_empty() {
         None
     } else {

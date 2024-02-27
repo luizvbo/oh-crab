@@ -3,14 +3,13 @@ use crate::{
     shell::Shell,
     utils::{get_all_executable, get_close_matches},
 };
-use similar::DiffableStr;
 use which::which;
 
 use super::Rule;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     which(&command.script_parts[0]).is_err()
-        & (if let Some(output) = &command.stderr {
+        & (if let Some(output) = &command.output {
             output.contains("not found") | output.contains("is not recognized as")
         } else {
             false
@@ -22,6 +21,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
                 .map(|s| s.as_str())
                 .collect::<Vec<&str>>()
                 .as_slice(),
+            None,
             None,
         )
         .is_empty()
@@ -44,7 +44,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
         .iter()
         .map(|s| s.as_str())
         .collect::<Vec<&str>>();
-    for cmd in get_close_matches(old_command, &str_executables, None) {
+    for cmd in get_close_matches(old_command, &str_executables, None, None) {
         if !new_cmds.contains(&cmd) {
             new_cmds.push(cmd);
         }
@@ -59,7 +59,7 @@ pub fn get_rule() -> Rule {
     Rule::new(
         "no_command".to_owned(),
         None,
-        None,
+        Some(3000),
         None,
         match_rule,
         get_new_command,

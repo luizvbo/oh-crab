@@ -14,7 +14,7 @@ jobs:
     name: Extract crate metadata
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.1.1
     - name: Extract crate information
       id: crate_metadata
       run: |
@@ -22,73 +22,12 @@ jobs:
     outputs:
       msrv: ${{ steps.crate_metadata.outputs.msrv }}
 
-  ensure_cargo_fmt:
-    name: Ensure 'cargo fmt' has been run
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: dtolnay/rust-toolchain@stable
-      with:
-        components: rustfmt
-    - uses: actions/checkout@v4
-    - run: cargo fmt -- --check
-
-  cargo_clippy:
-    name: Run cargo clippy using the minimum supported rust version
-    runs-on: ubuntu-20.04
-    needs: crate_metadata
-    steps:
-    - name: Checkout source code
-      uses: actions/checkout@v4
-
-    - name: Install rust toolchain (v${{ needs.crate_metadata.outputs.msrv }})
-      uses: dtolnay/rust-toolchain@master
-      with:
-        toolchain: ${{ needs.crate_metadata.outputs.msrv }}
-        components: clippy
-    - name: Run clippy (on minimum supported rust version to prevent warnings we can't fix)
-      run: cargo clippy --all-targets ${{ env.MSRV_FEATURES }}
-    - name: Run tests
-      run: cargo test --locked ${{ env.MSRV_FEATURES }}
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - name: Prep environment to test compiled-in paths
-        run: |
-          mkdir /tmp/cheats-dir
-          touch /tmp/config-file
-
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        continue-on-error: false
-        env:
-          NAVI_PATH: /tmp/cheats-dir
-          NAVI_CONFIG: /tmp/config-file
-        with:
-          command: test
-
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        continue-on-error: false
-        with:
-          command: test
-
-  lints:
+  lint:
     name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.1.1
 
       # - name: Install stable toolchain
       #   uses: actions-rs/toolchain@v1
@@ -111,3 +50,51 @@ jobs:
         with:
           command: clippy
           args: -- -D warnings
+
+  build_and_test_linux:
+    name: Build and Test (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4.1.1
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: taiki-e/install-action@nextest
+      - name: 'Build and test'
+        run: cargo nextest run --workspace --all-features
+
+  build_and_test_macos:
+    name: Build and Test (MacOS)
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4.1.1
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: taiki-e/install-action@nextest
+      - name: 'Build and test'
+        run: cargo nextest run --workspace --all-features
+
+  # build_and_test_windows:
+  #   name: Build and Test (Windows)
+  #   runs-on: windows-latest
+  #   timeout-minutes: 20
+  #   steps:
+  #     - name: Prepare symlink configuration
+  #       run: git config --global core.symlinks true
+  #
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v4.1.1
+  #
+  #     - name: Install stable toolchain
+  #       uses: dtolnay/rust-toolchain@stable
+  #
+  #     - uses: taiki-e/install-action@nextest
+  #     - name: 'Build and test'
+  #       run: cargo nextest run --workspace --all-features

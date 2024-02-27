@@ -1,16 +1,15 @@
 use crate::shell::Shell;
 use core::fmt;
 
-use crate::{
-    cli::{
-        command::CorrectedCommand,
-        command::{self, CrabCommand},
-    },
-    ui::interactive_menu,
-};
+use crate::cli::{command::CorrectedCommand, command::CrabCommand};
 
+mod ag_literal;
 mod apt_get;
+mod apt_get_search;
+mod apt_list_upgradable;
 mod apt_upgrade;
+mod brew_install;
+mod brew_update_formula;
 mod cargo;
 mod cd_correction;
 mod cd_cs;
@@ -19,6 +18,54 @@ mod history;
 mod no_command;
 mod tmux;
 
+mod utils;
+
+pub fn get_rules() -> Vec<Rule> {
+    vec![
+        ag_literal::get_rule(),
+        apt_get::get_rule(),
+        apt_get_search::get_rule(),
+        apt_list_upgradable::get_rule(),
+        apt_upgrade::get_rule(),
+        brew_install::get_rule(),
+        brew_update_formula::get_rule(),
+        cargo::get_rule(),
+        cd_correction::get_rule(),
+        cd_cs::get_rule(),
+        cd_mkdir::get_rule(),
+        cd_parent::get_rule(),
+        chmod_x::get_rule(),
+        choco_install::get_rule(),
+        cp_create_destination::get_rule(),
+        git_add::get_rule(),
+        git_add_force::get_rule(),
+        git_bisect_usage::get_rule(),
+        git_branch_0flag::get_rule(),
+        git_branch_delete::get_rule(),
+        git_branch_delete_checked_out::get_rule(),
+        git_branch_exists::get_rule(),
+        git_branch_list::get_rule(),
+        git_checkout::get_rule(),
+        git_clone::get_rule(),
+        git_clone_missing::get_rule(),
+        git_commit_add::get_rule(),
+        git_commit_amend::get_rule(),
+        git_commit_reset::get_rule(),
+        git_diff_no_index::get_rule(),
+        git_diff_staged::get_rule(),
+        git_fix_stash::get_rule(),
+        git_help_aliased::get_rule(),
+        git_main_master::get_rule(),
+        git_merge::get_rule(),
+        git_not_command::get_rule(),
+        git_pull::get_rule(),
+        git_push::get_rule(),
+        git_rebase_merge_dir::get_rule(),
+        history::get_rule(),
+        no_command::get_rule(),
+        tmux::get_rule(),
+    ]
+}
 pub struct Rule {
     name: String,
     enabled_by_default: bool,
@@ -58,7 +105,7 @@ impl Rule {
 
     // Returns `True` if rule matches the command.
     fn is_match(&self, mut command: CrabCommand, system_shell: &dyn Shell) -> bool {
-        let script_only = command.stdout.is_none() && command.stderr.is_none();
+        let script_only = command.output.is_none();
         if script_only && self.requires_output {
             return false;
         }
@@ -102,15 +149,18 @@ pub fn match_without_sudo(
 }
 
 pub fn get_new_command_without_sudo(
-    get_command_function: fn(&CrabCommand) -> Vec<String>,
+    get_new_command_function: fn(&CrabCommand) -> Vec<String>,
     command: &mut CrabCommand,
 ) -> Vec<String> {
     if !command.script.starts_with("sudo ") {
-        get_command_function(command)
+        get_new_command_function(command)
     } else {
         let new_script = command.script[5..].to_owned();
         command.script = new_script;
-        get_command_function(command)
+        get_new_command_function(command)
+            .iter()
+            .map(|cmd| "sudo ".to_owned() + cmd)
+            .collect()
     }
 }
 

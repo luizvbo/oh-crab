@@ -1,4 +1,4 @@
-use shellwords;
+use shlex::split;
 use std::process::{Command, Stdio};
 use std::{fmt, str};
 
@@ -37,8 +37,7 @@ impl CorrectedCommand {
 #[derive(Debug)]
 pub struct CrabCommand {
     pub script: String,
-    pub stdout: Option<String>,
-    pub stderr: Option<String>,
+    pub output: Option<String>,
     pub script_parts: Vec<String>,
 }
 
@@ -46,29 +45,60 @@ impl fmt::Display for CrabCommand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "script: {}, stdout: {}, stderr: {}",
+            "script: {}, output: {}",
             self.script,
-            self.stdout.as_ref().unwrap_or(&"".to_owned()),
-            self.stderr.as_ref().unwrap_or(&"".to_owned()),
+            self.output.as_ref().unwrap_or(&"".to_owned()),
         )
+    }
+}
+
+fn concat_stdout_stderrr(stdout: Option<String>, stderr: Option<String>) -> Option<String> {
+    match (stdout, stderr) {
+        (Some(stdout), Some(stderr)) => Some({
+            if !stderr.is_empty() && !stdout.is_empty() {
+                format!("{}\n{}", stdout, &stderr)
+            } else if !stderr.is_empty() {
+                stderr
+            } else {
+                stdout
+            }
+        }),
+        (Some(stdout), None) => Some(stdout),
+        (None, Some(stderr)) => Some(stderr),
+        (None, None) => None,
     }
 }
 
 impl CrabCommand {
     pub fn new(script: String, stdout: Option<String>, stderr: Option<String>) -> Self {
         let split_parts = CrabCommand::split_command(&script);
+        let output = concat_stdout_stderrr(stdout, stderr);
 
         CrabCommand {
             script,
-            stdout,
-            stderr,
+            output,
             script_parts: split_parts,
         }
     }
 
+    pub fn update(
+        &self,
+        script: Option<String>,
+        stdout: Option<String>,
+        stderr: Option<String>,
+    ) -> CrabCommand {
+        let output = concat_stdout_stderrr(stdout, stderr);
+
+        CrabCommand::new(
+            script.unwrap_or(self.script.to_owned()),
+            output.map_or(self.output.to_owned(), Some),
+            None,
+        )
+    }
+
     fn split_command(command: &str) -> Vec<String> {
         // Split the command using shell-like syntax.
-        shellwords::split(command).expect("")
+        split(command).expect("")
     }
 }
 
@@ -96,7 +126,7 @@ fn prepare_command(raw_command: Vec<String>) -> String {
 }
 
 pub fn shell_command(words_str: &str) -> Command {
-    let mut words_vec = shellwords::split(words_str).expect("empty shell command");
+    let mut words_vec = split(words_str).expect("empty shell command");
     let mut words = words_vec.iter_mut();
     let first_cmd = words.next().expect("absent shell binary");
     let dash_c = if words_str.contains("cmd.exe") {
@@ -127,14 +157,21 @@ mod tests {
         assert_eq!(cmd.get_program().to_str().unwrap(), shell_name);
     }
 
+    #[cfg(target_family = "unix")]
     #[test]
     fn test_run_command() {
-        let command_vec = vec!["echo".to_owned(), "Hello!".to_owned()];
+        let terminal_command = {
+            if cfg!(target_family = "unix") {
+                "echo".to_owned()
+            } else {
+                "Write-Output".to_owned()
+            }
+        };
+        let command_vec = vec![terminal_command, "Hello!".to_owned()];
         let command = command_vec.join(" ").trim().to_owned();
         let system_shell: Box<dyn Shell> = Box::new(Bash {});
         let crab_command = run_command(command_vec, &*system_shell);
         assert_eq!(crab_command.script, command);
-        assert_eq!(crab_command.stdout.unwrap(), "Hello!\n");
-        assert_eq!(crab_command.stderr.unwrap(), "");
+        assert_eq!(crab_command.output.unwrap(), "Hello!\n");
     }
 }
