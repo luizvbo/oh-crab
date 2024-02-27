@@ -131,7 +131,7 @@ impl Rule {
 
     // Returns `True` if rule matches the command.
     fn is_match(&self, mut command: CrabCommand, system_shell: &dyn Shell) -> bool {
-        let script_only = command.stdout.is_none() && command.stderr.is_none();
+        let script_only = command.output.is_none();
         if script_only && self.requires_output {
             return false;
         }

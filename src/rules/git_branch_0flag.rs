@@ -25,7 +25,7 @@ fn auxiliary_get_new_command(
     if let Some(branch_name) = first_0flag(&command.script_parts) {
         let fixed_flag = branch_name.replace('0', "-");
         let fixed_script = command.script.replace(branch_name, &fixed_flag);
-        if let Some(stdout) = &command.stdout {
+        if let Some(stdout) = &command.output {
             if stdout.contains("A branch named '") && stdout.contains("' already exists.") {
                 let delete_branch = format!("git branch -D {}", branch_name);
                 vec![delete_branch, fixed_script]

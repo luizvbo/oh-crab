@@ -6,7 +6,7 @@ use crate::{
 };
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         command.script.contains("rebase")
             && stdout.contains("It seems that there is already a rebase-merge directory")
             && stdout.contains("I wonder if you are in the middle of another rebase")
@@ -23,7 +23,7 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         let rm_cmd_split: Vec<&str> = stdout.split('\n').collect();
         if rm_cmd_split.len() > 4 {
             let command_list = vec![

@@ -3,7 +3,7 @@ use crate::{cli::command::CrabCommand, shell::Shell, utils::replace_command};
 use regex::Regex;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    if let Some(output) = &command.stdout {
+    if let Some(output) = &command.output {
         if output.contains("ambiguous command:") && output.contains("could be:") {
             return true;
         }
@@ -14,7 +14,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     let re = Regex::new(r"ambiguous command: (.*), could be: (.*)").unwrap();
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         let caps = re.captures(stdout).unwrap();
 
         let old_cmd = caps.get(1).unwrap().as_str();

@@ -5,7 +5,7 @@ use crate::{
 use super::{utils::git::get_command_with_git_support, Rule};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         stdout.contains("'master'") || stdout.contains("'main'")
     } else {
         false
@@ -20,7 +20,7 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         if stdout.contains("'master'") {
             vec![command.script.replace("master", "main")]
         } else {

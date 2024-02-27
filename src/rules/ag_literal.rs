@@ -4,8 +4,8 @@ use super::Rule;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     println!("{:?}", command);
-    if let Some(stderr) = &command.stderr {
-        stderr.ends_with("run ag with -Q\n")
+    if let Some(output) = &command.output {
+        output.ends_with("run ag with -Q\n")
     } else {
         false
     }

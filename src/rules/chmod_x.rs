@@ -10,7 +10,7 @@ fn _match_rule(
     mock_file_exists: Option<bool>,
     mock_file_access: Option<bool>,
 ) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         command.script.starts_with("./")
             && stdout.to_lowercase().contains("permission denied")
             && {

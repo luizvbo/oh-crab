@@ -9,7 +9,7 @@ use super::{utils::git::get_command_with_git_support, Rule};
 use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         stdout.contains(" is not a git command. See 'git --help'.")
             && (stdout.contains("The most similar command") || stdout.contains("Did you mean"))
     } else {
@@ -25,7 +25,7 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         let re = Regex::new(r"git: '([^']*)' is not a git command").unwrap();
 
         let broken_cmd = match re.captures(stdout) {

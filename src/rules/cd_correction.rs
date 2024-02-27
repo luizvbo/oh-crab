@@ -22,10 +22,10 @@ fn get_sub_dirs(parent: &str) -> Vec<String> {
 }
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     command.script.starts_with("cd ")
-        && (if let Some(stderr) = &command.stderr {
-            stderr.to_lowercase().contains("no such file or directory")
-                || stderr.to_lowercase().contains("cd: can\"t cd to")
-                || stderr.to_lowercase().contains("does not exist")
+        && (if let Some(output) = &command.output {
+            output.to_lowercase().contains("no such file or directory")
+                || output.to_lowercase().contains("cd: can\"t cd to")
+                || output.to_lowercase().contains("does not exist")
         } else {
             false
         })

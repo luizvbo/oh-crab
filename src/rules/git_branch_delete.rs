@@ -6,7 +6,7 @@ use crate::{
 use super::{utils::git::get_command_with_git_support, Rule};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         command.script.contains("branch -d")
             && stdout.contains("If you are sure you want to delete it")
     } else {

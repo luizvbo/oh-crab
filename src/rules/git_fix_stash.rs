@@ -6,7 +6,7 @@ use crate::{
 };
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         command.script_parts.len() > 1
             && command.script_parts[1] == "stash"
             && stdout.contains("usage:")
