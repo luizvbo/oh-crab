@@ -5,7 +5,7 @@ use crate::{
 };
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         (command.script.contains("branch -d") || command.script.contains("branch -D"))
             && stdout.contains("error: Cannot delete branch '")
             && stdout.contains("' checked out at '")

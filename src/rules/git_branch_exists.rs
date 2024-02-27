@@ -5,7 +5,7 @@ use crate::{
 use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         stdout.contains("fatal: A branch named '") && stdout.contains("' already exists.")
     } else {
         false
@@ -20,7 +20,7 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         let re_branch_name = Regex::new(r"fatal: A branch named '(.+)' already exists.").unwrap();
         if let Some(captures) = re_branch_name.captures(stdout) {
             let mut new_commands = Vec::<String>::new();

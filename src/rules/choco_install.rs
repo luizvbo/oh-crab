@@ -3,7 +3,7 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 use super::Rule;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         stdout.contains("Installing the following packages")
             && (command.script.starts_with("choco install")
                 || command.script_parts.contains(&"cinst".to_owned()))

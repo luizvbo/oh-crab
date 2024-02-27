@@ -4,7 +4,7 @@ use regex::Regex;
 use super::{get_new_command_without_sudo, match_without_sudo, Rule};
 
 fn _match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         let stdout = stdout.to_lowercase();
         command.script.starts_with("cd ")
             && (stdout.contains("no such file or directory")

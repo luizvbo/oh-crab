@@ -7,7 +7,7 @@ use std::path::Path;
 use super::{utils::git::get_command_with_git_support, Rule};
 
 fn get_missing_file(command: &CrabCommand, path_exists: Option<bool>) -> Option<String> {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         let re = Regex::new(r"error: pathspec '([^']*)' did not match any file\(s\) known to git.")
             .unwrap();
 
@@ -35,7 +35,7 @@ fn get_missing_file(command: &CrabCommand, path_exists: Option<bool>) -> Option<
 }
 
 fn mockable_match_rule(command: &CrabCommand, path_exists: Option<bool>) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         stdout.contains("did not match any file(s) known to git.")
             && get_missing_file(command, path_exists).is_some()
     } else {

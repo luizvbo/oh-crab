@@ -11,7 +11,7 @@ fn get_suggestions(str: String) -> Vec<String> {
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         command.script.contains("install")
             && stdout.contains("No available formula")
             && stdout.contains("Did you mean")
@@ -25,7 +25,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
         "Warning: No available formula with the name \"(?:[^\"]+)\". Did you mean (.+)\\?",
     )
     .unwrap();
-    let stdout = &command.stdout.as_ref().unwrap();
+    let stdout = &command.output.as_ref().unwrap();
     let caps = re.captures(stdout).unwrap();
     let suggestions = get_suggestions(caps.get(1).map_or("", |m| m.as_str()).to_owned());
     suggestions

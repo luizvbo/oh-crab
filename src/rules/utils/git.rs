@@ -50,7 +50,7 @@ where
     }
 
     // perform git aliases expansion
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         if stdout.contains("trace: alias expansion:") {
             let re = Regex::new(r"trace: alias expansion: ([^ ]*) => ([^\n]*)").unwrap();
             if let Some(search) = re.captures(stdout) {
@@ -96,7 +96,7 @@ where
     let mut new_command = command;
 
     // perform git aliases expansion
-    if let Some(stdout) = &new_command.stdout {
+    if let Some(stdout) = &new_command.output {
         if stdout.contains("trace: alias expansion:") {
             let re = Regex::new(r"trace: alias expansion: ([^ ]*) => ([^\n]*)").unwrap();
             if let Some(search) = re.captures(stdout) {

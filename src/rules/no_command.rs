@@ -9,7 +9,7 @@ use super::Rule;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     which(&command.script_parts[0]).is_err()
-        & (if let Some(output) = &command.stderr {
+        & (if let Some(output) = &command.output {
             output.contains("not found") | output.contains("is not recognized as")
         } else {
             false

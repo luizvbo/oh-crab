@@ -6,7 +6,7 @@ use which::which;
 use super::Rule;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    let stdout = command.stdout.clone().unwrap_or("".to_owned());
+    let stdout = command.output.clone().unwrap_or("".to_owned());
     if command.script_parts.len() != 1
         || which(&command.script_parts[0]).is_ok()
         || !(stdout.contains("No such file or directory")

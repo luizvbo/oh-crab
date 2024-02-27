@@ -42,7 +42,7 @@ fn get_branches(mock_output: Option<&str>) -> Vec<String> {
 }
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         stdout.contains("did not match any file(s) known to git")
             && !stdout.contains("Did you forget to 'git add'?")
     } else {
@@ -59,7 +59,7 @@ fn mockable_get_new_command(
     system_shell: Option<&dyn Shell>,
     mock_output: Option<&str>,
 ) -> Vec<String> {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         let re = Regex::new(r"error: pathspec '([^']*)' did not match any file\(s\) known to git")
             .unwrap();
         if let Some(caps) = re.captures(stdout) {

@@ -37,8 +37,7 @@ impl CorrectedCommand {
 #[derive(Debug)]
 pub struct CrabCommand {
     pub script: String,
-    pub stdout: Option<String>,
-    pub stderr: Option<String>,
+    pub output: Option<String>,
     pub script_parts: Vec<String>,
 }
 
@@ -46,22 +45,38 @@ impl fmt::Display for CrabCommand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "script: {}, stdout: {}, stderr: {}",
+            "script: {}, output: {}",
             self.script,
-            self.stdout.as_ref().unwrap_or(&"".to_owned()),
-            self.stderr.as_ref().unwrap_or(&"".to_owned()),
+            self.output.as_ref().unwrap_or(&"".to_owned()),
         )
+    }
+}
+
+fn concat_stdout_stderrr(stdout: Option<String>, stderr: Option<String>) -> Option<String> {
+    match (stdout, stderr) {
+        (Some(stdout), Some(stderr)) => Some({
+            if !stderr.is_empty() && !stdout.is_empty() {
+                format!("{}\n{}", stdout, &stderr)
+            } else if !stderr.is_empty() {
+                stderr
+            } else {
+                stdout
+            }
+        }),
+        (Some(stdout), None) => Some(stdout),
+        (None, Some(stderr)) => Some(stderr),
+        (None, None) => None,
     }
 }
 
 impl CrabCommand {
     pub fn new(script: String, stdout: Option<String>, stderr: Option<String>) -> Self {
         let split_parts = CrabCommand::split_command(&script);
+        let output = concat_stdout_stderrr(stdout, stderr);
 
         CrabCommand {
             script,
-            stdout,
-            stderr,
+            output,
             script_parts: split_parts,
         }
     }
@@ -72,10 +87,12 @@ impl CrabCommand {
         stdout: Option<String>,
         stderr: Option<String>,
     ) -> CrabCommand {
+        let output = concat_stdout_stderrr(stdout, stderr);
+
         CrabCommand::new(
             script.unwrap_or(self.script.to_owned()),
-            stdout.map_or(self.stdout.to_owned(), Some),
-            stderr.map_or(self.stderr.to_owned(), Some),
+            output.map_or(self.output.to_owned(), Some),
+            None,
         )
     }
 
@@ -155,7 +172,6 @@ mod tests {
         let system_shell: Box<dyn Shell> = Box::new(Bash {});
         let crab_command = run_command(command_vec, &*system_shell);
         assert_eq!(crab_command.script, command);
-        assert_eq!(crab_command.stdout.unwrap(), "Hello!\n");
-        assert_eq!(crab_command.stderr.unwrap(), "");
+        assert_eq!(crab_command.output.unwrap(), "Hello!\n");
     }
 }

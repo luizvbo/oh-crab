@@ -3,7 +3,7 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 use super::{get_new_command_without_sudo, match_without_sudo, Rule};
 
 fn _match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         stdout.contains("apt list --upgradable")
     } else {
         false

@@ -17,7 +17,7 @@ fn _match_rule(
     system_shell: Option<&dyn Shell>,
     mock_which: Option<bool>,
 ) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         if stdout.contains("not found") || stdout.contains("not installed") {
             if let Some(which_return) = mock_which {
                 !which_return

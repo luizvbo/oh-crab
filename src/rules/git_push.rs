@@ -6,7 +6,7 @@ use crate::{
 use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         command.script_parts.contains(&"push".to_owned())
             && stdout.contains("git push --set-upstream")
     } else {
@@ -32,7 +32,7 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         // If --set-upstream or -u are passed, remove it and its argument. This is
         // because the remaining arguments are concatenated onto the command suggested
         // by git, which includes --set-upstream and its argument

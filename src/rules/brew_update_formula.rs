@@ -3,7 +3,7 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 use super::Rule;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         stdout.contains("Error: This command updates brew itself")
             && stdout.contains("Use `brew upgrade")
             && command.script.contains("update")

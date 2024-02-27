@@ -5,7 +5,7 @@ use crate::{
 };
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         command.script.contains("help") && stdout.contains(" is aliased to ")
     } else {
         false
@@ -20,7 +20,7 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    if let Some(stdout) = &command.stdout {
+    if let Some(stdout) = &command.output {
         let aliased = stdout.splitn(3, '`').collect::<Vec<_>>();
         if aliased.len() > 2 {
             let aliased = aliased[2].splitn(2, '\'').collect::<Vec<_>>()[0]
