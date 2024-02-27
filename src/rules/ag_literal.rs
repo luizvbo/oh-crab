@@ -3,7 +3,6 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 use super::Rule;
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    println!("{:?}", command);
     if let Some(output) = &command.output {
         output.ends_with("run ag with -Q\n")
     } else {
