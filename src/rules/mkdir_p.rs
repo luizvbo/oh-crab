@@ -15,9 +15,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
     match_rule_without_sudo(auxiliary_match_rule, command)
 }
 
-fn auxiliary_get_new_command(
-    command: &CrabCommand,
-) -> Vec<String> {
+fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
     let re = Regex::new(r"\bmkdir (.*)").unwrap();
     vec![re.replace_all(&command.script, "mkdir -p $1").to_string()]
 }
