@@ -163,7 +163,7 @@ impl Rule {
     }
 }
 
-pub fn match_without_sudo(
+pub fn match_rule_without_sudo(
     match_function: fn(&CrabCommand) -> bool,
     command: &mut CrabCommand,
 ) -> bool {
