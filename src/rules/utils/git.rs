@@ -56,7 +56,7 @@ where
     func(command)
 }
 
-pub fn get_command_with_git_support<F>(
+pub fn get_new_command_with_git_support<F>(
     func: F,
     command: &mut CrabCommand,
     system_shell: Option<&dyn Shell>,
@@ -105,7 +105,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::{get_command_with_git_support, is_app, match_rule_with_git_support};
+    use super::{get_new_command_with_git_support, is_app, match_rule_with_git_support};
     use crate::cli::command::CrabCommand;
     use crate::shell::Shell;
     use rstest::rstest;
@@ -161,7 +161,7 @@ mod tests {
         let func =
             |command: &CrabCommand, shell: Option<&dyn Shell>| vec![command.script.to_owned()];
         assert_eq!(
-            get_command_with_git_support(func, &mut command, None),
+            get_new_command_with_git_support(func, &mut command, None),
             vec![expected]
         );
     }

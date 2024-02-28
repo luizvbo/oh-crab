@@ -2,7 +2,7 @@ use crate::{
     cli::command::CrabCommand, rules::utils::git::match_rule_with_git_support, shell::Shell,
 };
 
-use super::{utils::git::get_command_with_git_support, Rule};
+use super::{utils::git::get_new_command_with_git_support, Rule};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     command.script_parts.contains(&"commit".to_owned())
@@ -20,7 +20,7 @@ fn auxiliary_get_new_command(
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    get_command_with_git_support(auxiliary_get_new_command, command, system_shell)
+    get_new_command_with_git_support(auxiliary_get_new_command, command, system_shell)
 }
 
 pub fn get_rule() -> Rule {

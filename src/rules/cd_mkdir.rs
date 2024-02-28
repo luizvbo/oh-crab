@@ -1,7 +1,7 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
 use regex::Regex;
 
-use super::{get_new_command_without_sudo, match_without_sudo, Rule};
+use super::{get_new_command_without_sudo, match_rule_without_sudo, Rule};
 
 fn _match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.output {
@@ -16,7 +16,7 @@ fn _match_rule(command: &CrabCommand) -> bool {
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_without_sudo(_match_rule, command)
+    match_rule_without_sudo(_match_rule, command)
 }
 
 pub fn get_new_command_mkdir(command: &CrabCommand) -> Vec<String> {
