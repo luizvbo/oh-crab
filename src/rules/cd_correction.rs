@@ -6,7 +6,7 @@ use std::env;
 use std::fs;
 use std::path::{Path, MAIN_SEPARATOR};
 
-use super::{get_new_command_without_sudo, match_without_sudo, Rule};
+use super::{get_new_command_without_sudo, match_rule_without_sudo, Rule};
 
 fn get_sub_dirs(parent: &str) -> Vec<String> {
     let mut sub_dirs = Vec::new();
@@ -32,7 +32,7 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_without_sudo(auxiliary_match_rule, command)
+    match_rule_without_sudo(auxiliary_match_rule, command)
 }
 
 fn _get_new_command(command: &CrabCommand) -> Vec<String> {

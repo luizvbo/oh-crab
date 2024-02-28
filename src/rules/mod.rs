@@ -43,6 +43,7 @@ mod git_pull;
 mod git_push;
 mod git_rebase_merge_dir;
 mod history;
+mod mkdir_p;
 mod no_command;
 mod tmux;
 
@@ -90,6 +91,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_push::get_rule(),
         git_rebase_merge_dir::get_rule(),
         history::get_rule(),
+        mkdir_p::get_rule(),
         no_command::get_rule(),
         tmux::get_rule(),
     ]
@@ -163,7 +165,7 @@ impl Rule {
     }
 }
 
-pub fn match_without_sudo(
+pub fn match_rule_without_sudo(
     match_function: fn(&CrabCommand) -> bool,
     command: &mut CrabCommand,
 ) -> bool {

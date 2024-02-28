@@ -1,8 +1,8 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
 
-use super::{get_new_command_without_sudo, match_without_sudo, Rule};
+use super::{get_new_command_without_sudo, match_rule_without_sudo, Rule};
 
-fn _match_rule(command: &CrabCommand) -> bool {
+fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.output {
         stdout.contains("apt list --upgradable")
     } else {
@@ -11,7 +11,7 @@ fn _match_rule(command: &CrabCommand) -> bool {
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_without_sudo(_match_rule, command)
+    match_rule_without_sudo(auxiliary_match_rule, command)
 }
 
 fn _get_new_command(command: &CrabCommand) -> Vec<String> {

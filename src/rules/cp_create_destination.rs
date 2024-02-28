@@ -4,6 +4,7 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 pub fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
         output.contains("No such file or directory")
+            || (output.trim_end().ends_with("Not a directory"))
             || (output.starts_with("cp: directory")
                 && output.trim_end().ends_with("does not exist"))
     } else {

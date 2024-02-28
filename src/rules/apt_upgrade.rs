@@ -1,6 +1,6 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
 
-use super::{match_without_sudo, Rule};
+use super::{match_rule_without_sudo, Rule};
 
 fn _match_rule(command: &CrabCommand) -> bool {
     (command.script == "apt list --upgradable") & {
@@ -13,7 +13,7 @@ fn _match_rule(command: &CrabCommand) -> bool {
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_without_sudo(_match_rule, command)
+    match_rule_without_sudo(_match_rule, command)
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {

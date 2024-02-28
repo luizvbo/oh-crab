@@ -3,7 +3,7 @@ use crate::{
     utils::replace_argument,
 };
 
-use super::{utils::git::get_command_with_git_support, Rule};
+use super::{utils::git::get_new_command_with_git_support, Rule};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.output {
@@ -26,7 +26,7 @@ fn auxiliary_get_new_command(
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    get_command_with_git_support(auxiliary_get_new_command, command, system_shell)
+    get_new_command_with_git_support(auxiliary_get_new_command, command, system_shell)
 }
 
 pub fn get_rule() -> Rule {
