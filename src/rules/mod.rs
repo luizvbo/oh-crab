@@ -45,6 +45,7 @@ mod git_rebase_merge_dir;
 mod history;
 mod mkdir_p;
 mod no_command;
+mod rm_dir;
 mod tmux;
 
 mod utils;
@@ -93,6 +94,7 @@ pub fn get_rules() -> Vec<Rule> {
         history::get_rule(),
         mkdir_p::get_rule(),
         no_command::get_rule(),
+        rm_dir::get_rule(),
         tmux::get_rule(),
     ]
 }
