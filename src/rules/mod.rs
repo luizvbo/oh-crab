@@ -44,6 +44,7 @@ mod git_push;
 mod git_rebase_merge_dir;
 mod history;
 mod ls_all;
+mod ls_lah;
 mod mkdir_p;
 mod no_command;
 mod rm_dir;
@@ -94,6 +95,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_rebase_merge_dir::get_rule(),
         history::get_rule(),
         ls_all::get_rule(),
+        ls_lah::get_rule(),
         mkdir_p::get_rule(),
         no_command::get_rule(),
         rm_dir::get_rule(),
