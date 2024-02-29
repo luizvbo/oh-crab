@@ -3,7 +3,7 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 use super::{utils::match_rule_with_is_app, Rule};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    command.script_parts.len() > 0 && !command.script.contains("ls -l")
+    !command.script_parts.is_empty() && !command.script.contains("ls -l")
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
