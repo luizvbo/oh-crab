@@ -1,4 +1,4 @@
-use crate::rules::cd_mkdir::get_new_command_mkdir;
+use crate::rules::cd_mkdir::auxiliary_get_new_command;
 use crate::utils::get_close_matches;
 use crate::{cli::command::CrabCommand, shell::Shell};
 
@@ -71,7 +71,7 @@ fn _get_new_command(command: &CrabCommand) -> Vec<String> {
                     .unwrap()
                     .to_string();
             } else {
-                return get_new_command_mkdir(command);
+                return auxiliary_get_new_command(command);
             }
         }
         return vec![format!("cd \"{}\"", cwd)];
