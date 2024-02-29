@@ -3,6 +3,8 @@
 `ohcrab` is a port of the well known CLI tool
 [`thefuck`](https://github.com/nvbn/thefuck) to our beloved Rust language.
 
+![ohcrab in action](https://raw.githubusercontent.com/luizvbo/ohcrab/master/resources/ohcrab-example.git)
+
 ## Table of contents
 
 1. [Installation](#installation)
