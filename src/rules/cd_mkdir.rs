@@ -3,7 +3,7 @@ use regex::Regex;
 
 use super::{get_new_command_without_sudo, match_rule_without_sudo, Rule};
 
-fn _match_rule(command: &CrabCommand) -> bool {
+fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.output {
         let stdout = stdout.to_lowercase();
         command.script.starts_with("cd ")
@@ -16,21 +16,17 @@ fn _match_rule(command: &CrabCommand) -> bool {
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_rule_without_sudo(_match_rule, command)
+    match_rule_without_sudo(auxiliary_match_rule, command)
 }
 
-pub fn get_new_command_mkdir(command: &CrabCommand) -> Vec<String> {
+pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
     let re = Regex::new(r"^cd (.*)").unwrap();
     let repl = |caps: &regex::Captures| format!("mkdir -p {} && cd {}", &caps[1], &caps[1]);
     vec![re.replace(&command.script, repl).to_string()]
 }
 
-fn _get_new_command(command: &CrabCommand) -> Vec<String> {
-    vec!["apt list --upgradable".to_owned()]
-}
-
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    get_new_command_without_sudo(get_new_command_mkdir, command)
+    get_new_command_without_sudo(auxiliary_get_new_command, command)
 }
 
 pub fn get_rule() -> Rule {
