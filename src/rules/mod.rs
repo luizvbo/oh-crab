@@ -43,6 +43,7 @@ mod git_pull;
 mod git_push;
 mod git_rebase_merge_dir;
 mod history;
+mod ln_no_hard_link;
 mod ls_all;
 mod ls_lah;
 mod mkdir_p;
@@ -94,6 +95,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_push::get_rule(),
         git_rebase_merge_dir::get_rule(),
         history::get_rule(),
+        ln_no_hard_link::get_rule(),
         ls_all::get_rule(),
         ls_lah::get_rule(),
         mkdir_p::get_rule(),
@@ -179,8 +181,7 @@ pub fn match_rule_without_sudo(
         match_function(command)
     } else {
         let new_script = command.script[5..].to_owned();
-        command.script = new_script;
-        match_function(command)
+        match_function(&command.update(Some(new_script), None, None))
     }
 }
 
