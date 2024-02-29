@@ -6,7 +6,7 @@ use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
-        command.script_parts.get(0).map_or(false, |s| s == "ln")
+        command.script_parts.first().map_or(false, |s| s == "ln")
             && output.ends_with("hard link not allowed for directory")
     } else {
         false
@@ -47,9 +47,17 @@ mod tests {
     use rstest::rstest;
 
     #[rstest]
-    #[case("ln barDir barLink", "ln: ‘barDir’: hard link not allowed for directory", true)]
+    #[case(
+        "ln barDir barLink",
+        "ln: ‘barDir’: hard link not allowed for directory",
+        true
+    )]
     #[case("sudo ln a b", "ln: ‘a’: hard link not allowed for directory", true)]
-    #[case("sudo ln -nbi a b", "ln: ‘a’: hard link not allowed for directory", true)]
+    #[case(
+        "sudo ln -nbi a b",
+        "ln: ‘a’: hard link not allowed for directory",
+        true
+    )]
     #[case("", "", false)]
     #[case("ln a b", "... hard link", false)]
     #[case("sudo ln a b", "... hard link", false)]
