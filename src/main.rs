@@ -9,6 +9,7 @@ pub mod rules;
 pub mod shell;
 mod ui;
 mod utils;
+mod test;
 
 use cli::{
     command::run_command,
