@@ -5,7 +5,7 @@ command="cd abcdef"
 expected_output="mkdir -p abcdef && cd abcdef"
 
 # Run the command and pipe the output to a while loop
-cargo run -- "$command" | while IFS= read -r line
+cargo run -- "$command" 2>&1 | while IFS= read -r line
 do
   # Print the line
   # echo "$line"
