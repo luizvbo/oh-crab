@@ -53,6 +53,7 @@ mod ls_lah;
 mod mkdir_p;
 mod no_command;
 mod python_command;
+mod python_execute;
 mod rm_dir;
 mod tmux;
 
@@ -110,6 +111,7 @@ pub fn get_rules() -> Vec<Rule> {
         mkdir_p::get_rule(),
         no_command::get_rule(),
         python_command::get_rule(),
+        python_execute::get_rule(),
         rm_dir::get_rule(),
         tmux::get_rule(),
     ]
