@@ -19,6 +19,7 @@ mod chmod_x;
 mod choco_install;
 mod cp_create_destination;
 mod cp_omitting_directory;
+mod dry;
 mod git_add;
 mod git_add_force;
 mod git_bisect_usage;
@@ -77,6 +78,7 @@ pub fn get_rules() -> Vec<Rule> {
         choco_install::get_rule(),
         cp_create_destination::get_rule(),
         cp_omitting_directory::get_rule(),
+        dry::get_rule(),
         git_add::get_rule(),
         git_add_force::get_rule(),
         git_bisect_usage::get_rule(),
