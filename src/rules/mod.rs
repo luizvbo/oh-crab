@@ -43,6 +43,7 @@ mod git_not_command;
 mod git_pull;
 mod git_push;
 mod git_rebase_merge_dir;
+mod grep_recursive;
 mod history;
 mod java;
 mod ln_no_hard_link;
@@ -98,6 +99,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_pull::get_rule(),
         git_push::get_rule(),
         git_rebase_merge_dir::get_rule(),
+        grep_recursive::get_rule(),
         history::get_rule(),
         java::get_rule(),
         ln_no_hard_link::get_rule(),
