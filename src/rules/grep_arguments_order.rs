@@ -2,9 +2,10 @@ use super::{utils::match_rule_with_is_app, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
 use std::path::Path;
 
-fn get_actual_file(parts: &Vec<String>) -> Option<&String> {
+fn get_actual_file(parts: &[String]) -> Option<&String> {
     for part in parts.iter().skip(1) {
-        if Path::new(part).exists() {
+        let part_path = Path::new(part);
+        if part_path.is_file() || part_path.is_dir() {
             return Some(part);
         }
     }
@@ -13,7 +14,7 @@ fn get_actual_file(parts: &Vec<String>) -> Option<&String> {
 
 fn auxiliary_match_rule<F>(command: &CrabCommand, fn_get_actual_file: F) -> bool
 where
-    F: Fn(&Vec<String>) -> Option<&String>,
+    F: Fn(&[String]) -> Option<&String>,
 {
     if let Some(output) = &command.output {
         if command.script_parts.len() > 1 {
@@ -33,7 +34,7 @@ fn mockable_match_rule<F>(
     system_shell: Option<&dyn Shell>,
 ) -> bool
 where
-    F: Fn(&Vec<String>) -> Option<&String>,
+    F: Fn(&[String]) -> Option<&String>,
 {
     match_rule_with_is_app(
         |command| auxiliary_match_rule(command, fn_get_actual_file),
@@ -53,7 +54,7 @@ fn mockable_get_new_command<F>(
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String>
 where
-    F: Fn(&Vec<String>) -> Option<&String>,
+    F: Fn(&[String]) -> Option<&String>,
 {
     if command.script_parts.len() > 1 {
         if let Some(actual_file) = fn_get_actual_file(&command.script_parts) {
@@ -89,10 +90,12 @@ mod tests {
     use super::{mockable_get_new_command, mockable_match_rule};
     use crate::cli::command::CrabCommand;
     use rstest::rstest;
+    use std::path::Path;
 
-    fn mocked_get_actual_file(parts: &Vec<String>) -> Option<&String> {
+    fn mocked_get_actual_file(parts: &[String]) -> Option<&String> {
         for part in parts.iter().skip(1) {
-            if !part.starts_with("-") {
+            let part_path = Path::new(part);
+            if !part.starts_with('-') || part_path.is_dir() {
                 return Some(part);
             }
         }
@@ -120,16 +123,19 @@ mod tests {
     #[rstest]
     #[case("grep test.py test", "grep: test: No such file or directory", vec!["grep test test.py"])]
     #[case("grep -lir . test", "grep: test: No such file or directory", vec!["grep -lir test ."])]
-    #[case("grep . test -lir", "grep: test: No such file or directory", vec!["grep -lir . test"])]
+    #[case("grep . test -lir", "grep: test: No such file or directory", vec!["grep test -lir ."])]
     #[case("egrep test.py test", "egrep: test: No such file or directory", vec!["egrep test test.py"])]
     #[case("egrep -lir . test", "egrep: test: No such file or directory", vec!["egrep -lir test ."])]
-    #[case("egrep . test -lir", "egrep: test: No such file or directory", vec!["egrep -lir . test"])]
+    #[case("egrep . test -lir", "egrep: test: No such file or directory", vec!["egrep test -lir ."])]
     fn test_get_new_command(
         #[case] command: &str,
         #[case] stdout: &str,
         #[case] expected: Vec<&str>,
     ) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
-        assert_eq!(mockable_get_new_command(&mut command, &mocked_get_actual_file, None), expected);
+        assert_eq!(
+            mockable_get_new_command(&mut command, &mocked_get_actual_file, None),
+            expected
+        );
     }
 }
