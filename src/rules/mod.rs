@@ -12,6 +12,7 @@ mod aws_cli;
 mod brew_install;
 mod brew_update_formula;
 mod cargo;
+mod cat_dir;
 mod cd_correction;
 mod cd_cs;
 mod cd_mkdir;
@@ -72,6 +73,7 @@ pub fn get_rules() -> Vec<Rule> {
         brew_install::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
+        cat_dir::get_rule(),
         cd_correction::get_rule(),
         cd_cs::get_rule(),
         cd_mkdir::get_rule(),
