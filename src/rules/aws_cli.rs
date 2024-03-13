@@ -1,4 +1,4 @@
-use super::{Rule, utils::match_rule_with_is_app};
+use super::{utils::match_rule_with_is_app, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
 use regex::Regex;
 
@@ -15,22 +15,25 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    let re_invalid_choice =
-        Regex::new(r"(?<=Invalid choice: ')(.*)(?=', maybe you meant:)").unwrap();
-    let re_options = Regex::new(r"^\\s*\\*\\s(.*)").unwrap();
-    let mistake = re_invalid_choice
-        .captures(&command.output.as_ref().unwrap())
-        .unwrap()
-        .get(1)
-        .map_or("", |m| m.as_str());
-    let options = re_options
-        .captures_iter(&command.output.as_ref().unwrap())
-        .map(|cap| cap[1].to_string())
-        .collect::<Vec<_>>();
-    options
-        .iter()
-        .map(|o| command.script.replace(mistake, o))
-        .collect()
+    if let Some(output) = &command.output {
+        let re_invalid_choice = Regex::new(r"Invalid choice: '(.*)', maybe you meant:").unwrap();
+        let re_options = Regex::new(r"(?m)^\s*\*\s(.*)").unwrap();
+        let mistake = re_invalid_choice
+            .captures(output)
+            .unwrap()
+            .get(1)
+            .map_or("", |m| m.as_str());
+        let options = re_options
+            .captures_iter(output)
+            .map(|cap| cap[1].to_string())
+            .collect::<Vec<_>>();
+        options
+            .iter()
+            .map(|o| command.script.replace(mistake, o))
+            .collect()
+    } else {
+        Vec::<String>::new()
+    }
 }
 
 pub fn get_rule() -> Rule {
@@ -122,7 +125,11 @@ Invalid choice: 't-item', maybe you meant:
     #[rstest]
     #[case("aws dynamdb scan", MISSPELLED_COMMAND, true)]
     #[case("aws dynamodb scn", MISSPELLED_SUBCOMMAND, true)]
-    #[case("aws dynamodb t-item", MISSPELLED_SUBCOMMAND_WITH_MULTIPLE_OPTIONS, true)]
+    #[case(
+        "aws dynamodb t-item",
+        MISSPELLED_SUBCOMMAND_WITH_MULTIPLE_OPTIONS,
+        true
+    )]
     #[case("aws dynamodb invalid", NO_SUGGESTIONS, false)]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
