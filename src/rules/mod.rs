@@ -23,6 +23,7 @@ mod cp_create_destination;
 mod cp_omitting_directory;
 mod docker_login;
 mod dry;
+mod fix_alt_space;
 mod git_add;
 mod git_add_force;
 mod git_bisect_usage;
@@ -85,6 +86,7 @@ pub fn get_rules() -> Vec<Rule> {
         cp_omitting_directory::get_rule(),
         docker_login::get_rule(),
         dry::get_rule(),
+        fix_alt_space::get_rule(),
         git_add::get_rule(),
         git_add_force::get_rule(),
         git_bisect_usage::get_rule(),
