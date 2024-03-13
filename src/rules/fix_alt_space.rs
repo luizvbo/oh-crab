@@ -1,10 +1,9 @@
 use super::{match_rule_without_sudo, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
-use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
-        output.to_lowercase().contains("command not found") && command.script.contains(' ')
+        output.to_lowercase().contains("command not found") && command.script.contains('\u{00A0}')
     } else {
         false
     }
@@ -15,8 +14,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    let re = Regex::new(r" ").unwrap();
-    vec![re.replace_all(&command.script, " ").into_owned()]
+    vec![command.script.replace('\u{00A0}', " ")]
 }
 
 pub fn get_rule() -> Rule {
