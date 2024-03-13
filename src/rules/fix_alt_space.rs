@@ -36,7 +36,7 @@ mod tests {
     use rstest::rstest;
 
     #[rstest]
-    #[case("ps -ef | grep foo", "-bash:  grep: command not found", true)]
+    #[case("ps -ef |\u{00A0}grep foo", "-bash: \u{00A0}grep: command not found", true)]
     #[case("ps -ef | grep foo", "", false)]
     #[case("", "", false)]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
@@ -45,7 +45,7 @@ mod tests {
     }
 
     #[rstest]
-    #[case("ps -ef | grep foo", "", vec!["ps -ef | grep foo"])]
+    #[case("ps -ef |\u{00A0}grep foo", "", vec!["ps -ef | grep foo"])]
     fn test_get_new_command(
         #[case] command: &str,
         #[case] stdout: &str,
