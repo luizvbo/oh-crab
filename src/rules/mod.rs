@@ -48,6 +48,7 @@ mod git_not_command;
 mod git_pull;
 mod git_push;
 mod git_rebase_merge_dir;
+mod go_run;
 mod grep_arguments_order;
 mod grep_recursive;
 mod history;
@@ -111,6 +112,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_pull::get_rule(),
         git_push::get_rule(),
         git_rebase_merge_dir::get_rule(),
+        go_run::get_rule(),
         grep_arguments_order::get_rule(),
         grep_recursive::get_rule(),
         history::get_rule(),
