@@ -27,7 +27,7 @@ mod tests {
     use rstest::rstest;
 
     #[rstest]
-    #[case(r#"git commit -m 'My Message""#, "", true)]
+    #[case("git commit -m 'My Message\"", "", true)]
     #[case("git commit -am \"Mismatched Quotation Marks'", "", true)]
     #[case("echo \"hello'", "", true)]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
