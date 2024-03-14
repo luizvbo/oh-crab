@@ -6,4 +6,7 @@ uninstalled_command() {
 conda() {
   echo -e "CommandNotFoundError: No command 'conda lst'.\nDid you mean 'conda list'?";
 }
+ag() {
+  echo "...run ag with -Q";
+}
 

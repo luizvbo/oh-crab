@@ -2,6 +2,7 @@
 
 # Array of command + expected output pairs. The pair is separated by ":"
 tests=(
+  "ag test:ag -Q test"
   "uninstalled_command:sudo apt-get install uninstalled_command"
   "cd abcdef:mkdir -p abcdef && cd abcdef"
   "conda lst:conda list"
