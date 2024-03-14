@@ -112,11 +112,11 @@ pub fn shlex_split(in_str: &str) -> Vec<String> {
 pub fn run_command(
     raw_command: Vec<String>,
     system_shell: &dyn Shell,
-    extra_command: Option<&str>,
+    extra_command: Option<String>,
 ) -> CrabCommand {
     let command = prepare_command(raw_command);
     let command_with_extra = match extra_command {
-        Some(extra_command) => system_shell.and(vec![extra_command, &command]),
+        Some(extra_command) => system_shell.and(vec![&extra_command, &command]),
         None => command.clone(),
     };
     let mut output = shell_command(&system_shell.get_shell())

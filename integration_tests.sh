@@ -13,10 +13,10 @@ for test in "${tests[@]}"; do
   IFS=":" read -r command expected_output <<< "$test"
 
   # Run the command and pipe the output to a while loop
-  cargo run -- "--extra source mocked_cli.sh; $command" 2>&1 | while IFS= read -r line
+  cargo run -- -e "source mocked_cli.sh" -- "$command" 2>&1 | while IFS= read -r line
   do
     # Print the line
-    echo "$line"
+    # echo "$line"
 
     # Check if the line starts with "Candidate command(s): ["
     if [[ "$line" =~ "Candidate command(s): ["* ]]; then
