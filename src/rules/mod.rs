@@ -8,9 +8,11 @@ mod apt_get;
 mod apt_get_search;
 mod apt_list_upgradable;
 mod apt_upgrade;
+mod aws_cli;
 mod brew_install;
 mod brew_update_formula;
 mod cargo;
+mod cat_dir;
 mod cd_correction;
 mod cd_cs;
 mod cd_mkdir;
@@ -18,6 +20,10 @@ mod cd_parent;
 mod chmod_x;
 mod choco_install;
 mod cp_create_destination;
+mod cp_omitting_directory;
+mod docker_login;
+mod dry;
+mod fix_alt_space;
 mod git_add;
 mod git_add_force;
 mod git_bisect_usage;
@@ -42,12 +48,19 @@ mod git_not_command;
 mod git_pull;
 mod git_push;
 mod git_rebase_merge_dir;
+mod go_run;
+mod grep_arguments_order;
+mod grep_recursive;
 mod history;
+mod java;
 mod ln_no_hard_link;
 mod ls_all;
 mod ls_lah;
 mod mkdir_p;
 mod no_command;
+mod python_command;
+mod python_execute;
+mod quotation_marks;
 mod rm_dir;
 mod tmux;
 
@@ -60,9 +73,11 @@ pub fn get_rules() -> Vec<Rule> {
         apt_get_search::get_rule(),
         apt_list_upgradable::get_rule(),
         apt_upgrade::get_rule(),
+        aws_cli::get_rule(),
         brew_install::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
+        cat_dir::get_rule(),
         cd_correction::get_rule(),
         cd_cs::get_rule(),
         cd_mkdir::get_rule(),
@@ -70,6 +85,10 @@ pub fn get_rules() -> Vec<Rule> {
         chmod_x::get_rule(),
         choco_install::get_rule(),
         cp_create_destination::get_rule(),
+        cp_omitting_directory::get_rule(),
+        docker_login::get_rule(),
+        dry::get_rule(),
+        fix_alt_space::get_rule(),
         git_add::get_rule(),
         git_add_force::get_rule(),
         git_bisect_usage::get_rule(),
@@ -94,12 +113,19 @@ pub fn get_rules() -> Vec<Rule> {
         git_pull::get_rule(),
         git_push::get_rule(),
         git_rebase_merge_dir::get_rule(),
+        go_run::get_rule(),
+        grep_arguments_order::get_rule(),
+        grep_recursive::get_rule(),
         history::get_rule(),
+        java::get_rule(),
         ln_no_hard_link::get_rule(),
         ls_all::get_rule(),
         ls_lah::get_rule(),
         mkdir_p::get_rule(),
         no_command::get_rule(),
+        python_command::get_rule(),
+        python_execute::get_rule(),
+        quotation_marks::get_rule(),
         rm_dir::get_rule(),
         tmux::get_rule(),
     ]

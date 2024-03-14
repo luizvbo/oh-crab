@@ -145,62 +145,75 @@ new rules or improving the crate.
 
 ## Road map
 
-- [X] Add `sudo` support
-- [X] Distribute binaries for Linux, MacOs and Windows.
-- [ ] Make a short screen record of its functioning 
+- [x] Add `sudo` support
+- [x] Distribute binaries for Linux, MacOs and Windows.
+- [x] Make a short screen record of its functioning
 - [ ] Inform the user which shell type is being used when the `ohcrab` shell
       function is generated.
 - [ ] Add support to user shell aliases.
 - [ ] Add support to PowerShell
 - [ ] Reduce number/size of dependencies
 - [ ] Make it available via package managers
-- [ ] Bechnmark against thefuck
+- [ ] Benchmark against thefuck
+- [ ] Add an interactive menu to setup ohcrab (see issue
+      [#74](https://github.com/luizvbo/oh-crab/issues/74))
+- [ ] Add integration tests (see issue [#81](https://github.com/luizvbo/oh-crab/issues/81))
 
 ### Rules
 
 <details>
   <summary>Implemented</summary>
 
-- [X] ag_literal
-- [X] apt_get
-- [X] apt_get_search
-- [X] apt_list_upgradable
-- [X] apt_upgrade
-- [X] brew_install
-- [X] brew_update_formula
-- [X] cargo
-- [X] cd_correction
-- [X] cd_cs
-- [X] cd_mkdir
-- [X] cd_parent
-- [X] chmod_x
-- [X] choco_install
-- [X] git_add
-- [X] git_add_force
-- [X] git_bisect_usage
-- [X] git_branch_0flag
-- [X] git_branch_delete
-- [X] git_branch_delete_checked_out
-- [X] git_branch_exists
-- [X] git_branch_list
-- [X] git_checkout
-- [X] git_clone
-- [X] git_clone_missing
-- [X] git_commit_add
-- [X] git_commit_amend
-- [X] git_commit_reset
-- [X] git_diff_no_index
-- [X] git_diff_staged
-- [X] git_help_aliased
-- [X] git_main_master
-- [X] git_merge
-- [X] git_not_command
-- [X] git_pull
-- [X] git_push
-- [X] git_rebase_merge_dir
-- [X] history
-- [X] no_command
-- [X] tmux
+- [x] ag_literal
+- [x] apt_get
+- [x] apt_get_search
+- [x] apt_list_upgradable
+- [x] apt_upgrade
+- [x] brew_install
+- [x] brew_update_formula
+- [x] cargo
+- [x] cd_correction
+- [x] cd_cs
+- [x] cd_mkdir
+- [x] cd_parent
+- [x] chmod_x
+- [x] choco_install
+- [x] cp_create_destination
+- [x] cp_omitting_directory
+- [x] git_add
+- [x] git_add_force
+- [x] git_bisect_usage
+- [x] git_branch_0flag
+- [x] git_branch_delete
+- [x] git_branch_delete_checked_out
+- [x] git_branch_exists
+- [x] git_branch_list
+- [x] git_checkout
+- [x] git_clone
+- [x] git_clone_missing
+- [x] git_commit_add
+- [x] git_commit_amend
+- [x] git_commit_reset
+- [x] git_diff_no_index
+- [x] git_diff_staged
+- [x] git_fix_stash
+- [x] git_help_aliased
+- [x] git_main_master
+- [x] git_merge
+- [x] git_not_command
+- [x] git_pull
+- [x] git_push
+- [x] git_rebase_merge_dir
+- [x] history
+- [x] java
+- [x] ln_no_hard_link
+- [x] ls_all
+- [x] ls_lah
+- [x] mkdir_p
+- [x] no_command
+- [x] python_command
+- [x] rm_dir
+- [x] tmux
 
 </details>
 
@@ -220,8 +233,6 @@ new rules or improving the crate.
 - [ ] cat_dir
 - [ ] composer_not_command
 - [ ] conda_mistype
-- [ ] cp_create_destination
-- [ ] cp_omitting_directory
 - [ ] cpp11
 - [ ] dirty_untar
 - [ ] dirty_unzip
@@ -236,7 +247,6 @@ new rules or improving the crate.
 - [ ] fix_alt_space
 - [ ] fix_file
 - [ ] gem_unknown_command
-- [ ] git_fix_stash
 - [ ] git_flag_after_filename
 - [ ] git_hook_bypass
 - [ ] git_lfs_mistype
@@ -270,19 +280,14 @@ new rules or improving the crate.
 - [ ] heroku_not_command
 - [ ] hostscli
 - [ ] ifconfig_device_not_found
-- [ ] java
 - [ ] javac
 - [ ] lein_not_task
-- [ ] ln_no_hard_link
 - [ ] ln_s_order
 - [ ] long_form_help
-- [ ] ls_all
-- [ ] ls_lah
 - [ ] man
 - [ ] man_no_space
 - [ ] mercurial
 - [ ] missing_space_before_subcommand
-- [ ] mkdir_p
 - [ ] mvn_no_command
 - [ ] mvn_unknown_lifecycle_phase
 - [ ] nixos_cmd_not_found
@@ -301,7 +306,6 @@ new rules or improving the crate.
 - [ ] pip_unknown_command
 - [ ] port_already_in_use
 - [ ] prove_recursively
-- [ ] python_command
 - [ ] python_execute
 - [ ] python_module_error
 - [ ] quotation_marks
@@ -309,7 +313,6 @@ new rules or improving the crate.
 - [ ] react_native_command_unrecognized
 - [ ] remove_shell_prompt_literal
 - [ ] remove_trailing_cedilla
-- [ ] rm_dir
 - [ ] rm_root
 - [ ] scm_correction
 - [ ] sed_unterminated_s
