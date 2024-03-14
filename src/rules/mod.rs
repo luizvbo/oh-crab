@@ -9,6 +9,7 @@ mod apt_get_search;
 mod apt_list_upgradable;
 mod apt_upgrade;
 mod aws_cli;
+mod az_cli;
 mod brew_install;
 mod brew_update_formula;
 mod cargo;
@@ -74,6 +75,7 @@ pub fn get_rules() -> Vec<Rule> {
         apt_list_upgradable::get_rule(),
         apt_upgrade::get_rule(),
         aws_cli::get_rule(),
+        az_cli::get_rule(),
         brew_install::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
