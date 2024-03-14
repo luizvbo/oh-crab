@@ -15,15 +15,15 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    let re_mistake = Regex::new(r"(?=az)(?:.*): '(.*)' is not in the '.*' command group.").unwrap();
-    let re_options = Regex::new(r"^The most similar choice to '.*' is:\n\\s*(.*)$").unwrap();
+    let re_mistake = Regex::new(r"az(?:.*): '(.*)' is not in the '.*' command group.").unwrap();
+    let re_options = Regex::new(r"(?m)^The most similar choice to '.*' is:\n\s*(.*)$").unwrap();
     let mistake = re_mistake
-        .captures(&command.output.as_ref().unwrap())
+        .captures(command.output.as_ref().unwrap())
         .unwrap()
         .get(1)
         .map_or("", |m| m.as_str());
     let options = re_options
-        .captures_iter(&command.output.as_ref().unwrap())
+        .captures_iter(command.output.as_ref().unwrap())
         .map(|cap| cap[1].to_owned())
         .collect::<Vec<_>>();
     options
