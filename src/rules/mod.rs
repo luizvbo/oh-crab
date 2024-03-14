@@ -19,6 +19,7 @@ mod cd_mkdir;
 mod cd_parent;
 mod chmod_x;
 mod choco_install;
+mod conda_mistype;
 mod cp_create_destination;
 mod cp_omitting_directory;
 mod docker_login;
@@ -84,6 +85,7 @@ pub fn get_rules() -> Vec<Rule> {
         cd_parent::get_rule(),
         chmod_x::get_rule(),
         choco_install::get_rule(),
+        conda_mistype::get_rule(),
         cp_create_destination::get_rule(),
         cp_omitting_directory::get_rule(),
         docker_login::get_rule(),
