@@ -5,13 +5,13 @@ use crate::cli::{command::CorrectedCommand, command::CrabCommand};
 
 mod ag_literal;
 mod apt_get;
-mod brew_link;
 mod apt_get_search;
 mod apt_list_upgradable;
 mod apt_upgrade;
 mod aws_cli;
 mod az_cli;
 mod brew_install;
+mod brew_link;
 mod brew_update_formula;
 mod cargo;
 mod cat_dir;
@@ -93,10 +93,9 @@ pub fn get_rules() -> Vec<Rule> {
         choco_install::get_rule(),
         cp_create_destination::get_rule(),
         cp_omitting_directory::get_rule(),
-        django_south_merge::get_rule(),
-        django_south_ghost::get_rule(),
         cpp11::get_rule(),
         django_south_ghost::get_rule(),
+        django_south_merge::get_rule(),
         docker_login::get_rule(),
         dry::get_rule(),
         fix_alt_space::get_rule(),
