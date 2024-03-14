@@ -9,6 +9,7 @@ mod apt_get_search;
 mod apt_list_upgradable;
 mod apt_upgrade;
 mod aws_cli;
+mod az_cli;
 mod brew_install;
 mod brew_update_formula;
 mod cargo;
@@ -22,6 +23,7 @@ mod choco_install;
 mod cp_create_destination;
 mod cp_omitting_directory;
 mod django_south_ghost;
+mod cpp11;
 mod docker_login;
 mod dry;
 mod fix_alt_space;
@@ -75,6 +77,7 @@ pub fn get_rules() -> Vec<Rule> {
         apt_list_upgradable::get_rule(),
         apt_upgrade::get_rule(),
         aws_cli::get_rule(),
+        az_cli::get_rule(),
         brew_install::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
@@ -88,6 +91,7 @@ pub fn get_rules() -> Vec<Rule> {
         cp_create_destination::get_rule(),
         cp_omitting_directory::get_rule(),
         django_south_ghost::get_rule(),
+        cpp11::get_rule(),
         docker_login::get_rule(),
         dry::get_rule(),
         fix_alt_space::get_rule(),

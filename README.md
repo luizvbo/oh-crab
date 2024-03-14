@@ -169,9 +169,11 @@ new rules or improving the crate.
 - [x] apt_get_search
 - [x] apt_list_upgradable
 - [x] apt_upgrade
+- [x] aws_cli
 - [x] brew_install
 - [x] brew_update_formula
 - [x] cargo
+- [x] cat_dir
 - [x] cd_correction
 - [x] cd_cs
 - [x] cd_mkdir
@@ -180,6 +182,9 @@ new rules or improving the crate.
 - [x] choco_install
 - [x] cp_create_destination
 - [x] cp_omitting_directory
+- [x] docker_login
+- [x] dry
+- [x] fix_alt_space
 - [x] git_add
 - [x] git_add_force
 - [x] git_bisect_usage
@@ -204,6 +209,9 @@ new rules or improving the crate.
 - [x] git_pull
 - [x] git_push
 - [x] git_rebase_merge_dir
+- [x] go_run
+- [x] grep_arguments_order
+- [x] grep_recursive
 - [x] history
 - [x] java
 - [x] ln_no_hard_link
@@ -212,6 +220,8 @@ new rules or improving the crate.
 - [x] mkdir_p
 - [x] no_command
 - [x] python_command
+- [x] python_execute
+- [x] quotation_marks
 - [x] rm_dir
 - [x] tmux
 
@@ -222,7 +232,6 @@ new rules or improving the crate.
 
 - [ ] adb_unknown_command
 - [ ] apt_invalid_operation
-- [ ] aws_cli
 - [ ] az_cli
 - [ ] brew_cask_dependency
 - [ ] brew_link
@@ -230,7 +239,6 @@ new rules or improving the crate.
 - [ ] brew_uninstall
 - [ ] brew_unknown_command
 - [ ] cargo_no_command
-- [ ] cat_dir
 - [ ] composer_not_command
 - [ ] conda_mistype
 - [ ] cpp11
@@ -240,11 +248,8 @@ new rules or improving the crate.
 - [ ] django_south_merge
 - [ ] dnf_no_such_command
 - [ ] docker_image_being_used_by_container
-- [ ] docker_login
 - [ ] docker_not_command
-- [ ] dry
 - [ ] fab_command_not_found
-- [ ] fix_alt_space
 - [ ] fix_file
 - [ ] gem_unknown_command
 - [ ] git_flag_after_filename
@@ -267,12 +272,9 @@ new rules or improving the crate.
 - [ ] git_stash_pop
 - [ ] git_tag_force
 - [ ] git_two_dashes
-- [ ] go_run
 - [ ] go_unknown_command
 - [ ] gradle_no_task
 - [ ] gradle_wrapper
-- [ ] grep_arguments_order
-- [ ] grep_recursive
 - [ ] grunt_task_not_found
 - [ ] gulp_not_task
 - [ ] has_exists_script
@@ -306,9 +308,7 @@ new rules or improving the crate.
 - [ ] pip_unknown_command
 - [ ] port_already_in_use
 - [ ] prove_recursively
-- [ ] python_execute
 - [ ] python_module_error
-- [ ] quotation_marks
 - [ ] rails_migrations_pending
 - [ ] react_native_command_unrecognized
 - [ ] remove_shell_prompt_literal
