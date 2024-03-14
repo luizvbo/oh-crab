@@ -32,6 +32,13 @@ pub fn get_parser() -> clap::Command {
     command!()
         .no_binary_name(true)
         .arg(
+            Arg::new("extra_command")
+                .long("extra")
+                .short('e')
+                .help("Extra command to run before calling the input command")
+                .required(false)
+        )
+        .arg(
             Arg::new("alias")
                 .long("alias")
                 .short('a')

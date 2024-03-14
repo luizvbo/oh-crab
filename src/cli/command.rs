@@ -109,10 +109,18 @@ pub fn shlex_split(in_str: &str) -> Vec<String> {
     shl.by_ref().collect()
 }
 
-pub fn run_command(raw_command: Vec<String>, system_shell: &dyn Shell) -> CrabCommand {
+pub fn run_command(
+    raw_command: Vec<String>,
+    system_shell: &dyn Shell,
+    extra_command: Option<&str>,
+) -> CrabCommand {
     let command = prepare_command(raw_command);
+    let command_with_extra = match extra_command {
+        Some(extra_command) => system_shell.and(vec![extra_command, &command]),
+        None => command.clone(),
+    };
     let mut output = shell_command(&system_shell.get_shell())
-        .arg(&command)
+        .arg(&command_with_extra)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
@@ -177,7 +185,7 @@ mod tests {
         let command_vec = vec![terminal_command, "Hello!".to_owned()];
         let command = command_vec.join(" ").trim().to_owned();
         let system_shell: Box<dyn Shell> = Box::new(Bash {});
-        let crab_command = run_command(command_vec, &*system_shell);
+        let crab_command = run_command(command_vec, &*system_shell, None);
         assert_eq!(crab_command.script, command);
         assert_eq!(crab_command.output.unwrap(), "Hello!\n");
     }
