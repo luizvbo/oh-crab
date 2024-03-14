@@ -17,7 +17,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     let re = Regex::new(r"'conda ([^']*)'").unwrap();
     let captures = re
-        .captures_iter(&command.output.as_ref().unwrap())
+        .captures_iter(command.output.as_ref().unwrap())
         .collect::<Vec<_>>();
     let broken_cmd = &captures[0][1];
     let correct_cmd = &captures[1][1];
