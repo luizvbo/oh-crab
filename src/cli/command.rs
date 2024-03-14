@@ -1,4 +1,4 @@
-use shlex::split;
+use shlex::{split, Shlex};
 use std::process::{Command, Stdio};
 use std::{fmt, str};
 
@@ -98,8 +98,15 @@ impl CrabCommand {
 
     fn split_command(command: &str) -> Vec<String> {
         // Split the command using shell-like syntax.
-        split(command).expect("")
+        shlex_split(command)
     }
+}
+
+/// Differently from shlex original split function, this function always returns the
+/// resulting vector, even if there's an error.
+pub fn shlex_split(in_str: &str) -> Vec<String> {
+    let mut shl = Shlex::new(in_str);
+    shl.by_ref().collect()
 }
 
 pub fn run_command(raw_command: Vec<String>, system_shell: &dyn Shell) -> CrabCommand {

@@ -60,6 +60,7 @@ mod mkdir_p;
 mod no_command;
 mod python_command;
 mod python_execute;
+mod quotation_marks;
 mod rm_dir;
 mod tmux;
 
@@ -124,6 +125,7 @@ pub fn get_rules() -> Vec<Rule> {
         no_command::get_rule(),
         python_command::get_rule(),
         python_execute::get_rule(),
+        quotation_marks::get_rule(),
         rm_dir::get_rule(),
         tmux::get_rule(),
     ]
