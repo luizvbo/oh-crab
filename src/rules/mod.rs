@@ -21,6 +21,7 @@ mod chmod_x;
 mod choco_install;
 mod cp_create_destination;
 mod cp_omitting_directory;
+mod cpp11;
 mod docker_login;
 mod dry;
 mod fix_alt_space;
@@ -86,6 +87,7 @@ pub fn get_rules() -> Vec<Rule> {
         choco_install::get_rule(),
         cp_create_destination::get_rule(),
         cp_omitting_directory::get_rule(),
+        cpp11::get_rule(),
         docker_login::get_rule(),
         dry::get_rule(),
         fix_alt_space::get_rule(),
