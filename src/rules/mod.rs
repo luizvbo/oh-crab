@@ -24,6 +24,7 @@ mod cp_create_destination;
 mod cp_omitting_directory;
 mod cpp11;
 mod django_south_ghost;
+mod django_south_merge;
 mod docker_login;
 mod dry;
 mod fix_alt_space;
@@ -90,6 +91,7 @@ pub fn get_rules() -> Vec<Rule> {
         choco_install::get_rule(),
         cp_create_destination::get_rule(),
         cp_omitting_directory::get_rule(),
+        django_south_merge::get_rule(),
         django_south_ghost::get_rule(),
         cpp11::get_rule(),
         docker_login::get_rule(),
