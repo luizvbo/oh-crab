@@ -1,13 +1,11 @@
-use super::{Rule, utils::match_rule_with_is_app};
+use super::{utils::match_rule_with_is_app, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
 use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
-        let warning_regex =
-            Regex::new(r"Warning: .+ is already installed and up-to-date").unwrap();
-        let message_regex =
-            Regex::new(r"To reinstall .+, run `brew reinstall [^`]+`").unwrap();
+        let warning_regex = Regex::new(r"Warning: .+ is already installed and up-to-date").unwrap();
+        let message_regex = Regex::new(r"To reinstall .+, run `brew reinstall [^`]+`").unwrap();
         command.script.contains("install")
             && warning_regex.is_match(output)
             && message_regex.is_match(output)
@@ -23,7 +21,6 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     vec![command.script.replace("install", "reinstall")]
 }
-
 
 pub fn get_rule() -> Rule {
     Rule::new(
