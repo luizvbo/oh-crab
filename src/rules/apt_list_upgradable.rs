@@ -1,6 +1,8 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
 
-use super::{get_new_command_without_sudo, match_rule_without_sudo, Rule};
+use super::{
+    get_new_command_without_sudo, match_rule_without_sudo, utils::match_rule_with_is_app, Rule,
+};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.output {
@@ -11,7 +13,10 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_rule_without_sudo(auxiliary_match_rule, command)
+    match_rule_without_sudo(
+        |command| match_rule_with_is_app(auxiliary_match_rule, command, vec!["apt"], None),
+        command,
+    )
 }
 
 fn _get_new_command(command: &CrabCommand) -> Vec<String> {
@@ -38,6 +43,7 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
+    use rstest::rstest;
 
     const FULL_ENGLISH_OUTPUT: &str = r#"
 Hit:1 http://us.archive.ubuntu.com/ubuntu zesty InRelease
@@ -83,81 +89,36 @@ Building dependency tree
 Reading state information... Done
 All packages are up to date.
 "#;
-
     const GERMAN_OUTPUT: &str = "Führen Sie »apt list --upgradable« aus, um sie anzuzeigen.";
 
-    macro_rules! parameterized_match_rule_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (script, stdout) = $value;
-                    let mut command = CrabCommand::new(
-                                script.to_owned(),
-                                Some(stdout.to_owned()),
-                                None
-                            );
-                    assert!(match_rule(&mut command, None));
-                }
-            )*
-        }
+    #[rstest]
+    #[case("sudo apt update", FULL_ENGLISH_OUTPUT, true)]
+    #[case("sudo apt update", GERMAN_OUTPUT, true)]
+    #[case("sudo apt update", NO_MATCH_OUTPUT, false)]
+    #[case("apt-cache search foo", "", false)]
+    #[case("aptitude search foo", "", false)]
+    #[case("apt search foo", "", false)]
+    #[case("apt-get install foo", "", false)]
+    #[case("apt-get source foo", "", false)]
+    #[case("apt-get clean", "", false)]
+    #[case("apt-get remove", "", false)]
+    #[case("apt-get update", "", false)]
+    fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
+        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        assert_eq!(match_rule(&mut command, None), is_match);
     }
 
-    macro_rules! parameterized_unmatch_rule_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (script, stdout) = $value;
-                    let mut command = CrabCommand::new(
-                                script.to_owned(),
-                                Some(stdout.to_owned()),
-                                None
-                            );
-                    assert!(!match_rule(&mut command, None));
-                }
-            )*
-        }
-    }
-
-    macro_rules! parameterized_get_new_command_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (script, stdout, expected) = $value;
-                    let mut command = CrabCommand::new(
-                                script.to_owned(),
-                                Some(stdout.to_owned()),
-                                None
-                            );
-                    assert_eq!(get_new_command(&mut command, None)[0], expected);
-                }
-            )*
-        }
-    }
-
-    parameterized_match_rule_tests! {
-        match_rule_1: ("sudo apt update", FULL_ENGLISH_OUTPUT),
-        match_rule_2: ("sudo apt update", GERMAN_OUTPUT),
-    }
-
-    parameterized_unmatch_rule_tests! {
-    unmatch_rule_1: ("sudo apt update", NO_MATCH_OUTPUT),
-    unmatch_rule_2: ("apt-cache search foo", ""),
-    unmatch_rule_3: ("aptitude search foo", ""),
-    unmatch_rule_4: ("apt search foo", ""),
-    unmatch_rule_5: ("apt-get install foo", ""),
-    unmatch_rule_6: ("apt-get source foo", ""),
-    unmatch_rule_7: ("apt-get clean", ""),
-    unmatch_rule_8: ("apt-get remove", ""),
-    unmatch_rule_9: ("apt-get update", ""),
-    }
-
-    parameterized_get_new_command_tests! {
-        get_new_command_1: ("sudo apt update", FULL_ENGLISH_OUTPUT, "sudo apt list --upgradable"),
-        get_new_command_2: ("sudo apt update", GERMAN_OUTPUT, "sudo apt list --upgradable"),
-        get_new_command_3: ("apt update", FULL_ENGLISH_OUTPUT, "apt list --upgradable"),
-        get_new_command_4: ("apt update", GERMAN_OUTPUT, "apt list --upgradable"),
+    #[rstest]
+    #[case("sudo apt update", FULL_ENGLISH_OUTPUT, vec!["sudo apt list --upgradable"])]
+    #[case("sudo apt update", GERMAN_OUTPUT, vec!["sudo apt list --upgradable"])]
+    #[case("apt update", FULL_ENGLISH_OUTPUT, vec!["apt list --upgradable"])]
+    #[case("apt update", GERMAN_OUTPUT, vec!["apt list --upgradable"])]
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] stdout: &str,
+        #[case] expected: Vec<&str>,
+    ) {
+        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        assert_eq!(get_new_command(&mut command, None), expected);
     }
 }
