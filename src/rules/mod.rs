@@ -55,6 +55,7 @@ mod git_pull;
 mod git_push;
 mod git_rebase_merge_dir;
 mod go_run;
+mod gradle_wrapper;
 mod grep_arguments_order;
 mod grep_recursive;
 mod history;
@@ -86,6 +87,7 @@ pub fn get_rules() -> Vec<Rule> {
         brew_link::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
+        gradle_wrapper::get_rule(),
         cat_dir::get_rule(),
         cd_correction::get_rule(),
         cd_cs::get_rule(),
