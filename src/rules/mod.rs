@@ -6,6 +6,7 @@ use crate::cli::{command::CorrectedCommand, command::CrabCommand};
 mod ag_literal;
 mod apt_get;
 mod apt_get_search;
+mod brew_uninstall;
 mod apt_list_upgradable;
 mod apt_upgrade;
 mod aws_cli;
@@ -82,8 +83,9 @@ pub fn get_rules() -> Vec<Rule> {
         aws_cli::get_rule(),
         az_cli::get_rule(),
         brew_install::get_rule(),
-        brew_reinstall::get_rule(),
         brew_link::get_rule(),
+        brew_reinstall::get_rule(),
+        brew_uninstall::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
         cat_dir::get_rule(),
