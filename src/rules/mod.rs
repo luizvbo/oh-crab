@@ -22,6 +22,7 @@ mod cd_mkdir;
 mod cd_parent;
 mod chmod_x;
 mod choco_install;
+mod composer_not_command;
 mod cp_create_destination;
 mod cp_omitting_directory;
 mod cpp11;
@@ -82,8 +83,8 @@ pub fn get_rules() -> Vec<Rule> {
         aws_cli::get_rule(),
         az_cli::get_rule(),
         brew_install::get_rule(),
-        brew_reinstall::get_rule(),
         brew_link::get_rule(),
+        brew_reinstall::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
         cat_dir::get_rule(),
@@ -93,6 +94,7 @@ pub fn get_rules() -> Vec<Rule> {
         cd_parent::get_rule(),
         chmod_x::get_rule(),
         choco_install::get_rule(),
+        composer_not_command::get_rule(),
         cp_create_destination::get_rule(),
         cp_omitting_directory::get_rule(),
         cpp11::get_rule(),
