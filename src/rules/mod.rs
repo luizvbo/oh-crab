@@ -6,6 +6,7 @@ use crate::cli::{command::CorrectedCommand, command::CrabCommand};
 mod ag_literal;
 mod apt_get;
 mod apt_get_search;
+mod has_exists_script;
 mod apt_list_upgradable;
 mod apt_upgrade;
 mod aws_cli;
@@ -81,6 +82,7 @@ pub fn get_rules() -> Vec<Rule> {
         apt_upgrade::get_rule(),
         aws_cli::get_rule(),
         az_cli::get_rule(),
+        has_exists_script::get_rule(),
         brew_install::get_rule(),
         brew_reinstall::get_rule(),
         brew_link::get_rule(),
