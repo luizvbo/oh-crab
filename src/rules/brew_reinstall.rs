@@ -5,9 +5,9 @@ use regex::Regex;
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
         let warning_regex =
-            Regex::new(r"Warning: (?:.(?!is ))+ is already installed and up-to-date").unwrap();
+            Regex::new(r"Warning: .+ is already installed and up-to-date").unwrap();
         let message_regex =
-            Regex::new(r"To reinstall (?:(?!, ).)+, run `brew reinstall [^`]+`").unwrap();
+            Regex::new(r"To reinstall .+, run `brew reinstall [^`]+`").unwrap();
         command.script.contains("install")
             && warning_regex.is_match(output)
             && message_regex.is_match(output)
