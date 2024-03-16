@@ -7,6 +7,7 @@ mod ag_literal;
 mod apt_get;
 mod apt_get_search;
 mod apt_list_upgradable;
+mod docker_image_being_used_by_container;
 mod apt_upgrade;
 mod aws_cli;
 mod az_cli;
@@ -81,6 +82,7 @@ pub fn get_rules() -> Vec<Rule> {
         apt_upgrade::get_rule(),
         aws_cli::get_rule(),
         az_cli::get_rule(),
+        docker_image_being_used_by_container::get_rule(),
         brew_install::get_rule(),
         brew_reinstall::get_rule(),
         brew_link::get_rule(),
