@@ -4,6 +4,7 @@ use core::fmt;
 use crate::cli::{command::CorrectedCommand, command::CrabCommand};
 
 mod ag_literal;
+mod heroku_multiple_apps;
 mod apt_get;
 mod apt_get_search;
 mod apt_list_upgradable;
@@ -78,6 +79,7 @@ pub fn get_rules() -> Vec<Rule> {
         apt_get::get_rule(),
         apt_get_search::get_rule(),
         apt_list_upgradable::get_rule(),
+        heroku_multiple_apps::get_rule(),
         apt_upgrade::get_rule(),
         aws_cli::get_rule(),
         az_cli::get_rule(),
