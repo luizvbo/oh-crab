@@ -2,9 +2,13 @@ use super::{get_new_command_without_sudo, match_rule_without_sudo, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
 use std::path::Path;
 
+fn path_exists(path: &str) -> bool {
+    Path::new(path).exists()
+}
+
 fn auxiliary_mockable_match_rule<F>(command: &CrabCommand, fn_path_exists: F) -> bool
 where
-    F: Fn(&[String]) -> bool,
+    F: Fn(&str) -> bool,
 {
     if let Some(output) = &command.output {
         !command.script_parts.is_empty()
@@ -16,7 +20,10 @@ where
 }
 // Path::new(&command.script_parts[0]).exists()
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_rule_without_sudo(auxiliary_mockable_match_rule, command)
+    match_rule_without_sudo(
+        |command| auxiliary_mockable_match_rule(command, path_exists),
+        command,
+    )
 }
 
 pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
@@ -40,7 +47,7 @@ pub fn get_rule() -> Rule {
 }
 #[cfg(test)]
 mod tests {
-    use super::{get_new_command, match_rule};
+    use super::{get_new_command, auxiliary_mockable_match_rule};
     use crate::cli::command::CrabCommand;
     use rstest::rstest;
 
