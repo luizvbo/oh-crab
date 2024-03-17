@@ -1,37 +1,36 @@
-use super::{
-    get_new_command_without_sudo, match_rule_without_sudo, utils::match_rule_with_is_app, Rule,
-};
+use super::{utils::match_rule_with_is_app, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
-use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
-        command.script_parts.first().map_or(false, |s| s == "cp")
-            && (output.contains("omitting directory") || output.contains("is a directory"))
+        output.contains("image is being used by running container")
     } else {
         false
     }
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_rule_without_sudo(
-        |command| match_rule_with_is_app(auxiliary_match_rule, command, vec!["cp"], None),
-        command,
-    )
-}
-
-pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
-    let re = Regex::new(r"^cp ").unwrap();
-    vec![re.replace_all(&command.script, "cp -a ").into_owned()]
+    match_rule_with_is_app(auxiliary_match_rule, command, vec!["docker"], None)
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    get_new_command_without_sudo(auxiliary_get_new_command, command)
+    let container_id = command
+        .output
+        .as_ref()
+        .unwrap()
+        .trim()
+        .split(' ')
+        .last()
+        .unwrap();
+    vec![format!(
+        "docker container rm -f {} && {}",
+        container_id, command.script
+    )]
 }
 
 pub fn get_rule() -> Rule {
     Rule::new(
-        "cp_omitting_directory".to_owned(),
+        "docker_image_being_used_by_container".to_owned(),
         None,
         None,
         None,
@@ -45,28 +44,30 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
-    use crate::shell::Bash;
     use rstest::rstest;
 
+    const ERR_RESPONSE: &str = "Error response from daemon: conflict: unable to delete cd809b04b6ff (cannot be forced) - image is being used by running container e5e2591040d1";
+
     #[rstest]
-    #[case("cp dir", "cp: dor: is a directory", true)]
-    #[case("cp dir", "cp: omitting directory 'dir'", true)]
-    #[case("some dir", "cp: dor: is a directory", false)]
-    #[case("some dir", "cp: omitting directory 'dir'", false)]
-    #[case("cp dir", "", false)]
+    #[case("docker image rm -f cd809b04b6ff", ERR_RESPONSE, true)]
+    #[case(
+        "docker image rm -f cd809b04b6ff",
+        "bash: docker: command not found",
+        false
+    )]
+    #[case("git image rm -f cd809b04b6ff", ERR_RESPONSE, false)]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(match_rule(&mut command, None), is_match);
     }
 
     #[rstest]
-    #[case("cp dir", "", vec!["cp -a dir"])]
+    #[case("docker image rm -f cd809b04b6ff", ERR_RESPONSE, vec!["docker container rm -f e5e2591040d1 && docker image rm -f cd809b04b6ff"])]
     fn test_get_new_command(
         #[case] command: &str,
         #[case] stdout: &str,
         #[case] expected: Vec<&str>,
     ) {
-        let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(get_new_command(&mut command, None), expected);
     }
