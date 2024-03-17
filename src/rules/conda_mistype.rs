@@ -1,6 +1,5 @@
-
+use super::{utils::match_rule_with_is_app, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
-use super::{get_new_command_without_sudo, match_rule_with_is_app, Rule};
 use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
@@ -15,16 +14,15 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
     match_rule_with_is_app(auxiliary_match_rule, command, vec!["conda"], None)
 }
 
-pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     let re = Regex::new(r"'conda ([^']*)'").unwrap();
-    let matches = re.captures_iter(&command.output.as_ref().unwrap()).map(|cap| cap[1].to_owned()).collect::<Vec<_>>();
+    let matches = re
+        .captures_iter(command.output.as_ref().unwrap())
+        .map(|cap| cap[1].to_owned())
+        .collect::<Vec<_>>();
     let broken_cmd = matches[0].clone();
     let correct_cmd = matches[1].clone();
     vec![command.script.replace(&broken_cmd, &correct_cmd)]
-}
-
-pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    get_new_command_without_sudo(auxiliary_get_new_command, command)
 }
 
 pub fn get_rule() -> Rule {
@@ -45,7 +43,8 @@ mod tests {
     use crate::cli::command::CrabCommand;
     use rstest::rstest;
 
-    const MISTYPE_RESPONSE: &str = "\n\nCommandNotFoundError: No command 'conda lst'.\nDid you mean 'conda list'?\n\n";
+    const MISTYPE_RESPONSE: &str =
+        "\n\nCommandNotFoundError: No command 'conda lst'.\nDid you mean 'conda list'?\n\n";
 
     #[rstest]
     #[case("conda lst", MISTYPE_RESPONSE, true)]
@@ -57,7 +56,11 @@ mod tests {
 
     #[rstest]
     #[case("conda lst", MISTYPE_RESPONSE, vec!["conda list"])]
-    fn test_get_new_command(#[case] command: &str, #[case] stdout: &str, #[case] expected: Vec<&str>) {
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] stdout: &str,
+        #[case] expected: Vec<&str>,
+    ) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(get_new_command(&mut command, None), expected);
     }
