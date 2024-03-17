@@ -22,11 +22,13 @@ mod cd_mkdir;
 mod cd_parent;
 mod chmod_x;
 mod choco_install;
+mod conda_mistype;
 mod cp_create_destination;
 mod cp_omitting_directory;
 mod cpp11;
 mod django_south_ghost;
 mod django_south_merge;
+mod docker_image_being_used_by_container;
 mod docker_login;
 mod dry;
 mod fix_alt_space;
@@ -58,6 +60,7 @@ mod go_run;
 mod grep_arguments_order;
 mod grep_recursive;
 mod heroku_multiple_apps;
+mod heroku_not_command;
 mod history;
 mod java;
 mod ln_no_hard_link;
@@ -83,7 +86,10 @@ pub fn get_rules() -> Vec<Rule> {
         apt_upgrade::get_rule(),
         aws_cli::get_rule(),
         az_cli::get_rule(),
+        docker_image_being_used_by_container::get_rule(),
+        heroku_not_command::get_rule(),
         brew_install::get_rule(),
+        conda_mistype::get_rule(),
         brew_reinstall::get_rule(),
         brew_link::get_rule(),
         brew_update_formula::get_rule(),
