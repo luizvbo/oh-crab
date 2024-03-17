@@ -22,6 +22,7 @@ mod cd_mkdir;
 mod cd_parent;
 mod chmod_x;
 mod choco_install;
+mod conda_mistype;
 mod cp_create_destination;
 mod cp_omitting_directory;
 mod cpp11;
@@ -84,6 +85,7 @@ pub fn get_rules() -> Vec<Rule> {
         az_cli::get_rule(),
         heroku_not_command::get_rule(),
         brew_install::get_rule(),
+        conda_mistype::get_rule(),
         brew_reinstall::get_rule(),
         brew_link::get_rule(),
         brew_update_formula::get_rule(),
