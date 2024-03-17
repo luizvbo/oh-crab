@@ -1,4 +1,4 @@
-use super::{get_new_command_without_sudo, match_rule_with_is_app, Rule};
+use super::{get_new_command_without_sudo, match_rule_without_sudo, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
 use std::path::Path;
 
@@ -13,7 +13,7 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_rule_with_is_app(auxiliary_match_rule, command, None, None)
+    match_rule_without_sudo(auxiliary_match_rule, command)
 }
 
 pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
