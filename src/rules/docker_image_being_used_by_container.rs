@@ -1,6 +1,5 @@
-
+use super::{utils::match_rule_with_is_app, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
-use super::{get_new_command_without_sudo, match_rule_with_is_app, Rule};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
@@ -14,13 +13,19 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
     match_rule_with_is_app(auxiliary_match_rule, command, vec!["docker"], None)
 }
 
-pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
-    let container_id = command.output.as_ref().unwrap().trim().split(' ').last().unwrap();
-    vec![format!("docker container rm -f {} && {}", container_id, command.script)]
-}
-
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    get_new_command_without_sudo(auxiliary_get_new_command, command)
+    let container_id = command
+        .output
+        .as_ref()
+        .unwrap()
+        .trim()
+        .split(' ')
+        .last()
+        .unwrap();
+    vec![format!(
+        "docker container rm -f {} && {}",
+        container_id, command.script
+    )]
 }
 
 pub fn get_rule() -> Rule {
@@ -45,7 +50,11 @@ mod tests {
 
     #[rstest]
     #[case("docker image rm -f cd809b04b6ff", ERR_RESPONSE, true)]
-    #[case("docker image rm -f cd809b04b6ff", "bash: docker: command not found", false)]
+    #[case(
+        "docker image rm -f cd809b04b6ff",
+        "bash: docker: command not found",
+        false
+    )]
     #[case("git image rm -f cd809b04b6ff", ERR_RESPONSE, false)]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
@@ -54,7 +63,11 @@ mod tests {
 
     #[rstest]
     #[case("docker image rm -f cd809b04b6ff", ERR_RESPONSE, vec!["docker container rm -f e5e2591040d1 && docker image rm -f cd809b04b6ff"])]
-    fn test_get_new_command(#[case] command: &str, #[case] stdout: &str, #[case] expected: Vec<&str>) {
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] stdout: &str,
+        #[case] expected: Vec<&str>,
+    ) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(get_new_command(&mut command, None), expected);
     }
