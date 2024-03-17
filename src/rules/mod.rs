@@ -4,7 +4,6 @@ use core::fmt;
 use crate::cli::{command::CorrectedCommand, command::CrabCommand};
 
 mod ag_literal;
-mod heroku_multiple_apps;
 mod apt_get;
 mod apt_get_search;
 mod apt_list_upgradable;
@@ -58,6 +57,7 @@ mod git_rebase_merge_dir;
 mod go_run;
 mod grep_arguments_order;
 mod grep_recursive;
+mod heroku_multiple_apps;
 mod history;
 mod java;
 mod ln_no_hard_link;
