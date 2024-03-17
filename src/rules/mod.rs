@@ -28,6 +28,7 @@ mod cp_omitting_directory;
 mod cpp11;
 mod django_south_ghost;
 mod django_south_merge;
+mod docker_image_being_used_by_container;
 mod docker_login;
 mod dry;
 mod fix_alt_space;
@@ -83,6 +84,7 @@ pub fn get_rules() -> Vec<Rule> {
         apt_upgrade::get_rule(),
         aws_cli::get_rule(),
         az_cli::get_rule(),
+        docker_image_being_used_by_container::get_rule(),
         heroku_not_command::get_rule(),
         brew_install::get_rule(),
         conda_mistype::get_rule(),
