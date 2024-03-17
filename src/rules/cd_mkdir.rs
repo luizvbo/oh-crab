@@ -1,7 +1,9 @@
 use crate::{cli::command::CrabCommand, shell::Shell};
 use regex::Regex;
 
-use super::{get_new_command_without_sudo, match_rule_without_sudo, Rule};
+use super::{
+    get_new_command_without_sudo, match_rule_without_sudo, utils::match_rule_with_is_app, Rule,
+};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.output {
@@ -16,7 +18,10 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_rule_without_sudo(auxiliary_match_rule, command)
+    match_rule_without_sudo(
+        |command| match_rule_with_is_app(auxiliary_match_rule, command, vec!["cd"], None),
+        command,
+    )
 }
 
 pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
@@ -45,72 +50,29 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
+    use rstest::rstest;
 
-    macro_rules! parameterized_match_rule_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (script, stdout) = $value;
-                    let mut command = CrabCommand::new(
-                                script.to_owned(),
-                                Some(stdout.to_owned()),
-                                None
-                            );
-                    assert!(match_rule(&mut command, None));
-                }
-            )*
-        }
+    #[rstest]
+    #[case("cd foo", "cd: foo: No such file or directory", true)]
+    #[case("cd foo/bar/baz", "cd: foo: No such file or directory", true)]
+    #[case("cd foo/bar/baz", "cd: can't cd to foo/bar/baz", true)]
+    #[case("cd /foo/bar/", "cd: The directory \"/foo/bar/\" does not exist", true)]
+    #[case("cd foo", "", false)]
+    #[case("", "", false)]
+    fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
+        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        assert_eq!(match_rule(&mut command, None), is_match);
     }
 
-    macro_rules! parameterized_unmatch_rule_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (script, stdout) = $value;
-                    let mut command = CrabCommand::new(
-                                script.to_owned(),
-                                Some(stdout.to_owned()),
-                                None
-                            );
-                    assert!(!match_rule(&mut command, None));
-                }
-            )*
-        }
-    }
-
-    macro_rules! parameterized_get_new_command_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (script, stdout, expected) = $value;
-                    let mut command = CrabCommand::new(
-                                script.to_owned(),
-                                Some(stdout.to_owned()),
-                                None
-                            );
-                    assert_eq!(get_new_command(&mut command, None)[0], expected);
-                }
-            )*
-        }
-    }
-
-    parameterized_match_rule_tests! {
-        match_rule_1: ("cd foo", "cd: foo: No such file or directory"),
-        match_rule_2: ("cd foo/bar/baz", "cd: foo: No such file or directory"),
-        match_rule_3: ("cd foo/bar/baz", "cd: can't cd to foo/bar/baz"),
-        match_rule_4: ("cd /foo/bar/", "cd: The directory \"/foo/bar/\" does not exist"),
-    }
-
-    parameterized_unmatch_rule_tests! {
-        unmatch_rule_1: ("cd foo", ""),
-        unmatch_rule_2: ("", ""),
-    }
-
-    parameterized_get_new_command_tests! {
-        get_new_command_1: ("cd foo", "", "mkdir -p foo && cd foo"),
-        get_new_command_2: ("cd foo/bar/baz", "", "mkdir -p foo/bar/baz && cd foo/bar/baz"),
+    #[rstest]
+    #[case("cd foo", "", vec!["mkdir -p foo && cd foo"])]
+    #[case("cd foo/bar/baz", "", vec!["mkdir -p foo/bar/baz && cd foo/bar/baz"])]
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] stdout: &str,
+        #[case] expected: Vec<&str>,
+    ) {
+        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        assert_eq!(get_new_command(&mut command, None), expected);
     }
 }
