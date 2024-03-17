@@ -31,20 +31,20 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
             broken_cmd = "install".to_owned();
             new_cmd = "require".to_owned();
         } else {
-            if let Some(captures) = re_broken_cmd.captures(&output) {
+            if let Some(captures) = re_broken_cmd.captures(output) {
                 broken_cmd = captures.get(1).map_or("", |m| m.as_str()).to_owned();
             } else {
                 return Vec::<String>::new();
             }
-            if let Some(captures) = re_new_cmd.captures(&output) {
+            if let Some(captures) = re_new_cmd.captures(output) {
                 new_cmd = captures.get(1).map_or("", |m| m.as_str()).to_owned();
-            } else if let Some(captures) = re_new_cmd_alt.captures(&output) {
+            } else if let Some(captures) = re_new_cmd_alt.captures(output) {
                 new_cmd = captures.get(1).map_or("", |m| m.as_str()).to_owned();
             } else {
                 return Vec::<String>::new();
             }
         }
-        vec![command.script.replace(&broken_cmd, &new_cmd.trim())]
+        vec![command.script.replace(&broken_cmd, new_cmd.trim())]
     } else {
         Vec::<String>::new()
     }
