@@ -11,6 +11,9 @@ mod apt_upgrade;
 mod aws_cli;
 mod az_cli;
 mod brew_install;
+mod brew_link;
+mod brew_reinstall;
+mod brew_uninstall;
 mod brew_update_formula;
 mod cargo;
 mod cargo_no_command;
@@ -21,11 +24,13 @@ mod cd_mkdir;
 mod cd_parent;
 mod chmod_x;
 mod choco_install;
+mod conda_mistype;
 mod cp_create_destination;
 mod cp_omitting_directory;
 mod cpp11;
 mod django_south_ghost;
 mod django_south_merge;
+mod docker_image_being_used_by_container;
 mod docker_login;
 mod dry;
 mod fix_alt_space;
@@ -56,6 +61,8 @@ mod git_rebase_merge_dir;
 mod go_run;
 mod grep_arguments_order;
 mod grep_recursive;
+mod heroku_multiple_apps;
+mod heroku_not_command;
 mod history;
 mod java;
 mod ln_no_hard_link;
@@ -81,6 +88,9 @@ pub fn get_rules() -> Vec<Rule> {
         aws_cli::get_rule(),
         az_cli::get_rule(),
         brew_install::get_rule(),
+        brew_link::get_rule(),
+        brew_reinstall::get_rule(),
+        brew_uninstall::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
         cargo_no_command::get_rule(),
@@ -91,11 +101,13 @@ pub fn get_rules() -> Vec<Rule> {
         cd_parent::get_rule(),
         chmod_x::get_rule(),
         choco_install::get_rule(),
+        conda_mistype::get_rule(),
         cp_create_destination::get_rule(),
         cp_omitting_directory::get_rule(),
-        django_south_merge::get_rule(),
-        django_south_ghost::get_rule(),
         cpp11::get_rule(),
+        django_south_ghost::get_rule(),
+        django_south_merge::get_rule(),
+        docker_image_being_used_by_container::get_rule(),
         docker_login::get_rule(),
         dry::get_rule(),
         fix_alt_space::get_rule(),
@@ -126,6 +138,8 @@ pub fn get_rules() -> Vec<Rule> {
         go_run::get_rule(),
         grep_arguments_order::get_rule(),
         grep_recursive::get_rule(),
+        heroku_multiple_apps::get_rule(),
+        heroku_not_command::get_rule(),
         history::get_rule(),
         java::get_rule(),
         ln_no_hard_link::get_rule(),
