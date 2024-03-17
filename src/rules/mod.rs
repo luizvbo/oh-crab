@@ -57,6 +57,7 @@ mod git_rebase_merge_dir;
 mod go_run;
 mod grep_arguments_order;
 mod grep_recursive;
+mod heroku_not_command;
 mod history;
 mod java;
 mod ln_no_hard_link;
@@ -81,6 +82,7 @@ pub fn get_rules() -> Vec<Rule> {
         apt_upgrade::get_rule(),
         aws_cli::get_rule(),
         az_cli::get_rule(),
+        heroku_not_command::get_rule(),
         brew_install::get_rule(),
         brew_reinstall::get_rule(),
         brew_link::get_rule(),
