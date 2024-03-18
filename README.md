@@ -170,9 +170,14 @@ new rules or improving the crate.
 - [x] apt_list_upgradable
 - [x] apt_upgrade
 - [x] aws_cli
+- [x] az_cli
 - [x] brew_install
+- [x] brew_link
+- [x] brew_reinstall
+- [x] brew_uninstall
 - [x] brew_update_formula
 - [x] cargo
+- [x] cargo_no_command
 - [x] cat_dir
 - [x] cd_correction
 - [x] cd_cs
@@ -180,8 +185,14 @@ new rules or improving the crate.
 - [x] cd_parent
 - [x] chmod_x
 - [x] choco_install
+- [x] composer_not_command
+- [x] conda_mistype
 - [x] cp_create_destination
 - [x] cp_omitting_directory
+- [x] cpp11
+- [x] django_south_ghost
+- [x] django_south_merge
+- [x] docker_image_being_used_by_container
 - [x] docker_login
 - [x] dry
 - [x] fix_alt_space
@@ -212,6 +223,8 @@ new rules or improving the crate.
 - [x] go_run
 - [x] grep_arguments_order
 - [x] grep_recursive
+- [x] heroku_multiple_apps
+- [x] heroku_not_command
 - [x] history
 - [x] java
 - [x] ln_no_hard_link
@@ -232,22 +245,11 @@ new rules or improving the crate.
 
 - [ ] adb_unknown_command
 - [ ] apt_invalid_operation
-- [ ] az_cli
 - [ ] brew_cask_dependency
-- [ ] brew_link
-- [ ] brew_reinstall
-- [ ] brew_uninstall
 - [ ] brew_unknown_command
-- [ ] cargo_no_command
-- [ ] composer_not_command
-- [ ] conda_mistype
-- [ ] cpp11
 - [ ] dirty_untar
 - [ ] dirty_unzip
-- [ ] django_south_ghost
-- [ ] django_south_merge
 - [ ] dnf_no_such_command
-- [ ] docker_image_being_used_by_container
 - [ ] docker_not_command
 - [ ] fab_command_not_found
 - [ ] fix_file
@@ -278,8 +280,6 @@ new rules or improving the crate.
 - [ ] grunt_task_not_found
 - [ ] gulp_not_task
 - [ ] has_exists_script
-- [ ] heroku_multiple_apps
-- [ ] heroku_not_command
 - [ ] hostscli
 - [ ] ifconfig_device_not_found
 - [ ] javac
