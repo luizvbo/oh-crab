@@ -1,7 +1,11 @@
 use super::{
     get_new_command_without_sudo, match_rule_without_sudo, utils::match_rule_with_is_app, Rule,
 };
-use crate::{cli::command::CrabCommand, shell::Shell};
+use crate::{
+    cli::command::CrabCommand,
+    shell::Shell,
+    utils::{get_all_matched_commands, replace_command},
+};
 use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
@@ -29,11 +33,12 @@ pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
             .unwrap()
             .get(1)
             .map_or("", |m| m.as_str());
-        let new_cmds = output.split("Did you mean this?").collect::<Vec<&str>>();
-        new_cmds
-            .iter()
-            .map(|cmd| command.script.replace(broken_cmd, cmd))
-            .collect()
+        let new_cmds = get_all_matched_commands(output, Some(vec!["Did you mean this?"]));
+        replace_command(
+            command,
+            broken_cmd,
+            new_cmds.iter().map(|s| s.as_ref()).collect(),
+        )
     } else {
         Vec::<String>::new()
     }
