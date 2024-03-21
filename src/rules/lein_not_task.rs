@@ -74,6 +74,7 @@ mod tests {
     }
 
     #[rstest]
+    // TODO: Fix test issue
     #[case("lein rpl --help", IS_NOT_TASK, vec!["lein repl --help", "lein jar --help"])]
     fn test_get_new_command(
         #[case] command: &str,
