@@ -66,6 +66,7 @@ mod heroku_multiple_apps;
 mod heroku_not_command;
 mod history;
 mod java;
+mod javac;
 mod ln_no_hard_link;
 mod ls_all;
 mod ls_lah;
@@ -144,6 +145,7 @@ pub fn get_rules() -> Vec<Rule> {
         heroku_not_command::get_rule(),
         history::get_rule(),
         java::get_rule(),
+        javac::get_rule(),
         ln_no_hard_link::get_rule(),
         ls_all::get_rule(),
         ls_lah::get_rule(),
