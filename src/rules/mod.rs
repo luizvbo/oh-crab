@@ -70,6 +70,7 @@ mod java;
 mod javac;
 mod lein_not_task;
 mod ln_no_hard_link;
+mod long_form_help;
 mod ls_all;
 mod ls_lah;
 mod mkdir_p;
@@ -151,6 +152,7 @@ pub fn get_rules() -> Vec<Rule> {
         javac::get_rule(),
         lein_not_task::get_rule(),
         ln_no_hard_link::get_rule(),
+        long_form_help::get_rule(),
         ls_all::get_rule(),
         ls_lah::get_rule(),
         mkdir_p::get_rule(),
