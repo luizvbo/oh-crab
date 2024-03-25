@@ -1,6 +1,4 @@
-use super::{
-    get_new_command_without_sudo, match_rule_without_sudo, utils::match_rule_with_is_app, Rule,
-};
+use super::Rule;
 use crate::{cli::command::CrabCommand, shell::Shell};
 
 const PATTERNS: [&str; 28] = [
@@ -34,33 +32,35 @@ const PATTERNS: [&str; 28] = [
     "updatedb: can not open a temporary file",
 ];
 
-fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    if let Some(output) = &command.output {
-        command.script_parts.first().map_or(false, |s| {
-            s != "sudo" && PATTERNS.iter().any(|&pattern| output.contains(pattern))
-        })
-    } else {
-        false
-    }
-}
-
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_rule_without_sudo(
-        |command| {
-            match_rule_with_is_app(
-                auxiliary_match_rule,
-                command,
-                vec!["ls", "echo", "mkdir"],
-                None,
-            )
-        },
-        command,
-    )
+    if let Some(output) = &command.output {
+        if !command.script_parts.is_empty()
+            && !command.script_parts.contains(&"&&".to_owned())
+            && command.script_parts[0] == "sudo"
+        {
+            return false;
+        }
+        for pattern in PATTERNS {
+            if output.to_lowercase().contains(pattern) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
-pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     if command.script.contains("&&") {
-        vec![format!("sudo sh -c \"{}\"", command.script_parts.join(" "))]
+        vec![format!(
+            "sudo sh -c \"{}\"",
+            command
+                .script_parts
+                .iter()
+                .filter(|s| s != &"sudo")
+                .map(|s| s.to_string())
+                .collect::<Vec<_>>()
+                .join(" ")
+        )]
     } else if command.script.contains(">") {
         vec![format!(
             "sudo sh -c \"{}\"",
@@ -69,10 +69,6 @@ pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
     } else {
         vec![format!("sudo {}", command.script)]
     }
-}
-
-pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    get_new_command_without_sudo(auxiliary_get_new_command, command)
 }
 
 pub fn get_rule() -> Rule {
@@ -95,13 +91,28 @@ mod tests {
     use rstest::rstest;
 
     #[rstest]
-    #[case("", "Permission denied", false)]
-    #[case("sudo ls", "Permission denied", false)]
+    #[case("", "Permission denied", true)]
+    #[case("", "permission denied", true)]
+    #[case("", "npm ERR! Error: EACCES, unlink", true)]
+    #[case("", "requested operation requires superuser privilege", true)]
+    #[case("", "need to be root", true)]
+    #[case("", "need root", true)]
+    #[case("", "shutdown: NOT super-user", true)]
+    #[case("", "Error: This command has to be run with superuser privileges (under the root user on most systems).", true)]
+    #[case(
+        "",
+        "updatedb: can not open a temporary file for `/var/lib/mlocate/mlocate.db",
+        true
+    )]
+    #[case("", "must be root", true)]
+    #[case("", "You don't have access to the history DB.", true)]
+    #[case(
+        "",
+        "error: [Errno 13] Permission denied: '/usr/local/lib/python2.7/dist-packages/ipaddr.py'",
+        true
+    )]
     #[case("", "", false)]
-    #[case("ls", "Permission denied", true)]
-    #[case("echo a > b", "Permission denied", true)]
-    #[case("echo \"a\" >> b", "Permission denied", true)]
-    #[case("mkdir && touch a", "Permission denied", true)]
+    #[case("sudo ls", "Permission denied", false)]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(match_rule(&mut command, None), is_match);
