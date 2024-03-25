@@ -71,7 +71,6 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
-    use crate::shell::Bash;
     use rstest::rstest;
 
     const ERROR_UNKNOWN_LIFECYCLE: &str = "[ERROR] Unknown lifecycle phase \"cle\". You must specify a valid lifecycle phase or a goal in the format <plugin-prefix>:<goal> or <plugin-group-id>:<plugin-artifact-id>[:<plugin-version>]:<goal>. Available lifecycle phases are: validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy, pre-clean, clean, post-clean, pre-site, site, post-site, site-deploy. -> [Help 1]";
@@ -100,14 +99,13 @@ mod tests {
         assert_eq!(match_rule(&mut command, None), is_match);
     }
     #[rstest]
-    #[case("mvn -N", r#"[ERROR] Unknown lifecycle phase "cle". You must specify a valid lifecycle phase or a goal in the format <plugin-prefix>:<goal> or <plugin-group-id>:<plugin-artifact-id>[:<plugin-version>]:<goal>. Available lifecycle phases are: validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy, pre-clean, clean, post-clean, pre-site, site, post-site, site-deploy. -> [Help 1]"#, vec!["mvn clean", "mvn compile"])]
-    #[case("mvn claen package", r#"[ERROR] Unknown lifecycle phase "claen". You must specify a valid lifecycle phase or a goal in the format <plugin-prefix>:<goal> or <plugin-group-id>:<plugin-artifact-id>[:<plugin-version>]:<goal>. Available lifecycle phases are: validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy, pre-clean, clean, post-clean, pre-site, site, post-site, site-deploy. -> [Help 1]"#, vec!["mvn clean package"])]
+    #[case("mvn cle", r#"[ERROR] Unknown lifecycle phase "cle". You must specify a valid lifecycle phase or a goal in the format <plugin-prefix>:<goal> or <plugin-group-id>:<plugin-artifact-id>[:<plugin-version>]:<goal>. Available lifecycle phases are: validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy, pre-clean, clean, post-clean, pre-site, site, post-site, site-deploy. -> [Help 1]"#, vec!["mvn clean", "mvn compile"])]
+    #[case("mvn claen package", r#"[ERROR] Unknown lifecycle phase "claen". You must specify a valid lifecycle phase or a goal in the format <plugin-prefix>:<goal> or <plugin-group-id>:<plugin-artifact-id>[:<plugin-version>]:<goal>. Available lifecycle phases are: validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy, pre-clean, clean, post-clean, pre-site, site, post-site, site-deploy. -> [Help 1]"#, vec!["mvn clean package", "mvn pre-clean package", "mvn post-clean package"])]
     fn test_get_new_command(
         #[case] command: &str,
         #[case] stdout: &str,
         #[case] expected: Vec<&str>,
     ) {
-        let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(get_new_command(&mut command, None), expected);
     }
