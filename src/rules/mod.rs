@@ -73,6 +73,7 @@ mod ln_no_hard_link;
 mod long_form_help;
 mod ls_all;
 mod ls_lah;
+mod man;
 mod mkdir_p;
 mod no_command;
 mod python_command;
@@ -98,7 +99,6 @@ pub fn get_rules() -> Vec<Rule> {
         brew_uninstall::get_rule(),
         brew_update_formula::get_rule(),
         cargo::get_rule(),
-        gradle_wrapper::get_rule(),
         cargo_no_command::get_rule(),
         cat_dir::get_rule(),
         cd_correction::get_rule(),
@@ -143,6 +143,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_push::get_rule(),
         git_rebase_merge_dir::get_rule(),
         go_run::get_rule(),
+        gradle_wrapper::get_rule(),
         grep_arguments_order::get_rule(),
         grep_recursive::get_rule(),
         heroku_multiple_apps::get_rule(),
@@ -155,6 +156,7 @@ pub fn get_rules() -> Vec<Rule> {
         long_form_help::get_rule(),
         ls_all::get_rule(),
         ls_lah::get_rule(),
+        man::get_rule(),
         mkdir_p::get_rule(),
         no_command::get_rule(),
         python_command::get_rule(),
