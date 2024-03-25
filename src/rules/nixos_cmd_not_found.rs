@@ -4,8 +4,7 @@ use regex::Regex;
 
 fn get_name(command_output: &str) -> Option<String> {
     let re = Regex::new(r"nix-env -iA ([^\s]*)").unwrap();
-    re.captures(command_output)
-        .and_then(|caps| caps.get(1).map(|m| m.as_str().to_owned()))
+    re.captures(command_output).map(|caps| caps[1].to_string())
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
@@ -18,9 +17,10 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     if let Some(output) = &command.output {
-        let name = get_name(output);
-        if let Some(name) = name {
-            vec![format!("nix-env -iA {} && {}", name, command.script)]
+        if let Some(name) = get_name(output) {
+            vec![system_shell
+                .unwrap()
+                .and(vec![&format!("nix-env -iA {}", name), &command.script])]
         } else {
             vec![]
         }
@@ -67,6 +67,6 @@ mod tests {
     ) {
         let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
-        assert_eq!(get_new_command(&mut command, None), expected);
+        assert_eq!(get_new_command(&mut command, Some(&system_shell)), expected);
     }
 }
