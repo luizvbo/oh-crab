@@ -12,7 +12,7 @@ fn extract_possibilities(command_output: &str) -> Vec<String> {
             .collect::<Vec<String>>()
     } else if let Some(caps) = re2.captures(command_output) {
         caps[1]
-            .split(" ")
+            .split(' ')
             .map(|s| s.to_string())
             .collect::<Vec<String>>()
     } else {
@@ -75,11 +75,6 @@ mod tests {
 
     #[rstest]
     #[case(
-        "hg base",
-        "hg: unknown command 'base'\n(did you mean one of blame, phase, rebase?)",
-        true
-    )]
-    #[case(
         "hg branchch",
         "hg: unknown command 'branchch'\n(did you mean one of branch, branches?)",
         true
@@ -141,20 +136,32 @@ mod tests {
     }
 
     #[rstest]
-    #[case("hg: unknown command 'base'\n(did you mean one of blame, phase, rebase?)", vec!["blame", "phase", "rebase"])] fn test_extract_possibilities( #[case] stdout: &str,
-        #[case] possibilities: Vec<&str>,
-    ) {
+    #[case("hg: unknown command 'base'\n(did you mean one of blame, phase, rebase?)", vec!["blame", "phase", "rebase"])]
+    #[case("hg: unknown command 'branchch'\n(did you mean one of branch, branches?)", vec!["branch", "branches"])]
+    #[case("hg: unknown command 'vert'\n(did you mean one of revert?)", vec!["revert"])]
+    #[case("hg: command 're' is ambiguous:\n(did you mean one of log?)", vec!["log"])]
+    #[case("hg: unknown command 'rerere'\n(did you mean one of revert?)", vec!["revert"])]
+    #[case("hg: command 're' is ambiguous:\n    rebase recover remove rename resolve revert", vec!["rebase", "recover", "remove", "rename", "resolve", "revert"])]
+    #[case("hg: command 're' is ambiguous:\n    rebase recover remove rename resolve revert", vec!["rebase", "recover", "remove", "rename", "resolve", "revert"])]
+    fn test_extract_possibilities(#[case] stdout: &str, #[case] possibilities: Vec<&str>) {
         assert_eq!(extract_possibilities(stdout), possibilities)
-
     }
 
-    // #[rstest]
-    // #[case("hg base", "hg: unknown command 'base'\n(did you mean one of blame, phase, rebase?)", vec!["blame", "phase", "rebase"])]
-    // #[case("hg branchch", "hg: unknown command 'branchch'\n(did you mean one of branch, branches?)", vec!["branch", "branches"])]
-    // #[case("hg vert", "hg: unknown command 'vert'\n(did you mean one of revert?)", vec!["revert"])]
-    // #[case("hg lgo -r tip", "hg: command 're' is ambiguous:\n(did you mean one of log?)", vec!["log"])]
-    // #[case("hg rerere", "hg: unknown command 'rerere'\n(did you mean one of revert?)", vec!["revert"])]
-    // #[case("hg re", "hg: command 're' is ambiguous:\n    rebase recover remove rename resolve revert", vec!["rebase", "recover", "remove", "rename", "resolve", "revert"])]
-    // #[case("hg re re", "hg: command 're' is ambiguous:\n    rebase recover remove rename resolve revert", vec!["rebase", "recover", "remove", "rename", "resolve", "re
-    //
+    #[rstest]
+    #[case("hg base", "hg: unknown command 'base'\n(did you mean one of blame, phase, rebase?)", vec!["hg rebase"])]
+    #[case("hg branchch", "hg: unknown command 'branchch'\n(did you mean one of branch, branches?)", vec!["hg branch"])]
+    #[case("hg vert", "hg: unknown command 'vert'\n(did you mean one of revert?)", vec!["hg revert"])]
+    #[case("hg lgo -r tip", "hg: command 're' is ambiguous:\n(did you mean one of log?)", vec!["hg log -r tip"])]
+    #[case("hg rerere", "hg: unknown command 'rerere'\n(did you mean one of revert?)", vec!["hg revert"])]
+    #[case("hg re", "hg: command 're' is ambiguous:\n    rebase recover remove rename resolve revert", vec!["hg rebase"])]
+    #[case("hg re re", "hg: command 're' is ambiguous:\n    rebase recover remove rename resolve revert", vec!["hg rebase re"])]
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] stdout: &str,
+        #[case] expected: Vec<&str>,
+    ) {
+        let system_shell = Bash {};
+        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        assert_eq!(get_new_command(&mut command, None), expected);
+    }
 }
