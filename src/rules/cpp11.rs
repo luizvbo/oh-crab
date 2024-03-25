@@ -1,33 +1,27 @@
 use super::{utils::match_rule_with_is_app, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
-use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
-        output.contains("Did you mean 'conda")
+        output.contains(
+            "This file requires compiler and library support for the ISO C++ 2011 standard.",
+        ) || output.contains("-Wc++11-extensions")
     } else {
         false
     }
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_rule_with_is_app(auxiliary_match_rule, command, vec!["conda"], None)
+    match_rule_with_is_app(auxiliary_match_rule, command, vec!["g++", "clang++"], None)
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    let re = Regex::new(r"'conda ([^']*)'").unwrap();
-    let matches = re
-        .captures_iter(command.output.as_ref().unwrap())
-        .map(|cap| cap[1].to_owned())
-        .collect::<Vec<_>>();
-    let broken_cmd = matches[0].clone();
-    let correct_cmd = matches[1].clone();
-    vec![command.script.replace(&broken_cmd, &correct_cmd)]
+    vec![command.script.clone() + " -std=c++11"]
 }
 
 pub fn get_rule() -> Rule {
     Rule::new(
-        "conda_mistype".to_owned(),
+        "cpp11".to_owned(),
         None,
         None,
         None,
@@ -43,25 +37,22 @@ mod tests {
     use crate::cli::command::CrabCommand;
     use rstest::rstest;
 
-    const MISTYPE_RESPONSE: &str = r#"
-
-CommandNotFoundError: No command 'conda lst'.
-Did you mean 'conda list'?
-
-    "#;
-    const MISTYPE_RESPONSE: &str =
-        "\n\nCommandNotFoundError: No command 'conda lst'.\nDid you mean 'conda list'?\n\n";
-
     #[rstest]
-    #[case("conda lst", MISTYPE_RESPONSE, true)]
-    #[case("codna list", "bash: codna: command not found", false)]
+    #[case("g++ foo.cpp", "foo.cpp:1:1: error: This file requires compiler and library support for the ISO C++ 2011 standard. This support must be enabled with the -std=c++11 or -std=gnu++11 compiler options.", true)]
+    #[case("clang++ bar.cpp", "bar.cpp:1:1: warning: using extended identifiers requires -std=c++11 or -std=gnu++11 [-Wc++11-extensions]", true)]
+    #[case(
+        "g++ baz.cpp",
+        "baz.cpp:1:1: error: 'auto' type specifier is a C++11 extension",
+        false
+    )]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(match_rule(&mut command, None), is_match);
     }
 
     #[rstest]
-    #[case("conda lst", MISTYPE_RESPONSE, vec!["conda list"])]
+    #[case("g++ foo.cpp", "foo.cpp:1:1: error: This file requires compiler and library support for the ISO C++ 2011 standard. This support must be enabled with the -std=c++11 or -std=gnu++11 compiler options.", vec!["g++ foo.cpp -std=c++11"])]
+    #[case("clang++ bar.cpp", "bar.cpp:1:1: warning: using extended identifiers requires -std=c++11 or -std=gnu++11 [-Wc++11-extensions]", vec!["clang++ bar.cpp -std=c++11"])]
     fn test_get_new_command(
         #[case] command: &str,
         #[case] stdout: &str,

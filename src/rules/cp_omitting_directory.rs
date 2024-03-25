@@ -1,4 +1,6 @@
-use super::{get_new_command_without_sudo, match_rule_without_sudo, Rule};
+use super::{
+    get_new_command_without_sudo, match_rule_without_sudo, utils::match_rule_with_is_app, Rule,
+};
 use crate::{cli::command::CrabCommand, shell::Shell};
 use regex::Regex;
 
@@ -12,7 +14,10 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_rule_without_sudo(auxiliary_match_rule, command)
+    match_rule_without_sudo(
+        |command| match_rule_with_is_app(auxiliary_match_rule, command, vec!["cp"], None),
+        command,
+    )
 }
 
 pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
