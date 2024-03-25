@@ -18,7 +18,7 @@ fn get_available_lifecycles(command_output: &str) -> Option<String> {
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
-        get_failed_lifecycle(output).is_some() && getavailable_lifecycles(output).is_some()
+        get_failed_lifecycle(output).is_some() && get_available_lifecycles(output).is_some()
     } else {
         false
     }
@@ -31,7 +31,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     if let Some(output) = &command.output {
         let failed_lifecycle = get_failed_lifecycle(output);
-        let available_lifecycles = getavailable_lifecycles(output);
+        let available_lifecycles = get_available_lifecycles(output);
         if let (Some(failed_lifecycle), Some(available_lifecycles)) =
             (failed_lifecycle, available_lifecycles)
         {
