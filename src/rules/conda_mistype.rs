@@ -24,7 +24,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
         let broken_cmd = matches[0].clone();
         let correct_cmd = matches[1].clone();
         vec![command.script.replace(&broken_cmd, &correct_cmd)]
-    }else {
+    } else {
         Vec::<String>::new()
     }
 }
