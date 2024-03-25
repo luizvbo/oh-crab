@@ -1,4 +1,4 @@
-use super::{get_new_command_without_sudo, match_rule_with_is_app, Rule};
+use super::{get_new_command_without_sudo, utils::match_rule_with_is_app, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
