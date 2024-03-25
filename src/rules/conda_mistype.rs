@@ -15,14 +15,18 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    let re = Regex::new(r"'conda ([^']*)'").unwrap();
-    let matches = re
-        .captures_iter(command.output.as_ref().unwrap())
-        .map(|cap| cap[1].to_owned())
-        .collect::<Vec<_>>();
-    let broken_cmd = matches[0].clone();
-    let correct_cmd = matches[1].clone();
-    vec![command.script.replace(&broken_cmd, &correct_cmd)]
+    if let Some(output) = &command.output {
+        let re = Regex::new(r"'conda ([^']*)'").unwrap();
+        let matches = re
+            .captures_iter(output)
+            .map(|cap| cap[1].to_owned())
+            .collect::<Vec<_>>();
+        let broken_cmd = matches[0].clone();
+        let correct_cmd = matches[1].clone();
+        vec![command.script.replace(&broken_cmd, &correct_cmd)]
+    } else {
+        Vec::<String>::new()
+    }
 }
 
 pub fn get_rule() -> Rule {
