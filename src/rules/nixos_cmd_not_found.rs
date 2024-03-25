@@ -2,7 +2,7 @@ use super::Rule;
 use crate::{cli::command::CrabCommand, shell::Shell};
 use regex::Regex;
 
-fn _get_name(command_output: &str) -> Option<String> {
+fn get_name(command_output: &str) -> Option<String> {
     let re = Regex::new(r"nix-env -iA ([^\s]*)").unwrap();
     re.captures(command_output)
         .and_then(|caps| caps.get(1).map(|m| m.as_str().to_owned()))
@@ -10,20 +10,20 @@ fn _get_name(command_output: &str) -> Option<String> {
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     if let Some(output) = &command.output {
-        command
-            .script_parts
-            .first()
-            .map_or(false, |s| s == "vim" || s == "pacman")
-            && _get_name(command).is_some()
+        get_name(output).is_some()
     } else {
         false
     }
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    let name = _get_name(command);
-    if let Some(name) = name {
-        vec![format!("nix-env -iA {} && {}", name, command.script)]
+    if let Some(output) = &command.output {
+        let name = get_name(output);
+        if let Some(name) = name {
+            vec![format!("nix-env -iA {} && {}", name, command.script)]
+        } else {
+            vec![]
+        }
     } else {
         vec![]
     }
