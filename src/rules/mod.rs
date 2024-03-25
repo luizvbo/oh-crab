@@ -77,6 +77,7 @@ mod man;
 mod man_no_space;
 mod mercurial;
 mod mkdir_p;
+mod mvn_no_command;
 mod no_command;
 mod python_command;
 mod python_execute;
@@ -162,6 +163,7 @@ pub fn get_rules() -> Vec<Rule> {
         man_no_space::get_rule(),
         mercurial::get_rule(),
         mkdir_p::get_rule(),
+        mvn_no_command::get_rule(),
         no_command::get_rule(),
         python_command::get_rule(),
         python_execute::get_rule(),
