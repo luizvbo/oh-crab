@@ -81,9 +81,10 @@ pub fn get_closest<'a>(
     word: &'a str,
     possibilities: &'a [&'a str],
     cutoff: Option<f64>,
-    fallback_to_first: bool,
+    fallback_to_first: Option<bool>,
 ) -> Option<&'a str> {
     let cutoff = cutoff.unwrap_or(0.6);
+    let fallback_to_first = fallback_to_first.unwrap_or(true);
     let matches = get_top_n(
         word,
         possibilities,

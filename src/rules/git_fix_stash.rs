@@ -28,7 +28,7 @@ fn auxiliary_get_new_command(
             "apply", "branch", "clear", "drop", "list", "pop", "save", "show",
         ];
         let stash_cmd = &command.script_parts[2];
-        let fixed = get_closest(stash_cmd, &stash_commands, None, false);
+        let fixed = get_closest(stash_cmd, &stash_commands, None, Some(false));
 
         if let Some(fixed) = fixed {
             vec![replace_argument(&command.script, stash_cmd, fixed)]
