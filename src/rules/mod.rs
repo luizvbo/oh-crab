@@ -75,6 +75,7 @@ mod ls_all;
 mod ls_lah;
 mod man;
 mod man_no_space;
+mod mercurial;
 mod mkdir_p;
 mod no_command;
 mod python_command;
@@ -159,6 +160,7 @@ pub fn get_rules() -> Vec<Rule> {
         ls_lah::get_rule(),
         man::get_rule(),
         man_no_space::get_rule(),
+        mercurial::get_rule(),
         mkdir_p::get_rule(),
         no_command::get_rule(),
         python_command::get_rule(),
