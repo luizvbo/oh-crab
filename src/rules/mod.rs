@@ -78,6 +78,7 @@ mod man_no_space;
 mod mercurial;
 mod mkdir_p;
 mod mvn_no_command;
+mod mvn_unknown_lifecycle_phase;
 mod no_command;
 mod python_command;
 mod python_execute;
@@ -164,6 +165,7 @@ pub fn get_rules() -> Vec<Rule> {
         mercurial::get_rule(),
         mkdir_p::get_rule(),
         mvn_no_command::get_rule(),
+        mvn_unknown_lifecycle_phase::get_rule(),
         no_command::get_rule(),
         python_command::get_rule(),
         python_execute::get_rule(),
