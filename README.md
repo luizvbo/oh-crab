@@ -221,16 +221,26 @@ new rules or improving the crate.
 - [x] git_push
 - [x] git_rebase_merge_dir
 - [x] go_run
+- [x] gradle_wrapper
 - [x] grep_arguments_order
 - [x] grep_recursive
 - [x] heroku_multiple_apps
 - [x] heroku_not_command
 - [x] history
 - [x] java
+- [x] javac
+- [x] lein_not_task
 - [x] ln_no_hard_link
+- [x] long_form_help
 - [x] ls_all
 - [x] ls_lah
+- [x] man
+- [x] man_no_space
+- [x] mercurial
 - [x] mkdir_p
+- [x] mvn_no_command
+- [x] mvn_unknown_lifecycle_phase
+- [x] nixos_cmd_not_found
 - [x] no_command
 - [x] python_command
 - [x] python_execute
@@ -276,23 +286,13 @@ new rules or improving the crate.
 - [ ] git_two_dashes
 - [ ] go_unknown_command
 - [ ] gradle_no_task
-- [ ] gradle_wrapper
 - [ ] grunt_task_not_found
 - [ ] gulp_not_task
 - [ ] has_exists_script
 - [ ] hostscli
 - [ ] ifconfig_device_not_found
-- [ ] javac
-- [ ] lein_not_task
 - [ ] ln_s_order
-- [ ] long_form_help
-- [ ] man
-- [ ] man_no_space
-- [ ] mercurial
 - [ ] missing_space_before_subcommand
-- [ ] mvn_no_command
-- [ ] mvn_unknown_lifecycle_phase
-- [ ] nixos_cmd_not_found
 - [ ] no_such_file
 - [ ] npm_missing_script
 - [ ] npm_run_script
