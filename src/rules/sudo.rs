@@ -46,7 +46,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
             }
         }
     }
-    return false;
+    false
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
@@ -61,10 +61,10 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
                 .collect::<Vec<_>>()
                 .join(" ")
         )]
-    } else if command.script.contains(">") {
+    } else if command.script.contains('>') {
         vec![format!(
             "sudo sh -c \"{}\"",
-            command.script.replace("\"", "\\\"")
+            command.script.replace('"', "\\\"")
         )]
     } else {
         vec![format!("sudo {}", command.script)]
