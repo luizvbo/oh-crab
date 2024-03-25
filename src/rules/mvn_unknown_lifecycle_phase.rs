@@ -8,20 +8,12 @@ use regex::Regex;
 
 fn get_failed_lifecycle(command_output: &str) -> Option<String> {
     let re = Regex::new(r#"\[ERROR\] Unknown lifecycle phase \"(.+)\""#).unwrap();
-    if let Some(caps) = re.captures(command_output) {
-        Some(caps[1].to_string())
-    } else {
-        None
-    }
+    re.captures(command_output).map(|caps| caps[1].to_string())
 }
 
 fn getavailable_lifecycles(command_output: &str) -> Option<String> {
     let re = Regex::new(r"Available lifecycle phases are: (.+) -> \[Help 1\]").unwrap();
-    if let Some(caps) = re.captures(command_output) {
-        Some(caps[1].to_string())
-    } else {
-        None
-    }
+    re.captures(command_output).map(|caps| caps[1].to_string())
 }
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
