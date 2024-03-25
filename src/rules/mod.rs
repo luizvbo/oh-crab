@@ -79,6 +79,7 @@ mod mercurial;
 mod mkdir_p;
 mod mvn_no_command;
 mod nixos_cmd_not_found;
+mod mvn_unknown_lifecycle_phase;
 mod no_command;
 mod python_command;
 mod python_execute;
@@ -166,6 +167,7 @@ pub fn get_rules() -> Vec<Rule> {
         mkdir_p::get_rule(),
         mvn_no_command::get_rule(),
         nixos_cmd_not_found::get_rule(),
+        mvn_unknown_lifecycle_phase::get_rule(),
         no_command::get_rule(),
         python_command::get_rule(),
         python_execute::get_rule(),
