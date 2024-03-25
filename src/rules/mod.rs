@@ -85,6 +85,7 @@ mod python_command;
 mod python_execute;
 mod quotation_marks;
 mod rm_dir;
+mod sudo;
 mod tmux;
 
 mod utils;
@@ -173,6 +174,7 @@ pub fn get_rules() -> Vec<Rule> {
         python_execute::get_rule(),
         quotation_marks::get_rule(),
         rm_dir::get_rule(),
+        sudo::get_rule(),
         tmux::get_rule(),
     ]
 }
