@@ -14,11 +14,10 @@ pub fn run_npm_command() -> Vec<u8> {
     output.stdout
 }
 
-pub fn mockable_get_scripts<'a, F>(fn_run_npm_command: F) -> Vec<String>
+pub fn mockable_get_scripts<F>(fn_run_npm_command: F) -> Vec<String>
 where
     F: Fn() -> Vec<u8>,
 {
-
     let npm_output = fn_run_npm_command();
     let stdout = String::from_utf8_lossy(&npm_output);
     let mut should_yield = false;
@@ -32,7 +31,7 @@ where
         }
 
         if should_yield && re.is_match(line) {
-            let script = line.trim().split_whitespace().next().unwrap().to_string();
+            let script = line.split_whitespace().next().unwrap().to_string();
             scripts.push(script);
         }
     }

@@ -1,11 +1,13 @@
 use super::{
-    utils::{
-        match_rule_with_is_app,
-        npm::{get_scripts, is_npm_available},
-    },
+    utils::{match_rule_with_is_app, npm::is_npm_available},
     Rule,
 };
-use crate::{cli::command::{self, CrabCommand}, rules::utils::npm::{mockable_get_scripts, run_npm_command}, shell::Shell, utils::replace_command};
+use crate::{
+    cli::command::CrabCommand,
+    rules::utils::npm::{mockable_get_scripts, run_npm_command},
+    shell::Shell,
+    utils::replace_command,
+};
 use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
@@ -35,7 +37,10 @@ where
             replace_command(
                 command,
                 &caps[1],
-                mockable_get_scripts(fn_get_scripts).iter().map(|s| s.as_str()).collect(),
+                mockable_get_scripts(fn_get_scripts)
+                    .iter()
+                    .map(|s| s.as_str())
+                    .collect(),
             )
         } else {
             vec![]
@@ -46,9 +51,8 @@ where
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    |command| mockable_get_new_command(command, run_npm_command)
+    mockable_get_new_command(command, run_npm_command)
 }
-
 
 pub fn get_rule() -> Rule {
     Rule::new(
@@ -64,27 +68,12 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use super::{get_new_command, match_rule};
+    use super::{match_rule, mockable_get_new_command};
     use crate::cli::command::CrabCommand;
     use crate::shell::Bash;
     use rstest::rstest;
 
-    const RUN_SCRIPT_STDOUT: &str = r#"
-Lifecycle scripts included in code-view-web:
-  test
-    jest
-
-available via `npm run-script`:
-  build
-    cp node_modules/ace-builds/src-min/ -a resources/ace/ && webpack --progress --colors -p --config ./webpack.production.config.js
-  develop
-    cp node_modules/ace-builds/src/ -a resources/ace/ && webpack-dev-server --progress --colors
-  watch-test
-    jest --verbose --watch
-
-"#;
-
-    fn error_missing_script(script: &str) -> String {
+    fn output(script: &str) -> String {
         format!(
             r#"
 npm ERR! Linux 4.4.0-31-generic
@@ -104,11 +93,11 @@ npm ERR!     /home/nvbn/exp/code_view/client_web/npm-debug.log
         )
     }
     #[rstest]
-    #[case("npm ru wach", &error_missing_script("wach"), true)]
-    #[case("npm run live-tes", &error_missing_script("live-tes"), true)]
-    #[case("npm run-script sahare", &error_missing_script("sahare"), true)]
-    #[case("npm wach", &error_missing_script("wach"), false)]
-    #[case("vim live-tes", &error_missing_script("live-tes"), false)]
+    #[case("npm ru wach", &output("wach"), true)]
+    #[case("npm run live-tes", &output("live-tes"), true)]
+    #[case("npm run-script sahare", &output("sahare"), true)]
+    #[case("npm wach", &output("wach"), false)]
+    #[case("vim live-tes", &output("live-tes"), false)]
     #[case("npm run-script sahare", "", false)]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
@@ -116,16 +105,33 @@ npm ERR!     /home/nvbn/exp/code_view/client_web/npm-debug.log
     }
 
     #[rstest]
-    #[case("npm ru wach-tests", &error_missing_script("wach-tests"), vec!["npm ru watch-test"])]
-    #[case("npm -i run-script dvelop", &error_missing_script("dvelop"), vec!["npm -i run-script develop"])]
-    #[case("npm -i run-script buld -X POST", &error_missing_script("buld"), vec!["npm -i run-script build -X POST"])]
+    #[case("npm ru wach-tests", &output("wach-tests"), vec!["npm ru watch-test", "npm ru develop"])]
+    #[case("npm -i run-script dvelop", &output("dvelop"), vec!["npm -i run-script develop", "npm -i run-script build", "npm -i run-script watch-test"])]
+    #[case("npm -i run-script buld -X POST", &output("buld"), vec!["npm -i run-script build -X POST", "npm -i run-script develop -X POST"])]
     fn test_get_new_command(
         #[case] command: &str,
         #[case] stdout: &str,
         #[case] expected: Vec<&str>,
     ) {
+        let run_script_stdout = b"
+Lifecycle scripts included in code-view-web:
+  test
+    jest
+
+available via `npm run-script`:
+  build
+    cp node_modules/ace-builds/src-min/ -a resources/ace/ && webpack --progress --colors -p --config ./webpack.production.config.js
+  develop
+    cp node_modules/ace-builds/src/ -a resources/ace/ && webpack-dev-server --progress --colors
+  watch-test
+    jest --verbose --watch
+
+";
         let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
-        assert_eq!(get_new_command(&mut command, None), expected);
+        assert_eq!(
+            mockable_get_new_command(&mut command, || run_script_stdout.to_vec()),
+            expected
+        );
     }
 }
