@@ -2,6 +2,7 @@ use crate::cli::command::CrabCommand;
 use std::path::Path;
 
 pub mod git;
+pub mod npm;
 pub mod parameterized_tests;
 
 /// Matches a rule with a given command if it is an application.
