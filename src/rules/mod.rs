@@ -82,11 +82,13 @@ mod mvn_unknown_lifecycle_phase;
 mod nixos_cmd_not_found;
 mod no_command;
 mod npm_missing_script;
+mod no_such_file;
 mod python_command;
 mod python_execute;
 mod quotation_marks;
 mod rm_dir;
 mod sudo;
+mod sudo_command_from_user_path;
 mod tmux;
 
 mod utils;
@@ -172,11 +174,13 @@ pub fn get_rules() -> Vec<Rule> {
         mvn_unknown_lifecycle_phase::get_rule(),
         no_command::get_rule(),
         npm_missing_script::get_rule(),
+        no_such_file::get_rule(),
         python_command::get_rule(),
         python_execute::get_rule(),
         quotation_marks::get_rule(),
         rm_dir::get_rule(),
         sudo::get_rule(),
+        sudo_command_from_user_path::get_rule(),
         tmux::get_rule(),
     ]
 }
