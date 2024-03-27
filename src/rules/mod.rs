@@ -81,6 +81,7 @@ mod mvn_no_command;
 mod mvn_unknown_lifecycle_phase;
 mod nixos_cmd_not_found;
 mod no_command;
+mod no_such_file;
 mod python_command;
 mod python_execute;
 mod quotation_marks;
@@ -170,6 +171,7 @@ pub fn get_rules() -> Vec<Rule> {
         nixos_cmd_not_found::get_rule(),
         mvn_unknown_lifecycle_phase::get_rule(),
         no_command::get_rule(),
+        no_such_file::get_rule(),
         python_command::get_rule(),
         python_execute::get_rule(),
         quotation_marks::get_rule(),
