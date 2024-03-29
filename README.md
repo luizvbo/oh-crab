@@ -242,11 +242,17 @@ new rules or improving the crate.
 - [x] mvn_unknown_lifecycle_phase
 - [x] nixos_cmd_not_found
 - [x] no_command
+- [x] no_such_file
+- [x] npm_missing_script
+- [x] npm_run_script
 - [x] python_command
 - [x] python_execute
 - [x] quotation_marks
 - [x] rm_dir
+- [x] sudo
+- [x] sudo_command_from_user_path
 - [x] tmux
+- [x] unsudo
 
 </details>
 
@@ -293,9 +299,6 @@ new rules or improving the crate.
 - [ ] ifconfig_device_not_found
 - [ ] ln_s_order
 - [ ] missing_space_before_subcommand
-- [ ] no_such_file
-- [ ] npm_missing_script
-- [ ] npm_run_script
 - [ ] npm_wrong_command
 - [ ] omnienv_no_such_command
 - [ ] open
@@ -318,8 +321,6 @@ new rules or improving the crate.
 - [ ] sed_unterminated_s
 - [ ] sl_ls
 - [ ] ssh_known_hosts
-- [ ] sudo
-- [ ] sudo_command_from_user_path
 - [ ] switch_lang
 - [ ] systemctl
 - [ ] terraform_init
@@ -329,7 +330,6 @@ new rules or improving the crate.
 - [ ] tsuru_login
 - [ ] tsuru_not_command
 - [ ] unknown_command
-- [ ] unsudo
 - [ ] vagrant_up
 - [ ] whois
 - [ ] workon_doesnt_exists
