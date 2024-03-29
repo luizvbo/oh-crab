@@ -3,7 +3,7 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 use std::path::Path;
 use which::which;
 
-fn file_exists(path: &str) -> bool {
+fn gradlew_exists() -> bool {
     Path::new("gradlew").exists()
 }
 
@@ -18,12 +18,12 @@ fn auxiliary_match_rule<F, G>(
 ) -> bool
 where
     F: Fn(&str) -> bool,
-    G: Fn(&str) -> bool,
+    G: Fn() -> bool,
 {
     if let Some(output) = &command.output {
         !fn_is_terminal_command(&command.script_parts[0])
             && output.contains("not found")
-            && fn_file_exists("gradlew")
+            && fn_file_exists()
     } else {
         false
     }
@@ -31,7 +31,7 @@ where
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     match_rule_with_is_app(
-        |command| auxiliary_match_rule(command, is_terminal_command, file_exists),
+        |command| auxiliary_match_rule(command, is_terminal_command, gradlew_exists),
         command,
         vec!["gradle"],
         None,
@@ -78,7 +78,7 @@ mod tests {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(
             match_rule_with_is_app(
-                |command| auxiliary_match_rule(command, |s| is_terminal_command, |s| file_exists),
+                |command| auxiliary_match_rule(command, |s| is_terminal_command, || file_exists),
                 &command,
                 vec!["gradle"],
                 None,
