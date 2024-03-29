@@ -87,6 +87,7 @@ mod npm_missing_script;
 mod npm_run_script;
 mod php_s;
 mod pip_install;
+mod prove_recursively;
 mod python_command;
 mod python_execute;
 mod quotation_marks;
@@ -184,6 +185,7 @@ pub fn get_rules() -> Vec<Rule> {
         no_such_file::get_rule(),
         php_s::get_rule(),
         pip_install::get_rule(),
+        prove_recursively::get_rule(),
         python_command::get_rule(),
         python_execute::get_rule(),
         quotation_marks::get_rule(),
