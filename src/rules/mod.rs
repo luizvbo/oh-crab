@@ -63,6 +63,7 @@ mod go_run;
 mod gradle_wrapper;
 mod grep_arguments_order;
 mod grep_recursive;
+mod has_exists_script;
 mod heroku_multiple_apps;
 mod heroku_not_command;
 mod history;
@@ -159,6 +160,7 @@ pub fn get_rules() -> Vec<Rule> {
         gradle_wrapper::get_rule(),
         grep_arguments_order::get_rule(),
         grep_recursive::get_rule(),
+        has_exists_script::get_rule(),
         heroku_multiple_apps::get_rule(),
         heroku_not_command::get_rule(),
         history::get_rule(),
@@ -261,10 +263,10 @@ impl Rule {
     }
 }
 
-pub fn match_rule_without_sudo(
-    match_function: fn(&CrabCommand) -> bool,
-    command: &mut CrabCommand,
-) -> bool {
+pub fn match_rule_without_sudo<F>(match_function: F, command: &mut CrabCommand) -> bool
+where
+    F: Fn(&CrabCommand) -> bool,
+{
     if !command.script.starts_with("sudo ") {
         match_function(command)
     } else {
