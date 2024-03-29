@@ -90,6 +90,7 @@ mod pip_install;
 mod python_command;
 mod python_execute;
 mod quotation_marks;
+mod remove_shell_prompt_literal;
 mod rm_dir;
 mod sudo;
 mod sudo_command_from_user_path;
@@ -187,6 +188,7 @@ pub fn get_rules() -> Vec<Rule> {
         python_command::get_rule(),
         python_execute::get_rule(),
         quotation_marks::get_rule(),
+        remove_shell_prompt_literal::get_rule(),
         rm_dir::get_rule(),
         sudo::get_rule(),
         sudo_command_from_user_path::get_rule(),
