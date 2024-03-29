@@ -89,6 +89,7 @@ mod php_s;
 mod pip_install;
 mod python_command;
 mod python_execute;
+mod python_module_error;
 mod quotation_marks;
 mod rm_dir;
 mod sudo;
@@ -186,6 +187,7 @@ pub fn get_rules() -> Vec<Rule> {
         pip_install::get_rule(),
         python_command::get_rule(),
         python_execute::get_rule(),
+        python_module_error::get_rule(),
         quotation_marks::get_rule(),
         rm_dir::get_rule(),
         sudo::get_rule(),
