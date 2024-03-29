@@ -2,7 +2,7 @@ use super::{utils::match_rule_with_is_app, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-        command.script_parts.contains(&"-s".to_owned())
+    command.script_parts.contains(&"-s".to_owned())
         && command.script_parts.last().unwrap_or(&"".to_owned()) != &"-s".to_owned()
 }
 
