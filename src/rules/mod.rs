@@ -90,6 +90,7 @@ mod rm_dir;
 mod sudo;
 mod sudo_command_from_user_path;
 mod tmux;
+mod unsudo;
 
 mod utils;
 
@@ -182,6 +183,7 @@ pub fn get_rules() -> Vec<Rule> {
         sudo::get_rule(),
         sudo_command_from_user_path::get_rule(),
         tmux::get_rule(),
+        unsudo::get_rule(),
     ]
 }
 pub struct Rule {
