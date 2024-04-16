@@ -224,6 +224,7 @@ new rules or improving the crate.
 - [x] gradle_wrapper
 - [x] grep_arguments_order
 - [x] grep_recursive
+- [x] has_exists_script
 - [x] heroku_multiple_apps
 - [x] heroku_not_command
 - [x] history
@@ -245,9 +246,13 @@ new rules or improving the crate.
 - [x] no_such_file
 - [x] npm_missing_script
 - [x] npm_run_script
+- [x] php_s
+- [x] pip_install
 - [x] python_command
 - [x] python_execute
 - [x] quotation_marks
+- [x] rails_migrations_pending
+- [x] remove_shell_prompt_literal
 - [x] rm_dir
 - [x] sudo
 - [x] sudo_command_from_user_path
@@ -294,7 +299,6 @@ new rules or improving the crate.
 - [ ] gradle_no_task
 - [ ] grunt_task_not_found
 - [ ] gulp_not_task
-- [ ] has_exists_script
 - [ ] hostscli
 - [ ] ifconfig_device_not_found
 - [ ] ln_s_order
@@ -306,15 +310,11 @@ new rules or improving the crate.
 - [ ] pacman_invalid_option
 - [ ] pacman_not_found
 - [ ] path_from_history
-- [ ] php_s
-- [ ] pip_install
 - [ ] pip_unknown_command
 - [ ] port_already_in_use
 - [ ] prove_recursively
 - [ ] python_module_error
-- [ ] rails_migrations_pending
 - [ ] react_native_command_unrecognized
-- [ ] remove_shell_prompt_literal
 - [ ] remove_trailing_cedilla
 - [ ] rm_root
 - [ ] scm_correction
