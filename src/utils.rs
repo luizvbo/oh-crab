@@ -56,8 +56,34 @@ pub fn replace_argument(script: &str, from_: &str, to: &str) -> String {
     }
 }
 
+/// Replaces a broken command with close matches from a list of candidate commands.
+///
+/// Given a `CrabCommand` and a `broken` command string, this function attempts to find close matches
+/// within a provided list of `matched` candidate strings. It then replaces the `broken` command in the
+/// script of the `CrabCommand` with each of the close matches, trimming any leading or trailing whitespace.
+///
+/// # Arguments
+///
+/// * `command` - A reference to a `CrabCommand` that holds the script where the replacement should occur.
+/// * `broken` - The string representing the broken command to be replaced.
+/// * `matched` - A vector of string slices representing the candidate commands for replacement.
+///
+/// # Returns
+///
+/// This function returns a vector of strings, each containing the script of the `CrabCommand` with the
+/// `broken` command replaced by one of the close matches.
+///
+/// # Examples
+///
+/// ```
+/// let command = CrabCommand { script: "echo broken_command" };
+/// let broken = "broken_command";
+/// let matched = vec!["fixed_command1", "fixed_command2"];
+/// let fixed_scripts = replace_command(&command, broken, matched);
+/// assert_eq!(fixed_scripts, vec!["echo fixed_command1", "echo fixed_command2"]);
+/// ```
 pub fn replace_command(command: &CrabCommand, broken: &str, matched: Vec<&str>) -> Vec<String> {
-    let candidate_commands = get_close_matches(broken, &matched, None, Some(0.1));
+    let candidate_commands = get_close_matches(broken, &matched, None, Some(0.2));
     let mut new_commands = Vec::<String>::new();
     for cmd in candidate_commands {
         new_commands.push(replace_argument(&command.script, broken, cmd.trim()));

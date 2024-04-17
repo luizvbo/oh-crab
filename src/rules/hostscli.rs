@@ -1,6 +1,7 @@
-
-use super::{ get_new_command_without_sudo, match_rule_without_sudo, utils::match_rule_with_is_app, Rule, };
-use crate::{cli::command::CrabCommand, shell::Shell};
+use super::{
+    get_new_command_without_sudo, match_rule_without_sudo, utils::match_rule_with_is_app, Rule,
+};
+use crate::{cli::command::CrabCommand, shell::Shell, utils::replace_command};
 use regex::Regex;
 
 const NO_COMMAND: &str = "Error: No such command";
@@ -8,23 +9,39 @@ const NO_WEBSITE: &str = "hostscli.errors.WebsiteImportError";
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
-        command.script_parts.first().map_or(false, |s| s == "hostscli") && (output.contains(NO_COMMAND) || output.contains(NO_WEBSITE))
+        output.contains(NO_COMMAND) || output.contains(NO_WEBSITE)
     } else {
         false
     }
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_rule_without_sudo( |command| match_rule_with_is_app(auxiliary_match_rule, command, vec!["hostscli"], None), command,)
+    match_rule_without_sudo(
+        |command| match_rule_with_is_app(auxiliary_match_rule, command, vec!["hostscli"], None),
+        command,
+    )
 }
 
 pub fn auxiliary_get_new_command(command: &CrabCommand) -> Vec<String> {
-    if command.output.contains(NO_WEBSITE) {
-        vec!["hostscli websites".to_owned()]
+    if let Some(output) = &command.output {
+        if output.contains(NO_WEBSITE) {
+            vec!["hostscli websites".to_owned()]
+        } else {
+            let misspelled_command = Regex::new(r#"Error: No such command "(.*)""#)
+                .unwrap()
+                .captures(output)
+                .and_then(|caps| caps.get(1).map(|m| m.as_str().to_owned()));
+            match misspelled_command {
+                None => vec![],
+                Some(misspelled_command) => replace_command(
+                    command,
+                    &misspelled_command,
+                    vec!["block", "unblock", "websites", "block_all", "unblock_all"],
+                ),
+            }
+        }
     } else {
-        let misspelled_command = Regex::new(r"Error: No such command \".*\"").unwrap().captures(&command.output).and_then(|caps| caps.get(0).map(|m| m.as_str().to_owned())).unwrap_or("".to_owned());
-        let commands = vec!["block", "unblock", "websites", "block_all", "unblock_all"];
-        vec![command.script.replace(&misspelled_command, &commands.iter().min_by_key(|a| levenshtein::levenshtein(a, &misspelled_command)).unwrap_or(&"".to_string()).to_owned())]
+        vec![]
     }
 }
 
@@ -62,7 +79,12 @@ mod tests {
 
     #[rstest]
     #[case("hostscli block a_website_that_does_not_exist", ERROR_NO_WEBSITE, vec!["hostscli websites"])]
-    fn test_get_new_command( #[case] command: &str, #[case] stdout: &str, #[case] expected: Vec<&str>,) {
+    #[case("hostscli websitess", r#"Error: No such command "websitess""#, vec!["hostscli websites"])]
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] stdout: &str,
+        #[case] expected: Vec<&str>,
+    ) {
         let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(get_new_command(&mut command, None), expected);
