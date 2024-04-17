@@ -228,6 +228,7 @@ new rules or improving the crate.
 - [x] heroku_multiple_apps
 - [x] heroku_not_command
 - [x] history
+- [x] hostscli
 - [x] java
 - [x] javac
 - [x] lein_not_task
@@ -248,6 +249,7 @@ new rules or improving the crate.
 - [x] npm_run_script
 - [x] php_s
 - [x] pip_install
+- [x] pip_unknown_command
 - [x] python_command
 - [x] python_execute
 - [x] quotation_marks
@@ -299,7 +301,6 @@ new rules or improving the crate.
 - [ ] gradle_no_task
 - [ ] grunt_task_not_found
 - [ ] gulp_not_task
-- [ ] hostscli
 - [ ] ifconfig_device_not_found
 - [ ] ln_s_order
 - [ ] missing_space_before_subcommand
@@ -310,7 +311,6 @@ new rules or improving the crate.
 - [ ] pacman_invalid_option
 - [ ] pacman_not_found
 - [ ] path_from_history
-- [ ] pip_unknown_command
 - [ ] port_already_in_use
 - [ ] prove_recursively
 - [ ] python_module_error
