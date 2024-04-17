@@ -67,6 +67,7 @@ mod has_exists_script;
 mod heroku_multiple_apps;
 mod heroku_not_command;
 mod history;
+mod hostscli;
 mod java;
 mod javac;
 mod lein_not_task;
@@ -167,6 +168,7 @@ pub fn get_rules() -> Vec<Rule> {
         heroku_multiple_apps::get_rule(),
         heroku_not_command::get_rule(),
         history::get_rule(),
+        hostscli::get_rule(),
         java::get_rule(),
         javac::get_rule(),
         lein_not_task::get_rule(),
