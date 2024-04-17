@@ -233,6 +233,7 @@ new rules or improving the crate.
 - [x] javac
 - [x] lein_not_task
 - [x] ln_no_hard_link
+- [x] ln_s_order
 - [x] long_form_help
 - [x] ls_all
 - [x] ls_lah
@@ -302,7 +303,6 @@ new rules or improving the crate.
 - [ ] grunt_task_not_found
 - [ ] gulp_not_task
 - [ ] ifconfig_device_not_found
-- [ ] ln_s_order
 - [ ] missing_space_before_subcommand
 - [ ] npm_wrong_command
 - [ ] omnienv_no_such_command
