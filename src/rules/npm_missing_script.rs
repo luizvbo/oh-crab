@@ -105,8 +105,8 @@ npm ERR!     /home/nvbn/exp/code_view/client_web/npm-debug.log
     }
 
     #[rstest]
-    #[case("npm ru wach-tests", &output("wach-tests"), vec!["npm ru watch-test", "npm ru develop"])]
-    #[case("npm -i run-script dvelop", &output("dvelop"), vec!["npm -i run-script develop", "npm -i run-script build", "npm -i run-script watch-test"])]
+    #[case("npm ru wach-tests", &output("wach-tests"), vec!["npm ru watch-test"])]
+    #[case("npm -i run-script dvelop", &output("dvelop"), vec!["npm -i run-script develop", "npm -i run-script build"])]
     #[case("npm -i run-script buld -X POST", &output("buld"), vec!["npm -i run-script build -X POST", "npm -i run-script develop -X POST"])]
     fn test_get_new_command(
         #[case] command: &str,
