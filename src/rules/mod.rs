@@ -67,10 +67,12 @@ mod has_exists_script;
 mod heroku_multiple_apps;
 mod heroku_not_command;
 mod history;
+mod hostscli;
 mod java;
 mod javac;
 mod lein_not_task;
 mod ln_no_hard_link;
+mod ln_s_order;
 mod long_form_help;
 mod ls_all;
 mod ls_lah;
@@ -87,10 +89,13 @@ mod npm_missing_script;
 mod npm_run_script;
 mod php_s;
 mod pip_install;
+mod pip_unknown_command;
 mod python_command;
 mod python_execute;
 mod python_module_error;
 mod quotation_marks;
+mod rails_migrations_pending;
+mod remove_shell_prompt_literal;
 mod rm_dir;
 mod sudo;
 mod sudo_command_from_user_path;
@@ -165,10 +170,12 @@ pub fn get_rules() -> Vec<Rule> {
         heroku_multiple_apps::get_rule(),
         heroku_not_command::get_rule(),
         history::get_rule(),
+        hostscli::get_rule(),
         java::get_rule(),
         javac::get_rule(),
         lein_not_task::get_rule(),
         ln_no_hard_link::get_rule(),
+        ln_s_order::get_rule(),
         long_form_help::get_rule(),
         ls_all::get_rule(),
         ls_lah::get_rule(),
@@ -185,10 +192,13 @@ pub fn get_rules() -> Vec<Rule> {
         no_such_file::get_rule(),
         php_s::get_rule(),
         pip_install::get_rule(),
+        pip_unknown_command::get_rule(),
         python_command::get_rule(),
         python_execute::get_rule(),
         python_module_error::get_rule(),
         quotation_marks::get_rule(),
+        rails_migrations_pending::get_rule(),
+        remove_shell_prompt_literal::get_rule(),
         rm_dir::get_rule(),
         sudo::get_rule(),
         sudo_command_from_user_path::get_rule(),
