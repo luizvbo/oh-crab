@@ -92,6 +92,7 @@ mod pip_install;
 mod pip_unknown_command;
 mod python_command;
 mod python_execute;
+mod python_module_error;
 mod quotation_marks;
 mod rails_migrations_pending;
 mod remove_shell_prompt_literal;
@@ -194,6 +195,7 @@ pub fn get_rules() -> Vec<Rule> {
         pip_unknown_command::get_rule(),
         python_command::get_rule(),
         python_execute::get_rule(),
+        python_module_error::get_rule(),
         quotation_marks::get_rule(),
         rails_migrations_pending::get_rule(),
         remove_shell_prompt_literal::get_rule(),
