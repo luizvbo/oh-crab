@@ -46,7 +46,7 @@ mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
     use crate::shell::Bash;
-    use crate::{parameterized_get_new_command_tests, parameterized_match_rule_tests};
+    use rstest::rstest;
 
     const OUTPUT: &str = "The following paths are ignored by one of your .gitignore files:\n\
 dist/app.js\n\
@@ -54,14 +54,23 @@ dist/background.js\n\
 dist/options.js\n\
 Use -f if you really want to add them.\n";
 
-    parameterized_match_rule_tests! {
-        match_rule,
-        match_rule_1: ("git add dist/*.js", OUTPUT, true),
-        unmatch_rule_1: ("git add dist/*.js", "", false),
+    #[rstest]
+    #[case("git add dist/*.js", OUTPUT, true)]
+    #[case("git add dist/*.js", "", false)]
+    fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
+        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        assert_eq!(match_rule(&mut command, None), is_match);
     }
 
-    parameterized_get_new_command_tests! {
-        get_new_command,
-        get_new_command_1: ("git add dist/*.js", OUTPUT, "git add --force dist/*.js"),
+    #[rstest]
+    #[case("git add dist/*.js", OUTPUT, vec!["git add --force dist/*.js"])]
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] stdout: &str,
+        #[case] expected: Vec<&str>,
+    ) {
+        let system_shell = Bash {};
+        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        assert_eq!(get_new_command(&mut command, None), expected);
     }
 }
