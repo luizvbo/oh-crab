@@ -45,7 +45,6 @@ mod git_branch_exists;
 mod git_branch_list;
 mod git_checkout;
 mod git_clone;
-mod git_clone_git_clone;
 mod git_clone_missing;
 mod git_commit_add;
 mod git_commit_amend;
@@ -150,7 +149,6 @@ pub fn get_rules() -> Vec<Rule> {
         git_branch_list::get_rule(),
         git_checkout::get_rule(),
         git_clone::get_rule(),
-        git_clone_git_clone::get_rule(),
         git_clone_missing::get_rule(),
         git_commit_add::get_rule(),
         git_commit_amend::get_rule(),

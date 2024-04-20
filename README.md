@@ -205,7 +205,6 @@ new rules or improving the crate.
 - [x] git_branch_exists
 - [x] git_branch_list
 - [x] git_checkout
-- [x] git_clone
 - [x] git_clone_git_clone
 - [x] git_clone_missing
 - [x] git_commit_add
