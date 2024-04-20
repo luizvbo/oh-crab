@@ -89,8 +89,8 @@ mod npm_missing_script;
 mod npm_run_script;
 mod php_s;
 mod pip_install;
-mod prove_recursively;
 mod pip_unknown_command;
+mod prove_recursively;
 mod python_command;
 mod python_execute;
 mod python_module_error;
@@ -185,16 +185,16 @@ pub fn get_rules() -> Vec<Rule> {
         mercurial::get_rule(),
         mkdir_p::get_rule(),
         mvn_no_command::get_rule(),
-        nixos_cmd_not_found::get_rule(),
         mvn_unknown_lifecycle_phase::get_rule(),
+        nixos_cmd_not_found::get_rule(),
         no_command::get_rule(),
+        no_such_file::get_rule(),
         npm_missing_script::get_rule(),
         npm_run_script::get_rule(),
-        no_such_file::get_rule(),
         php_s::get_rule(),
         pip_install::get_rule(),
-        prove_recursively::get_rule(),
         pip_unknown_command::get_rule(),
+        prove_recursively::get_rule(),
         python_command::get_rule(),
         python_execute::get_rule(),
         python_module_error::get_rule(),
