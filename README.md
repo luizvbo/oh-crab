@@ -206,6 +206,7 @@ new rules or improving the crate.
 - [x] git_branch_list
 - [x] git_checkout
 - [x] git_clone
+- [x] git_clone_git_clone
 - [x] git_clone_missing
 - [x] git_commit_add
 - [x] git_commit_amend
@@ -251,8 +252,10 @@ new rules or improving the crate.
 - [x] php_s
 - [x] pip_install
 - [x] pip_unknown_command
+- [x] prove_recursively
 - [x] python_command
 - [x] python_execute
+- [x] python_module_error
 - [x] quotation_marks
 - [x] rails_migrations_pending
 - [x] remove_shell_prompt_literal
@@ -312,8 +315,6 @@ new rules or improving the crate.
 - [ ] pacman_not_found
 - [ ] path_from_history
 - [ ] port_already_in_use
-- [ ] prove_recursively
-- [ ] python_module_error
 - [ ] react_native_command_unrecognized
 - [ ] remove_trailing_cedilla
 - [ ] rm_root
