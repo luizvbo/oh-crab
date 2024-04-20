@@ -5,11 +5,15 @@ use crate::{
         Rule,
     },
     shell::Shell,
+    utils::replace_argument,
 };
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
-        command.script.contains(" git clone ") && output.contains("fatal: Too many arguments.")
+        output.contains("fatal: Not a git repository")
+            && output.contains(
+                "Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).",
+            )
     } else {
         false
     }
@@ -23,16 +27,19 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     _system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    vec![command.script.replacen(" git clone ", " ", 1)]
+    vec![replace_argument(&command.script, "pull", "clone")]
 }
 
-pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
-    get_new_command_with_git_support(auxiliary_get_new_command, command, system_shell)
+pub fn get_new_command(
+    command: &mut CrabCommand,
+    _system_shell: Option<&dyn Shell>,
+) -> Vec<String> {
+    get_new_command_with_git_support(auxiliary_get_new_command, command, _system_shell)
 }
 
 pub fn get_rule() -> Rule {
     Rule::new(
-        "git_clone_git_clone".to_owned(),
+        "git_pull_clone".to_owned(),
         None,
         None,
         None,
@@ -49,28 +56,26 @@ mod tests {
     use crate::shell::Bash;
     use rstest::rstest;
 
-    const OUTPUT_CLEAN: &str = "\
-fatal: Too many arguments.\n\n\
-usage: git clone [<options>] [--] <repo> [<dir>]\n";
+    const GIT_ERR: &str = "\
+fatal: Not a git repository (or any parent up to mount point /home)\n\
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n";
 
     #[rstest]
-    #[case("git clone git clone foo", OUTPUT_CLEAN, true)]
-    #[case("git clone foo", "", false)]
-    #[case("git clone foo bar baz", OUTPUT_CLEAN, false)]
-    fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
-        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+    #[case("git pull git@github.com:mcarton/thefuck.git", GIT_ERR, true)]
+    fn test_match(#[case] command: &str, #[case] output: &str, #[case] is_match: bool) {
+        let mut command = CrabCommand::new(command.to_owned(), Some(output.to_owned()), None);
         assert_eq!(match_rule(&mut command, None), is_match);
     }
 
     #[rstest]
-    #[case("git clone git clone foo", OUTPUT_CLEAN, vec!["git clone foo"])]
+    #[case("git pull git@github.com:mcarton/thefuck.git", GIT_ERR, vec!["git clone git@github.com:mcarton/thefuck.git"])]
     fn test_get_new_command(
         #[case] command: &str,
-        #[case] stdout: &str,
+        #[case] output: &str,
         #[case] expected: Vec<&str>,
     ) {
         let system_shell = Bash {};
-        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        let mut command = CrabCommand::new(command.to_owned(), Some(output.to_owned()), None);
         assert_eq!(
             get_new_command(&mut command, Some(&system_shell)),
             expected.iter().map(|&s| s.to_owned()).collect::<Vec<_>>()
