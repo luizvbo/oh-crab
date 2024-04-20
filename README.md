@@ -218,6 +218,7 @@ new rules or improving the crate.
 - [x] git_merge
 - [x] git_not_command
 - [x] git_pull
+- [x] git_pull_clone
 - [x] git_push
 - [x] git_rebase_merge_dir
 - [x] go_run
@@ -284,7 +285,6 @@ new rules or improving the crate.
 - [ ] git_hook_bypass
 - [ ] git_lfs_mistype
 - [ ] git_merge_unrelated
-- [ ] git_pull_clone
 - [ ] git_pull_uncommitted_changes
 - [ ] git_push_different_branch_names
 - [ ] git_push_force
