@@ -66,6 +66,7 @@ mod git_push_without_commits;
 mod git_rebase_merge_dir;
 mod git_rebase_no_changes;
 mod git_remote_delete;
+mod git_two_dashes;
 mod go_run;
 mod gradle_wrapper;
 mod grep_arguments_order;
@@ -136,6 +137,7 @@ pub fn get_rules() -> Vec<Rule> {
         chmod_x::get_rule(),
         choco_install::get_rule(),
         composer_not_command::get_rule(),
+        git_two_dashes::get_rule(),
         conda_mistype::get_rule(),
         cp_create_destination::get_rule(),
         cp_omitting_directory::get_rule(),
