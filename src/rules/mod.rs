@@ -59,6 +59,7 @@ mod git_not_command;
 mod git_pull;
 mod git_pull_clone;
 mod git_push;
+mod git_push_force;
 mod git_rebase_merge_dir;
 mod go_run;
 mod gradle_wrapper;
@@ -164,6 +165,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_pull::get_rule(),
         git_pull_clone::get_rule(),
         git_push::get_rule(),
+        git_push_force::get_rule(),
         git_rebase_merge_dir::get_rule(),
         go_run::get_rule(),
         gradle_wrapper::get_rule(),
