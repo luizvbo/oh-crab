@@ -219,8 +219,14 @@ new rules or improving the crate.
 - [x] git_not_command
 - [x] git_pull
 - [x] git_pull_clone
+- [x] git_pull_uncommitted_changes
 - [x] git_push
+- [x] git_push_different_branch_names
+- [x] git_push_force
+- [x] git_push_without_commits
 - [x] git_rebase_merge_dir
+- [x] git_rebase_no_changes
+- [x] git_remote_delete
 - [x] go_run
 - [x] gradle_wrapper
 - [x] grep_arguments_order
@@ -285,13 +291,7 @@ new rules or improving the crate.
 - [ ] git_hook_bypass
 - [ ] git_lfs_mistype
 - [ ] git_merge_unrelated
-- [ ] git_pull_uncommitted_changes
-- [ ] git_push_different_branch_names
-- [ ] git_push_force
 - [ ] git_push_pull
-- [ ] git_push_without_commits
-- [ ] git_rebase_no_changes
-- [ ] git_remote_delete
 - [ ] git_remote_seturl_add
 - [ ] git_rm_local_modifications
 - [ ] git_rm_recursive
