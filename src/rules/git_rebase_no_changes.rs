@@ -3,7 +3,8 @@ use crate::{
     rules::{
         utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
         Rule,
-    }, shell::Shell,
+    },
+    shell::Shell,
 };
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
