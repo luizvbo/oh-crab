@@ -62,6 +62,7 @@ mod git_pull_uncommitted_changes;
 mod git_push;
 mod git_push_different_branch_names;
 mod git_push_force;
+mod git_push_without_commits;
 mod git_rebase_merge_dir;
 mod go_run;
 mod gradle_wrapper;
@@ -154,6 +155,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_checkout::get_rule(),
         git_clone::get_rule(),
         git_clone_missing::get_rule(),
+        git_push_without_commits::get_rule(),
         git_commit_add::get_rule(),
         git_commit_amend::get_rule(),
         git_commit_reset::get_rule(),
