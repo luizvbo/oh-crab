@@ -66,6 +66,7 @@ mod git_push_without_commits;
 mod git_rebase_merge_dir;
 mod git_rebase_no_changes;
 mod git_remote_delete;
+mod git_rm_local_modifications;
 mod go_run;
 mod gradle_wrapper;
 mod grep_arguments_order;
@@ -156,6 +157,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_branch_list::get_rule(),
         git_checkout::get_rule(),
         git_clone::get_rule(),
+        git_rm_local_modifications::get_rule(),
         git_clone_missing::get_rule(),
         git_commit_add::get_rule(),
         git_commit_amend::get_rule(),
