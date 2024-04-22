@@ -66,6 +66,7 @@ mod git_push_without_commits;
 mod git_rebase_merge_dir;
 mod git_rebase_no_changes;
 mod git_remote_delete;
+mod git_stash;
 mod go_run;
 mod gradle_wrapper;
 mod grep_arguments_order;
@@ -176,6 +177,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_push_without_commits::get_rule(),
         git_rebase_merge_dir::get_rule(),
         git_rebase_no_changes::get_rule(),
+        git_stash::get_rule(),
         git_remote_delete::get_rule(),
         go_run::get_rule(),
         gradle_wrapper::get_rule(),
