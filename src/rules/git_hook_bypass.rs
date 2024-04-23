@@ -1,41 +1,54 @@
-
 use crate::{
     cli::command::CrabCommand,
-    rules::{utils::git::get_new_command_with_git_support, match_rule_with_git_support},
-    Rule,
+    rules::{
+        utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+        Rule,
+    },
+    shell::Shell,
+    utils::replace_argument,
 };
-use shell::Shell;
 
 static HOOKED_COMMANDS: &[&str] = &["am", "commit", "push"];
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    HOOKED_COMMANDS.iter().any(|&hooked_command| command.script.contains(hooked_command))
+    HOOKED_COMMANDS
+        .iter()
+        .any(|&hooked_command| command.script_parts.contains(&hooked_command.to_owned()))
 }
 
 pub fn match_rule(command: &mut CrabCommand, _system_shell: Option<&dyn Shell>) -> bool {
     match_rule_with_git_support(auxiliary_match_rule, command)
 }
 
-fn auxiliary_get_new_command(command: &CrabCommand, _system_shell: Option<&dyn Shell>) -> Vec<String> {
-    HOOKED_COMMANDS.iter().filter_map(|&hooked_command| {
-        if command.script.contains(hooked_command) {
-            Some(command.script.replacen(hooked_command, &format!("{} --no-verify", hooked_command), 1))
-        } else {
-            None
-        }
-    }).collect()
+fn auxiliary_get_new_command(
+    command: &CrabCommand,
+    _system_shell: Option<&dyn Shell>,
+) -> Vec<String> {
+    match HOOKED_COMMANDS
+        .iter()
+        .find(|&cmd| command.script.contains(cmd))
+    {
+        Some(hooked_command) => vec![replace_argument(
+                    &command.script,
+                    hooked_command,
+                    &format!("{} --no-verify", hooked_command))],
+        None => vec![],
+    }
 }
 
-pub fn get_new_command(command: &mut CrabCommand, _system_shell: Option<&dyn Shell>) -> Vec<String> {
+pub fn get_new_command(
+    command: &mut CrabCommand,
+    _system_shell: Option<&dyn Shell>,
+) -> Vec<String> {
     get_new_command_with_git_support(auxiliary_get_new_command, command, _system_shell)
 }
 
 pub fn get_rule() -> Rule {
     Rule::new(
         "git_hook_bypass".to_owned(),
+        None,
         Some(1100),
         Some(false),
-        None,
         match_rule,
         get_new_command,
         None,
