@@ -29,9 +29,10 @@ fn auxiliary_get_new_command(
         .find(|&cmd| command.script.contains(cmd))
     {
         Some(hooked_command) => vec![replace_argument(
-                    &command.script,
-                    hooked_command,
-                    &format!("{} --no-verify", hooked_command))],
+            &command.script,
+            hooked_command,
+            &format!("{} --no-verify", hooked_command),
+        )],
         None => vec![],
     }
 }
