@@ -53,6 +53,7 @@ mod git_diff_no_index;
 mod git_diff_staged;
 mod git_fix_stash;
 mod git_help_aliased;
+mod git_hook_bypass;
 mod git_main_master;
 mod git_merge;
 mod git_not_command;
@@ -160,6 +161,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_commit_add::get_rule(),
         git_commit_amend::get_rule(),
         git_commit_reset::get_rule(),
+        git_hook_bypass::get_rule(),
         git_diff_no_index::get_rule(),
         git_diff_staged::get_rule(),
         git_fix_stash::get_rule(),
