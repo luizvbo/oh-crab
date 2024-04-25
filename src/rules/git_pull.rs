@@ -56,9 +56,8 @@ pub fn get_rule() -> Rule {
 #[cfg(test)]
 mod tests {
     use super::{get_new_command, match_rule};
-    use crate::cli::command::CrabCommand;
-    use crate::shell::Bash;
-    use crate::{parameterized_get_new_command_tests, parameterized_match_rule_tests};
+    use crate::{cli::command::CrabCommand, shell::Bash};
+    use rstest::rstest;
 
     const OUTPUT: &str = r#"There is no tracking information for the current branch.
 Please specify which branch you want to merge with.
@@ -73,15 +72,24 @@ If you wish to set tracking information for this branch you can do so with:
 
 "#;
 
-    parameterized_match_rule_tests! {
-        match_rule,
-        match_rule_01: ("git pull", OUTPUT, true),
-        unmatch_rule_01: ("git pull", "", false),
-        unmatch_rule_02: ("ls", OUTPUT, false),
+    #[rstest]
+    #[case("git pull", OUTPUT, true)]
+    #[case("git pull", "", false)]
+    #[case("ls", OUTPUT, false)]
+    fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
+        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        assert_eq!(match_rule(&mut command, None), is_match);
     }
 
-    parameterized_get_new_command_tests! {
-        get_new_command,
-        get_new_command_1: ("git pull", OUTPUT, "git branch --set-upstream-to=origin/master master && git pull"),
+    #[rstest]
+    #[case("git pull", OUTPUT, vec!["git branch --set-upstream-to=origin/master master && git pull"])]
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] stdout: &str,
+        #[case] expected: Vec<&str>,
+    ) {
+        let system_shell = Bash {};
+        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        assert_eq!(get_new_command(&mut command, Some(&system_shell)), expected);
     }
 }
