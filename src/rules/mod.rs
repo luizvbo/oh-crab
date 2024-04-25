@@ -63,6 +63,7 @@ mod git_pull_uncommitted_changes;
 mod git_push;
 mod git_push_different_branch_names;
 mod git_push_force;
+mod git_push_pull;
 mod git_push_without_commits;
 mod git_rebase_merge_dir;
 mod git_rebase_no_changes;
@@ -160,6 +161,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_clone_missing::get_rule(),
         git_commit_add::get_rule(),
         git_commit_amend::get_rule(),
+        git_push_pull::get_rule(),
         git_commit_reset::get_rule(),
         git_hook_bypass::get_rule(),
         git_diff_no_index::get_rule(),
