@@ -1,39 +1,44 @@
 use crate::{
     cli::command::CrabCommand,
-    rules::{match_rule_with_git_support, utils::git::get_new_command_with_git_support},
-    Rule,
+    rules::{
+        utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+        Rule,
+    },
+    shell::Shell,
+    utils::replace_argument,
 };
-use shell::Shell;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    command.script.contains("push")
-        && command.output.as_ref().map_or(false, |o| {
-            o.contains("! [rejected]")
-                && o.contains("failed to push some refs to")
-                && (o.contains(
-                    "Updates were rejected because the tip of your current branch is behind",
-                ) || o
+    if let Some(stdout) = &command.output {
+        command.script.contains("push")
+            && stdout.contains("! [rejected]")
+            && stdout.contains("failed to push some refs to")
+            && (stdout
+                .contains("Updates were rejected because the tip of your current branch is behind")
+                || stdout
                     .contains("Updates were rejected because the remote contains work that you do"))
-        })
+    } else {
+        false
+    }
 }
 
-pub fn match_rule(command: &mut CrabCommand, _system_shell: Option<&dyn Shell>) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     match_rule_with_git_support(auxiliary_match_rule, command)
 }
 
 fn auxiliary_get_new_command(
     command: &CrabCommand,
-    _system_shell: Option<&dyn Shell>,
+    system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
     let pull_command = command.script.replacen("push", "pull", 1);
-    vec![format!("{} && {}", pull_command, command.script)]
+    vec![system_shell.unwrap().and(vec![
+        &replace_argument(&command.script, "push", "pull"),
+        &command.script,
+    ])]
 }
 
-pub fn get_new_command(
-    command: &mut CrabCommand,
-    _system_shell: Option<&dyn Shell>,
-) -> Vec<String> {
-    get_new_command_with_git_support(auxiliary_get_new_command, command, _system_shell)
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
+    get_new_command_with_git_support(auxiliary_get_new_command, command, system_shell)
 }
 
 pub fn get_rule() -> Rule {
