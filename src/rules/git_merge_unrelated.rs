@@ -1,33 +1,34 @@
 use crate::{
     cli::command::CrabCommand,
-    rules::{match_rule_with_git_support, utils::git::get_new_command_with_git_support},
-    Rule,
+    rules::{
+        utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+        Rule,
+    },
+    shell::Shell,
 };
-use shell::Shell;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    command.script.contains("merge")
-        && command.output.as_ref().map_or(false, |o| {
-            o.contains("fatal: refusing to merge unrelated histories")
-        })
+    if let Some(output) = &command.output {
+        command.script.contains("merge")
+            && output.contains("fatal: refusing to merge unrelated histories")
+    } else {
+        false
+    }
 }
 
-pub fn match_rule(command: &mut CrabCommand, _system_shell: Option<&dyn Shell>) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     match_rule_with_git_support(auxiliary_match_rule, command)
 }
 
 fn auxiliary_get_new_command(
     command: &CrabCommand,
-    _system_shell: Option<&dyn Shell>,
+    system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
     vec![format!("{} --allow-unrelated-histories", command.script)]
 }
 
-pub fn get_new_command(
-    command: &mut CrabCommand,
-    _system_shell: Option<&dyn Shell>,
-) -> Vec<String> {
-    get_new_command_with_git_support(auxiliary_get_new_command, command, _system_shell)
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
+    get_new_command_with_git_support(auxiliary_get_new_command, command, system_shell)
 }
 
 pub fn get_rule() -> Rule {
@@ -46,7 +47,6 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
-    use crate::shell::Bash;
     use rstest::rstest;
 
     const OUTPUT: &str = "fatal: refusing to merge unrelated histories";
@@ -69,8 +69,7 @@ mod tests {
         #[case] stdout: &str,
         #[case] expected: Vec<&str>,
     ) {
-        let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
-        assert_eq!(get_new_command(&mut command, Some(&system_shell)), expected);
+        assert_eq!(get_new_command(&mut command, None), expected);
     }
 }

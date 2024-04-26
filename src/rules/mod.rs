@@ -6,7 +6,6 @@ use crate::cli::{command::CorrectedCommand, command::CrabCommand};
 mod ag_literal;
 mod apt_get;
 mod apt_get_search;
-mod git_merge_unrelated;
 mod apt_list_upgradable;
 mod apt_upgrade;
 mod aws_cli;
@@ -56,6 +55,7 @@ mod git_fix_stash;
 mod git_help_aliased;
 mod git_main_master;
 mod git_merge;
+mod git_merge_unrelated;
 mod git_not_command;
 mod git_pull;
 mod git_pull_clone;
@@ -154,7 +154,6 @@ pub fn get_rules() -> Vec<Rule> {
         git_branch_delete::get_rule(),
         git_branch_delete_checked_out::get_rule(),
         git_branch_exists::get_rule(),
-        git_merge_unrelated::get_rule(),
         git_branch_list::get_rule(),
         git_checkout::get_rule(),
         git_clone::get_rule(),
@@ -168,6 +167,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_help_aliased::get_rule(),
         git_main_master::get_rule(),
         git_merge::get_rule(),
+        git_merge_unrelated::get_rule(),
         git_not_command::get_rule(),
         git_pull::get_rule(),
         git_pull_clone::get_rule(),
