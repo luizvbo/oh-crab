@@ -56,7 +56,6 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
-    use crate::shell::Bash;
     use rstest::rstest;
 
     fn output(target: &str) -> String {
@@ -82,8 +81,7 @@ mod tests {
         #[case] stdout: &str,
         #[case] expected: Vec<&str>,
     ) {
-        let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
-        assert_eq!(get_new_command(&mut command, Some(&system_shell)), expected);
+        assert_eq!(get_new_command(&mut command, None), expected);
     }
 }
