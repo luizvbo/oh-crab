@@ -71,6 +71,7 @@ mod git_rebase_no_changes;
 mod git_remote_delete;
 mod git_remote_seturl_add;
 mod git_rm_local_modifications;
+mod git_rm_recursive;
 mod git_stash;
 mod go_run;
 mod gradle_wrapper;
@@ -183,6 +184,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_push_force::get_rule(),
         git_push_pull::get_rule(),
         git_push_without_commits::get_rule(),
+        git_rm_recursive::get_rule(),
         git_rebase_merge_dir::get_rule(),
         git_rebase_no_changes::get_rule(),
         git_stash::get_rule(),
