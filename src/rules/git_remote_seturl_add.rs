@@ -1,34 +1,32 @@
 use crate::{
     cli::command::CrabCommand,
-    rules::{match_rule_with_git_support, utils::git::get_new_command_with_git_support},
-    Rule,
+    rules::utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+    rules::Rule,
+    shell::Shell,
+    utils::replace_argument,
 };
-use shell::Shell;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    command.script.contains("set-url")
-        && command
-            .output
-            .as_ref()
-            .map_or(false, |o| o.contains("fatal: No such remote"))
+    if let Some(stdout) = &command.output {
+        command.script.contains("set-url") && stdout.contains("fatal: No such remote")
+    } else {
+        false
+    }
 }
 
-pub fn match_rule(command: &mut CrabCommand, _system_shell: Option<&dyn Shell>) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     match_rule_with_git_support(auxiliary_match_rule, command)
 }
 
 fn auxiliary_get_new_command(
     command: &CrabCommand,
-    _system_shell: Option<&dyn Shell>,
+    system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    vec![command.script.replacen("set-url", "add", 1)]
+    vec![replace_argument(&command.script, "set-url", "add")]
 }
 
-pub fn get_new_command(
-    command: &mut CrabCommand,
-    _system_shell: Option<&dyn Shell>,
-) -> Vec<String> {
-    get_new_command_with_git_support(auxiliary_get_new_command, command, _system_shell)
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
+    get_new_command_with_git_support(auxiliary_get_new_command, command, system_shell)
 }
 
 pub fn get_rule() -> Rule {
