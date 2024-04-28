@@ -53,8 +53,10 @@ mod git_diff_no_index;
 mod git_diff_staged;
 mod git_fix_stash;
 mod git_help_aliased;
+mod git_hook_bypass;
 mod git_main_master;
 mod git_merge;
+mod git_merge_unrelated;
 mod git_not_command;
 mod git_pull;
 mod git_pull_clone;
@@ -62,11 +64,13 @@ mod git_pull_uncommitted_changes;
 mod git_push;
 mod git_push_different_branch_names;
 mod git_push_force;
+mod git_push_pull;
 mod git_push_without_commits;
 mod git_rebase_merge_dir;
 mod git_rebase_no_changes;
 mod git_remote_delete;
 mod git_remote_seturl_add;
+mod git_rm_local_modifications;
 mod go_run;
 mod gradle_wrapper;
 mod grep_arguments_order;
@@ -157,10 +161,13 @@ pub fn get_rules() -> Vec<Rule> {
         git_branch_list::get_rule(),
         git_checkout::get_rule(),
         git_clone::get_rule(),
+        git_rm_local_modifications::get_rule(),
         git_clone_missing::get_rule(),
         git_commit_add::get_rule(),
         git_commit_amend::get_rule(),
+        git_push_pull::get_rule(),
         git_commit_reset::get_rule(),
+        git_hook_bypass::get_rule(),
         git_diff_no_index::get_rule(),
         git_diff_staged::get_rule(),
         git_fix_stash::get_rule(),
@@ -168,6 +175,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_help_aliased::get_rule(),
         git_main_master::get_rule(),
         git_merge::get_rule(),
+        git_merge_unrelated::get_rule(),
         git_not_command::get_rule(),
         git_pull::get_rule(),
         git_pull_clone::get_rule(),
