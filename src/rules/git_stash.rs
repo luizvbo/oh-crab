@@ -1,33 +1,33 @@
 use crate::{
     cli::command::CrabCommand,
-    rules::{match_rule_with_git_support, utils::git::get_new_command_with_git_support},
-    Rule,
+    rules::utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+    rules::Rule,
+    shell::Shell,
 };
-use shell::Shell;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    command
-        .output
-        .as_ref()
-        .map_or(false, |o| o.contains("or stash them"))
+    if let Some(stdout) = &command.output {
+        stdout.contains("or stash them")
+    } else {
+        false
+    }
 }
 
-pub fn match_rule(command: &mut CrabCommand, _system_shell: Option<&dyn Shell>) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     match_rule_with_git_support(auxiliary_match_rule, command)
 }
 
 fn auxiliary_get_new_command(
     command: &CrabCommand,
-    _system_shell: Option<&dyn Shell>,
+    system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    vec![format!("git stash && {}", command.script)]
+    vec![system_shell
+        .unwrap()
+        .and(vec!["git stash", &command.script])]
 }
 
-pub fn get_new_command(
-    command: &mut CrabCommand,
-    _system_shell: Option<&dyn Shell>,
-) -> Vec<String> {
-    get_new_command_with_git_support(auxiliary_get_new_command, command, _system_shell)
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
+    get_new_command_with_git_support(auxiliary_get_new_command, command, system_shell)
 }
 
 pub fn get_rule() -> Rule {
