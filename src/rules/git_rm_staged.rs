@@ -13,7 +13,7 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
             && output.contains("error: the following file has changes staged in the index")
             && output.contains("use --cached to keep the file, or -f to force removal");
     }
-    return false;
+    false
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
