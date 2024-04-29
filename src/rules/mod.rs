@@ -77,6 +77,7 @@ mod git_rm_recursive;
 mod git_rm_staged;
 mod git_stash;
 mod git_stash_pop;
+mod git_tag_force;
 mod git_two_dashes;
 mod go_run;
 mod gradle_wrapper;
@@ -147,6 +148,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_stash_pop::get_rule(),
         cd_parent::get_rule(),
         chmod_x::get_rule(),
+        git_tag_force::get_rule(),
         choco_install::get_rule(),
         composer_not_command::get_rule(),
         git_two_dashes::get_rule(),
