@@ -1,43 +1,42 @@
 use crate::{
     cli::command::CrabCommand,
-    rules::{match_rule_with_git_support, utils::git::get_new_command_with_git_support},
-    Rule,
+    rules::{
+        utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+        Rule,
+    },
+    shell::Shell,
 };
-use shell::Shell;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    command.script.contains(" rm ")
-        && command.output.as_ref().map_or(false, |o| {
-            o.contains("error: the following file has changes staged in the index")
-                && o.contains("use --cached to keep the file, or -f to force removal")
-        })
+    if let Some(output) = &command.output {
+        return command.script.contains(" rm ")
+            && output.contains("error: the following file has changes staged in the index")
+            && output.contains("use --cached to keep the file, or -f to force removal");
+    }
+    return false;
 }
 
-pub fn match_rule(command: &mut CrabCommand, _system_shell: Option<&dyn Shell>) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     match_rule_with_git_support(auxiliary_match_rule, command)
 }
 
 fn auxiliary_get_new_command(
     command: &CrabCommand,
-    _system_shell: Option<&dyn Shell>,
+    system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    let mut command_parts = command.script.split_whitespace().collect::<Vec<&str>>();
-    if let Some(index) = command_parts.iter().position(|&r| r == "rm") {
-        let mut command_list = Vec::new();
-        command_parts.insert(index + 1, "--cached");
-        command_list.push(command_parts.join(" "));
-        command_parts[index + 1] = "-f";
+    let mut command_parts = command.script_parts.clone();
+    if let Some(index) = command_parts.iter().position(|r| r == "rm") {
+        command_parts.insert(index + 1, "--cached".to_string());
+        let mut command_list = vec![command_parts.join(" ")];
+        command_parts[index + 1] = "-f".to_string();
         command_list.push(command_parts.join(" "));
         return command_list;
     }
     vec![]
 }
 
-pub fn get_new_command(
-    command: &mut CrabCommand,
-    _system_shell: Option<&dyn Shell>,
-) -> Vec<String> {
-    get_new_command_with_git_support(auxiliary_get_new_command, command, _system_shell)
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
+    get_new_command_with_git_support(auxiliary_get_new_command, command, system_shell)
 }
 
 pub fn get_rule() -> Rule {
@@ -59,9 +58,13 @@ mod tests {
     use crate::shell::Bash;
     use rstest::rstest;
 
+    fn output(target: &str) -> String {
+        format!("error: the following file has changes staged in the index:\n    {}\n(use --cached to keep the file, or -f to force removal)", target)
+    }
+
     #[rstest]
-    #[case("git rm foo", "error: the following file has changes staged in the index:\n    foo\n(use --cached to keep the file, or -f to force removal)", true)]
-    #[case("git rm foo bar", "error: the following file has changes staged in the index:\n    bar\n(use --cached to keep the file, or -f to force removal)", true)]
+    #[case("git rm foo", &output("foo"), true)]
+    #[case("git rm foo bar", &output("bar"), true)]
     #[case("git rm foo", "", false)]
     #[case("git rm foo bar", "", false)]
     #[case("git rm", "", false)]
@@ -71,8 +74,8 @@ mod tests {
     }
 
     #[rstest]
-    #[case("git rm foo", "error: the following file has changes staged in the index:\n    foo\n(use --cached to keep the file, or -f to force removal)", vec!["git rm --cached foo", "git rm -f foo"])]
-    #[case("git rm foo bar", "error: the following file has changes staged in the index:\n    bar\n(use --cached to keep the file, or -f to force removal)", vec!["git rm --cached foo bar", "git rm -f foo bar"])]
+    #[case("git rm foo", &output("foo"), vec!["git rm --cached foo", "git rm -f foo"])]
+    #[case("git rm foo bar", &output("bar"), vec!["git rm --cached foo bar", "git rm -f foo bar"])]
     fn test_get_new_command(
         #[case] command: &str,
         #[case] stdout: &str,
