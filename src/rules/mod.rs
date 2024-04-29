@@ -73,6 +73,7 @@ mod git_remote_seturl_add;
 mod git_rm_local_modifications;
 mod git_rm_recursive;
 mod git_stash;
+mod git_stash_pop;
 mod go_run;
 mod gradle_wrapper;
 mod grep_arguments_order;
@@ -139,6 +140,7 @@ pub fn get_rules() -> Vec<Rule> {
         cd_correction::get_rule(),
         cd_cs::get_rule(),
         cd_mkdir::get_rule(),
+        git_stash_pop::get_rule(),
         cd_parent::get_rule(),
         chmod_x::get_rule(),
         choco_install::get_rule(),
