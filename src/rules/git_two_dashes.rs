@@ -29,7 +29,7 @@ fn auxiliary_get_new_command(
             return vec![replace_argument(&command.script, &to[1..], to)];
         }
     }
-    return vec![];
+    vec![]
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
