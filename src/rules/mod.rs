@@ -73,6 +73,7 @@ mod git_remote_delete;
 mod git_remote_seturl_add;
 mod git_rm_local_modifications;
 mod git_rm_recursive;
+mod git_rm_staged;
 mod git_stash;
 mod git_stash_pop;
 mod git_two_dashes;
@@ -190,6 +191,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_lfs_mistype::get_rule(),
         git_push_pull::get_rule(),
         git_push_without_commits::get_rule(),
+        git_rm_staged::get_rule(),
         git_rm_recursive::get_rule(),
         git_rebase_merge_dir::get_rule(),
         git_rebase_no_changes::get_rule(),
