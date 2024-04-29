@@ -1,35 +1,34 @@
 use crate::{
     cli::command::CrabCommand,
-    rules::{match_rule_with_git_support, utils::git::get_new_command_with_git_support},
-    Rule,
+    rules::{
+        utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+        Rule,
+    },
+    shell::Shell,
 };
-use shell::Shell;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    command.script.split_whitespace().any(|part| part == "tag")
-        && command
-            .output
-            .as_ref()
-            .map_or(false, |o| o.contains("already exists"))
+    if let Some(output) = &command.output {
+        command.script_parts.contains(&"tag".to_string()) && output.contains("already exists")
+    } else {
+        false
+    }
 }
 
-pub fn match_rule(command: &mut CrabCommand, _system_shell: Option<&dyn Shell>) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     match_rule_with_git_support(auxiliary_match_rule, command)
 }
 
 fn auxiliary_get_new_command(
     command: &CrabCommand,
-    _system_shell: Option<&dyn Shell>,
+    system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
     let new_script = command.script.replacen("tag", "tag --force", 1);
     vec![new_script]
 }
 
-pub fn get_new_command(
-    command: &mut CrabCommand,
-    _system_shell: Option<&dyn Shell>,
-) -> Vec<String> {
-    get_new_command_with_git_support(auxiliary_get_new_command, command, _system_shell)
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
+    get_new_command_with_git_support(auxiliary_get_new_command, command, system_shell)
 }
 
 pub fn get_rule() -> Rule {
