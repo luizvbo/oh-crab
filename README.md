@@ -213,8 +213,10 @@ new rules or improving the crate.
 - [x] git_diff_no_index
 - [x] git_diff_staged
 - [x] git_fix_stash
+- [x] git_flag_after_filename
 - [x] git_help_aliased
 - [x] git_hook_bypass
+- [x] git_lfs_mistype
 - [x] git_main_master
 - [x] git_merge
 - [x] git_merge_unrelated
@@ -232,6 +234,12 @@ new rules or improving the crate.
 - [x] git_remote_delete
 - [x] git_remote_seturl_add
 - [x] git_rm_local_modifications
+- [x] git_rm_recursive
+- [x] git_rm_staged
+- [x] git_stash
+- [x] git_stash_pop
+- [x] git_tag_force
+- [x] git_two_dashes
 - [x] go_run
 - [x] gradle_wrapper
 - [x] grep_arguments_order
@@ -292,14 +300,6 @@ new rules or improving the crate.
 - [ ] fab_command_not_found
 - [ ] fix_file
 - [ ] gem_unknown_command
-- [ ] git_flag_after_filename
-- [ ] git_lfs_mistype
-- [ ] git_rm_recursive
-- [ ] git_rm_staged
-- [ ] git_stash
-- [ ] git_stash_pop
-- [ ] git_tag_force
-- [ ] git_two_dashes
 - [ ] go_unknown_command
 - [ ] gradle_no_task
 - [ ] grunt_task_not_found
