@@ -26,13 +26,12 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    vec![system_shell.unwrap().and(vec!["git add --update", "git stash pop", "git reset ."])]
+    vec![system_shell
+        .unwrap()
+        .and(vec!["git add --update", "git stash pop", "git reset ."])]
 }
 
-pub fn get_new_command(
-    command: &mut CrabCommand,
-    system_shell: Option<&dyn Shell>,
-) -> Vec<String> {
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     get_new_command_with_git_support(auxiliary_get_new_command, command, system_shell)
 }
 
