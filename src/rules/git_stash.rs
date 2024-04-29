@@ -1,12 +1,13 @@
 use crate::{
-    cli::command::CrabCommand, rules::utils::git::match_rule_with_git_support, shell::Shell,
+    cli::command::CrabCommand,
+    rules::utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+    rules::Rule,
+    shell::Shell,
 };
-
-use super::{utils::git::get_new_command_with_git_support, Rule};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.output {
-        command.script.contains("pull") && stdout.contains("set-upstream")
+        stdout.contains("or stash them")
     } else {
         false
     }
@@ -20,21 +21,9 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    if let Some(stdout) = &command.output {
-        let lines: Vec<&str> = stdout.lines().collect();
-        let line = lines[lines.len() - 3].trim();
-
-        let words: Vec<&str> = line.split_whitespace().collect();
-        let branch = words.last().unwrap_or(&"");
-        let set_upstream = line
-            .replace("<remote>", "origin")
-            .replace("<branch>", branch);
-        vec![system_shell
-            .unwrap()
-            .and(vec![&set_upstream, &command.script])]
-    } else {
-        Vec::<String>::new()
-    }
+    vec![system_shell
+        .unwrap()
+        .and(vec!["git stash", &command.script])]
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
@@ -43,7 +32,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
 
 pub fn get_rule() -> Rule {
     Rule::new(
-        "git_pull".to_owned(),
+        "git_stash".to_owned(),
         None,
         None,
         None,
@@ -56,33 +45,32 @@ pub fn get_rule() -> Rule {
 #[cfg(test)]
 mod tests {
     use super::{get_new_command, match_rule};
-    use crate::{cli::command::CrabCommand, shell::Bash};
+    use crate::cli::command::CrabCommand;
+    use crate::shell::Bash;
     use rstest::rstest;
 
-    const OUTPUT: &str = r#"There is no tracking information for the current branch.
-Please specify which branch you want to merge with.
-See git-pull(1) for details
+    const CHERRY_PICK_ERROR: &str = "\
+error: Your local changes would be overwritten by cherry-pick.\n\
+hint: Commit your changes or stash them to proceed.\n\
+fatal: cherry-pick failed";
 
-    git pull <remote> <branch>
-
-If you wish to set tracking information for this branch you can do so with:
-
-    git branch --set-upstream-to=<remote>/<branch> master
-
-
-"#;
+    const REBASE_ERROR: &str = "\
+Cannot rebase: Your index contains uncommitted changes.\n\
+Please commit or stash them.";
 
     #[rstest]
-    #[case("git pull", OUTPUT, true)]
-    #[case("git pull", "", false)]
-    #[case("ls", OUTPUT, false)]
+    #[case("git cherry-pick a1b2c3d", CHERRY_PICK_ERROR, true)]
+    #[case("git rebase -i HEAD~7", REBASE_ERROR, true)]
+    #[case("git cherry-pick a1b2c3d", "", false)]
+    #[case("git rebase -i HEAD~7", "", false)]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(match_rule(&mut command, None), is_match);
     }
 
     #[rstest]
-    #[case("git pull", OUTPUT, vec!["git branch --set-upstream-to=origin/master master && git pull"])]
+    #[case("git cherry-pick a1b2c3d", CHERRY_PICK_ERROR, vec!["git stash && git cherry-pick a1b2c3d"])]
+    #[case("git rebase -i HEAD~7", REBASE_ERROR, vec!["git stash && git rebase -i HEAD~7"])]
     fn test_get_new_command(
         #[case] command: &str,
         #[case] stdout: &str,
