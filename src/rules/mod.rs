@@ -53,8 +53,10 @@ mod git_diff_no_index;
 mod git_diff_staged;
 mod git_fix_stash;
 mod git_help_aliased;
+mod git_hook_bypass;
 mod git_main_master;
 mod git_merge;
+mod git_merge_unrelated;
 mod git_not_command;
 mod git_pull;
 mod git_pull_clone;
@@ -62,11 +64,17 @@ mod git_pull_uncommitted_changes;
 mod git_push;
 mod git_push_different_branch_names;
 mod git_push_force;
+mod git_push_pull;
 mod git_push_without_commits;
 mod git_rebase_merge_dir;
 mod git_rebase_no_changes;
 mod git_remote_delete;
 mod git_two_dashes;
+mod git_remote_seturl_add;
+mod git_rm_local_modifications;
+mod git_rm_recursive;
+mod git_stash;
+mod git_stash_pop;
 mod go_run;
 mod gradle_wrapper;
 mod grep_arguments_order;
@@ -133,6 +141,7 @@ pub fn get_rules() -> Vec<Rule> {
         cd_correction::get_rule(),
         cd_cs::get_rule(),
         cd_mkdir::get_rule(),
+        git_stash_pop::get_rule(),
         cd_parent::get_rule(),
         chmod_x::get_rule(),
         choco_install::get_rule(),
@@ -166,8 +175,10 @@ pub fn get_rules() -> Vec<Rule> {
         git_diff_staged::get_rule(),
         git_fix_stash::get_rule(),
         git_help_aliased::get_rule(),
+        git_hook_bypass::get_rule(),
         git_main_master::get_rule(),
         git_merge::get_rule(),
+        git_merge_unrelated::get_rule(),
         git_not_command::get_rule(),
         git_pull::get_rule(),
         git_pull_clone::get_rule(),
@@ -175,10 +186,15 @@ pub fn get_rules() -> Vec<Rule> {
         git_push::get_rule(),
         git_push_different_branch_names::get_rule(),
         git_push_force::get_rule(),
+        git_push_pull::get_rule(),
         git_push_without_commits::get_rule(),
+        git_rm_recursive::get_rule(),
         git_rebase_merge_dir::get_rule(),
         git_rebase_no_changes::get_rule(),
+        git_stash::get_rule(),
         git_remote_delete::get_rule(),
+        git_remote_seturl_add::get_rule(),
+        git_rm_local_modifications::get_rule(),
         go_run::get_rule(),
         gradle_wrapper::get_rule(),
         grep_arguments_order::get_rule(),
