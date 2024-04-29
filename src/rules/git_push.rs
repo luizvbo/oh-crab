@@ -1,7 +1,9 @@
-use super::{utils::git::get_new_command_with_git_support, Rule};
-use crate::utils::replace_argument;
 use crate::{
-    cli::command::CrabCommand, rules::utils::git::match_rule_with_git_support, shell::Shell,
+    cli::command::CrabCommand,
+    rules::utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+    rules::Rule,
+    shell::Shell,
+    utils::replace_argument,
 };
 use regex::Regex;
 
