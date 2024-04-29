@@ -13,7 +13,7 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
         let error_pattern = Regex::new(r"fatal: bad flag '(.*?)' used after filename").unwrap();
         let error_pattern2 =
             Regex::new(r"fatal: option '(.*?)' must come before non-option arguments").unwrap();
-        error_pattern.is_match(&output) || error_pattern2.is_match(&output)
+        error_pattern.is_match(output) || error_pattern2.is_match(output)
     } else {
         false
     }
@@ -34,8 +34,8 @@ fn auxiliary_get_new_command(
         let mut command_parts = command.script_parts.clone();
 
         if let Some(caps) = error_pattern
-            .captures(&output)
-            .or_else(|| error_pattern2.captures(&output))
+            .captures(output)
+            .or_else(|| error_pattern2.captures(output))
         {
             if let Some(bad_flag) = caps.get(1) {
                 let bad_flag = bad_flag.as_str();
