@@ -5,9 +5,8 @@ use crate::{
         Rule,
     },
     shell::Shell,
+    utils::replace_argument,
 };
-
-use crate::utils::replace_argument;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.output {

@@ -52,6 +52,7 @@ mod git_commit_reset;
 mod git_diff_no_index;
 mod git_diff_staged;
 mod git_fix_stash;
+mod git_flag_after_filename;
 mod git_help_aliased;
 mod git_hook_bypass;
 mod git_lfs_mistype;
@@ -176,6 +177,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_commit_amend::get_rule(),
         git_commit_reset::get_rule(),
         git_diff_no_index::get_rule(),
+        git_flag_after_filename::get_rule(),
         git_diff_staged::get_rule(),
         git_fix_stash::get_rule(),
         git_help_aliased::get_rule(),
