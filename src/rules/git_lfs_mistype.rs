@@ -1,38 +1,51 @@
+use regex::Regex;
+
 use crate::{
     cli::command::CrabCommand,
-    rules::{utils::git::get_new_command_with_git_support, match_rule_with_git_support},
-    Rule,
+    rules::{
+        utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+        Rule,
+    },
+    shell::Shell,
+    utils::{get_all_matched_commands, replace_command},
 };
-use regex::Regex;
-use shell::Shell;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    command.script.contains("lfs") && command.output.as_ref().map_or(false, |o| o.contains("Did you mean this?"))
+    if let Some(output) = &command.output {
+        command.script.contains("lfs") && output.contains("Did you mean this?")
+    } else {
+        false
+    }
 }
 
-pub fn match_rule(command: &mut CrabCommand, _system_shell: Option<&dyn Shell>) -> bool {
+pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     match_rule_with_git_support(auxiliary_match_rule, command)
 }
 
-fn auxiliary_get_new_command(command: &CrabCommand, _system_shell: Option<&dyn Shell>) -> Vec<String> {
-    let re = Regex::new(r"Error: unknown command \"([^\"]*)\" for \"git-lfs\"").unwrap();
-    if let Some(caps) = re.captures(&command.output) {
-        if let Some(broken_cmd) = caps.get(1) {
-            let broken_cmd = broken_cmd.as_str();
-            let suggestions = command.output.split('\n')
-                .filter(|line| line.contains("Did you mean this?"))
-                .flat_map(|line| line.split_whitespace())
-                .filter(|&word| word != "Did" && word != "you" && word != "mean" && word != "this?")
-                .map(|suggestion| command.script.replacen(broken_cmd, suggestion, 1))
-                .collect::<Vec<_>>();
-            return suggestions;
+fn auxiliary_get_new_command(
+    command: &CrabCommand,
+    system_shell: Option<&dyn Shell>,
+) -> Vec<String> {
+    if let Some(output) = &command.output {
+        let re = Regex::new(r#"Error: unknown command "([^"]*)" for "git-lfs""#).unwrap();
+        if let Some(caps) = re.captures(output) {
+            if let Some(broken_cmd) = caps.get(1) {
+                let broken_cmd = broken_cmd.as_str();
+                let matched =
+                    get_all_matched_commands(output, Some(vec!["Did you mean", " for usage."]));
+                return replace_command(
+                    command,
+                    broken_cmd,
+                    matched.iter().map(|s| s.as_str()).collect(),
+                );
+            }
         }
     }
     vec![]
 }
 
-pub fn get_new_command(command: &mut CrabCommand, _system_shell: Option<&dyn Shell>) -> Vec<String> {
-    get_new_command_with_git_support(auxiliary_get_new_command, command, _system_shell)
+pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
+    get_new_command_with_git_support(auxiliary_get_new_command, command, system_shell)
 }
 
 pub fn get_rule() -> Rule {
