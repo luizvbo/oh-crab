@@ -214,8 +214,10 @@ new rules or improving the crate.
 - [x] git_diff_staged
 - [x] git_fix_stash
 - [x] git_help_aliased
+- [x] git_hook_bypass
 - [x] git_main_master
 - [x] git_merge
+- [x] git_merge_unrelated
 - [x] git_not_command
 - [x] git_pull
 - [x] git_pull_clone
@@ -223,10 +225,13 @@ new rules or improving the crate.
 - [x] git_push
 - [x] git_push_different_branch_names
 - [x] git_push_force
+- [x] git_push_pull
 - [x] git_push_without_commits
 - [x] git_rebase_merge_dir
 - [x] git_rebase_no_changes
 - [x] git_remote_delete
+- [x] git_remote_seturl_add
+- [x] git_rm_local_modifications
 - [x] go_run
 - [x] gradle_wrapper
 - [x] grep_arguments_order
@@ -288,12 +293,7 @@ new rules or improving the crate.
 - [ ] fix_file
 - [ ] gem_unknown_command
 - [ ] git_flag_after_filename
-- [ ] git_hook_bypass
 - [ ] git_lfs_mistype
-- [ ] git_merge_unrelated
-- [ ] git_push_pull
-- [ ] git_remote_seturl_add
-- [ ] git_rm_local_modifications
 - [ ] git_rm_recursive
 - [ ] git_rm_staged
 - [ ] git_stash

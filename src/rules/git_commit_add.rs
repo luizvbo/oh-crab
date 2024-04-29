@@ -1,10 +1,14 @@
 use crate::{
-    cli::command::CrabCommand, rules::utils::git::match_rule_with_git_support, shell::Shell,
+    cli::command::CrabCommand,
+    rules::{
+        utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+        Rule,
+    },
+    shell::Shell,
 };
 
-use super::{utils::git::get_new_command_with_git_support, Rule};
-
 use crate::utils::replace_argument;
+
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(stdout) = &command.output {
         stdout.contains("no changes added to commit")
