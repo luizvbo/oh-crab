@@ -74,6 +74,7 @@ mod git_rm_local_modifications;
 mod git_rm_recursive;
 mod git_stash;
 mod git_stash_pop;
+mod git_two_dashes;
 mod go_run;
 mod gradle_wrapper;
 mod grep_arguments_order;
@@ -145,6 +146,7 @@ pub fn get_rules() -> Vec<Rule> {
         chmod_x::get_rule(),
         choco_install::get_rule(),
         composer_not_command::get_rule(),
+        git_two_dashes::get_rule(),
         conda_mistype::get_rule(),
         cp_create_destination::get_rule(),
         cp_omitting_directory::get_rule(),
