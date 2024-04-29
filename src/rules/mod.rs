@@ -54,6 +54,7 @@ mod git_diff_staged;
 mod git_fix_stash;
 mod git_help_aliased;
 mod git_hook_bypass;
+mod git_lfs_mistype;
 mod git_main_master;
 mod git_merge;
 mod git_merge_unrelated;
@@ -186,6 +187,7 @@ pub fn get_rules() -> Vec<Rule> {
         git_push::get_rule(),
         git_push_different_branch_names::get_rule(),
         git_push_force::get_rule(),
+        git_lfs_mistype::get_rule(),
         git_push_pull::get_rule(),
         git_push_without_commits::get_rule(),
         git_rm_recursive::get_rule(),
