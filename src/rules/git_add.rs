@@ -1,10 +1,13 @@
 use crate::{
-    cli::command::CrabCommand, rules::utils::git::match_rule_with_git_support, shell::Shell,
+    cli::command::CrabCommand,
+    rules::{
+        utils::git::{get_new_command_with_git_support, match_rule_with_git_support},
+        Rule,
+    },
+    shell::Shell,
 };
 use regex::Regex;
 use std::path::Path;
-
-use super::{utils::git::get_new_command_with_git_support, Rule};
 
 fn get_missing_file(command: &CrabCommand, path_exists: Option<bool>) -> Option<String> {
     if let Some(stdout) = &command.output {

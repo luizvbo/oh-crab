@@ -8,7 +8,12 @@ use crate::{
 };
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    command.script_parts.contains(&"commit".to_owned())
+    if let Some(output) = &command.output {
+        command.script.contains("merge")
+            && output.contains("fatal: refusing to merge unrelated histories")
+    } else {
+        false
+    }
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
@@ -19,7 +24,7 @@ fn auxiliary_get_new_command(
     command: &CrabCommand,
     system_shell: Option<&dyn Shell>,
 ) -> Vec<String> {
-    vec!["git commit --amend".to_string()]
+    vec![format!("{} --allow-unrelated-histories", command.script)]
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
@@ -28,7 +33,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
 
 pub fn get_rule() -> Rule {
     Rule::new(
-        "git_commit_amend".to_owned(),
+        "git_merge_unrelated".to_owned(),
         None,
         None,
         None,
@@ -42,27 +47,29 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
-
     use rstest::rstest;
+
+    const OUTPUT: &str = "fatal: refusing to merge unrelated histories";
+
     #[rstest]
-    #[case("git commit -m \"test\"", "test output", true)]
-    #[case("git commit", "", true)]
-    #[case("git branch foo", "", false)]
-    #[case("git checkout feature/test_commit", "", false)]
-    #[case("git push", "", false)]
+    #[case("git merge test", OUTPUT, true)]
+    #[case("git merge master", "", false)]
+    #[case("ls", OUTPUT, false)]
     fn test_match(#[case] command: &str, #[case] stdout: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(match_rule(&mut command, None), is_match);
     }
 
     #[rstest]
-    #[case("git commit -m \"test commit\"")]
-    #[case("git commit")]
-    fn test_get_new_command(#[case] command: &str) {
-        let mut command = CrabCommand::new(command.to_owned(), None, None);
-        assert_eq!(
-            get_new_command(&mut command, None),
-            vec!["git commit --amend"]
-        );
+    #[case("git merge local", OUTPUT, vec!["git merge local --allow-unrelated-histories"])]
+    #[case("git merge -m \"test\" local", OUTPUT, vec!["git merge -m \"test\" local --allow-unrelated-histories"])]
+    #[case("git merge -m \"test local\" local", OUTPUT, vec!["git merge -m \"test local\" local --allow-unrelated-histories"])]
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] stdout: &str,
+        #[case] expected: Vec<&str>,
+    ) {
+        let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
+        assert_eq!(get_new_command(&mut command, None), expected);
     }
 }
