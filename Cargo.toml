@@ -20,6 +20,12 @@ console = "0.15.7"
 dirs = "5.0.1"
 regex = "1.10.2"
 is_executable = "1.0.1"
+zip = { version = "1.1.3", optional = true }
+tar = { version = "0.4.40", optional = true }
+
+[features]
+zip = ["dep:zip"]
+tar = ["dep:tar"]
 
 [profile.release]
 lto = true        # Enable link-time optimization
