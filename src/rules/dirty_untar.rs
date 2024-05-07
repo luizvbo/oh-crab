@@ -67,7 +67,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
 
 pub fn side_effect(old_cmd: CrabCommand, command: &String) {
     if let Some((filepath, _)) = tar_file(&old_cmd.script_parts) {
-        let archive = Archive::new(std::fs::File::open(filepath).unwrap());
+        let mut archive = Archive::new(std::fs::File::open(filepath).unwrap());
 
         for file in archive.entries().unwrap() {
             let file = file.unwrap();
@@ -108,26 +108,74 @@ mod tests {
     use crate::shell::Bash;
     use rstest::rstest;
     use std::fs;
+    use std::fs::File;
+    use std::io::Write;
     use std::path::Path;
     use tar::Archive;
+    use tar::Builder;
+    use tempfile::TempDir;
 
-    fn tar_error(filename: &str) {
-        let path = Path::new(filename);
-        fs::create_dir_all(path).unwrap();
-        let tar_gz = fs::File::create(path).unwrap();
-        let enc = flate2::write::GzEncoder::new(tar_gz, flate2::Compression::default());
-        let mut tar = tar::Builder::new(enc);
-        tar.finish().unwrap();
-        let file = fs::File::open(path).unwrap();
-        let mut archive = Archive::new(file);
-        archive.unpack(".").unwrap();
-        assert_eq!(fs::read_dir(".").unwrap().count(), 2);
+    pub fn tar_error(filename: &str) {
+        let tmpdir = TempDir::new().unwrap();
+        let path = tmpdir.path().join(filename);
+
+        reset(&path);
+
+        let entries = fs::read_dir(".").unwrap();
+        let mut files = entries
+            .map(|res| res.map(|e| e.path()))
+            .collect::<Result<Vec<_>, std::io::Error>>()
+            .unwrap();
+        files.sort();
+        assert_eq!(
+            files,
+            vec![
+                Path::new(filename),
+                Path::new("a"),
+                Path::new("b"),
+                Path::new("c"),
+                Path::new("d")
+            ]
+        );
+
+        let entries = fs::read_dir("./d").unwrap();
+        let mut files = entries
+            .map(|res| res.map(|e| e.path()))
+            .collect::<Result<Vec<_>, std::io::Error>>()
+            .unwrap();
+        files.sort();
+        assert_eq!(files, vec![Path::new("d/e")]);
+    }
+
+    fn reset(path: &Path) {
+        fs::create_dir("d").unwrap();
+        let files = vec!["a", "b", "c", "d/e"];
+
+        let tar_gz = File::create(path).unwrap();
+        let mut tar = Builder::new(tar_gz);
+
+        for file in files {
+            let mut f = File::create(file).unwrap();
+            f.write_all(b"*").unwrap();
+
+            tar.append_path(file).unwrap();
+
+            fs::remove_file(file).unwrap();
+        }
+
+        let tar_gz = File::open(path).unwrap();
+        let mut tar = Archive::new(tar_gz);
+        tar.unpack(".").unwrap();
     }
 
     #[rstest]
     #[case("tar xvf foo.tar", "mkdir -p foo && tar xvf foo.tar -C foo", true)]
     #[case("tar -xvf bar.tar", "mkdir -p bar && tar -xvf bar.tar -C bar", true)]
-    #[case("tar --extract -f baz.tar", "mkdir -p baz && tar --extract -f baz.tar -C baz", true)]
+    #[case(
+        "tar --extract -f baz.tar",
+        "mkdir -p baz && tar --extract -f baz.tar -C baz",
+        true
+    )]
     fn test_match(#[case] command: &str, #[case] fixed: &str, #[case] is_match: bool) {
         let mut command = CrabCommand::new(command.to_owned(), Some("".to_owned()), None);
         assert_eq!(match_rule(&mut command, None), is_match);
@@ -136,18 +184,30 @@ mod tests {
     #[rstest]
     #[case("tar xvf foo.tar", "mkdir -p foo && tar xvf foo.tar -C foo")]
     #[case("tar -xvf bar.tar", "mkdir -p bar && tar -xvf bar.tar -C bar")]
-    #[case("tar --extract -f baz.tar", "mkdir -p baz && tar --extract -f baz.tar -C baz")]
+    #[case(
+        "tar --extract -f baz.tar",
+        "mkdir -p baz && tar --extract -f baz.tar -C baz"
+    )]
     fn test_side_effect(#[case] command: &str, #[case] fixed: &str) {
         let mut command = CrabCommand::new(command.to_owned(), Some("".to_owned()), None);
         side_effect(command, &"".to_owned());
-        assert_eq!(fs::read_dir(Path::new(&command.script_parts[2])).unwrap().count(), 1);
+        assert_eq!(
+            fs::read_dir(Path::new(&command.script_parts[2]))
+                .unwrap()
+                .count(),
+            1
+        );
     }
 
     #[rstest]
     #[case("tar xvf foo.tar", "mkdir -p foo && tar xvf foo.tar -C foo", vec!["mkdir -p foo", "tar xvf foo.tar -C foo"])]
     #[case("tar -xvf bar.tar", "mkdir -p bar && tar -xvf bar.tar -C bar", vec!["mkdir -p bar", "tar -xvf bar.tar -C bar"])]
     #[case("tar --extract -f baz.tar", "mkdir -p baz && tar --extract -f baz.tar -C baz", vec!["mkdir -p baz", "tar --extract -f baz.tar -C baz"])]
-    fn test_get_new_command(#[case] command: &str, #[case] fixed: &str, #[case] expected: Vec<&str>) {
+    fn test_get_new_command(
+        #[case] command: &str,
+        #[case] fixed: &str,
+        #[case] expected: Vec<&str>,
+    ) {
         let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some("".to_owned()), None);
         assert_eq!(get_new_command(&mut command, None), expected);
