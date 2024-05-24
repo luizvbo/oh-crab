@@ -190,6 +190,7 @@ new rules or improving the crate.
 - [x] cp_create_destination
 - [x] cp_omitting_directory
 - [x] cpp11
+- [x] dirty_untar
 - [x] django_south_ghost
 - [x] django_south_merge
 - [x] docker_image_being_used_by_container
@@ -293,7 +294,6 @@ new rules or improving the crate.
 - [ ] apt_invalid_operation
 - [ ] brew_cask_dependency
 - [ ] brew_unknown_command
-- [ ] dirty_untar
 - [ ] dirty_unzip
 - [ ] dnf_no_such_command
 - [ ] docker_not_command
