@@ -259,7 +259,7 @@ pub struct Rule {
     requires_output: bool,
     pub match_rule: fn(&mut CrabCommand, Option<&dyn Shell>) -> bool,
     get_new_command: fn(&mut CrabCommand, Option<&dyn Shell>) -> Vec<String>,
-    side_effect: Option<fn(CrabCommand, &String)>,
+    side_effect: Option<fn(CrabCommand, Option<&str>)>,
 }
 
 impl fmt::Display for Rule {
@@ -276,7 +276,7 @@ impl Rule {
         requires_output: Option<bool>,
         match_rule: fn(&mut CrabCommand, Option<&dyn Shell>) -> bool,
         get_new_command: fn(&mut CrabCommand, Option<&dyn Shell>) -> Vec<String>,
-        side_effect: Option<fn(CrabCommand, &String)>,
+        side_effect: Option<fn(CrabCommand, Option<&str>)>,
     ) -> Self {
         Self {
             name,
