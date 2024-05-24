@@ -103,7 +103,7 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use super::{TAR_EXTENSIONS, get_new_command, match_rule, side_effect};
+    use super::{get_new_command, match_rule, side_effect, TAR_EXTENSIONS};
     use crate::cli::command::CrabCommand;
     use crate::shell::Bash;
     use rstest::rstest;
@@ -112,15 +112,17 @@ mod tests {
     use std::fs::File;
     use std::io::Write;
     use std::path::Path;
+    use std::path::PathBuf;
     use tar::Archive;
     use tar::Builder;
     use tempfile::TempDir;
 
     pub fn tar_error(filename: &str) {
         let tmpdir = TempDir::new().unwrap();
-        let path = tmpdir.path().join(filename);
+        let filename = format!("./{}", filename);
+        let path = tmpdir.path().join(&filename);
 
-        env::set_current_dir(&tmpdir.path())?;
+        let _ = env::set_current_dir(&tmpdir.path());
         reset(&path);
 
         let entries = fs::read_dir(".").unwrap();
@@ -128,17 +130,16 @@ mod tests {
             .map(|res| res.map(|e| e.path()))
             .collect::<Result<Vec<_>, std::io::Error>>()
             .unwrap();
+        let mut expected_files = vec![
+            Path::new(&filename),
+            Path::new("./a"),
+            Path::new("./b"),
+            Path::new("./c"),
+            Path::new("./d"),
+        ];
+        expected_files.sort();
         files.sort();
-        assert_eq!(
-            files,
-            vec![
-                Path::new(filename),
-                Path::new("a"),
-                Path::new("b"),
-                Path::new("c"),
-                Path::new("d")
-            ]
-        );
+        assert_eq!(files, expected_files);
 
         let entries = fs::read_dir("./d").unwrap();
         let mut files = entries
@@ -146,7 +147,7 @@ mod tests {
             .collect::<Result<Vec<_>, std::io::Error>>()
             .unwrap();
         files.sort();
-        assert_eq!(files, vec![Path::new("d/e")]);
+        assert_eq!(files, vec![Path::new("./d/e")]);
     }
 
     fn reset(path: &Path) {
@@ -157,12 +158,12 @@ mod tests {
         let mut tar = Builder::new(tar_gz);
 
         for file in files {
-            let mut f = File::create(file).unwrap();
+            let file_path = PathBuf::from(file);
+
+            let mut f = File::create(&file_path).unwrap();
             f.write_all(b"*").unwrap();
-
-            tar.append_path(file).unwrap();
-
-            fs::remove_file(file).unwrap();
+            tar.append_path(&file_path).unwrap();
+            fs::remove_file(&file_path).unwrap();
         }
 
         let tar_gz = File::open(path).unwrap();
@@ -171,16 +172,73 @@ mod tests {
     }
 
     #[rstest]
-    #[case("tar xvf foo.tar", "mkdir -p foo && tar xvf foo.tar -C foo", true)]
-    #[case("tar -xvf bar.tar", "mkdir -p bar && tar -xvf bar.tar -C bar", true)]
     #[case(
-        "tar --extract -f baz.tar",
-        "mkdir -p baz && tar --extract -f baz.tar -C baz",
+        |s: &str| format!("foo{}", s),
+        |s: &str| format!("foo{}", s),
+        |s: &str| format!("foo{}", s),
+        |s: &str| format!("tar xvf {}", s),
+        |dir: &str, filename: &str| format!("mkdir -p {dir} && tar xvf {filename} -C {dir}", dir=dir, filename=filename),
         true
     )]
-    fn test_match(#[case] command: &str, #[case] fixed: &str, #[case] is_match: bool) {
-        let mut command = CrabCommand::new(command.to_owned(), Some("".to_owned()), None);
-        assert_eq!(match_rule(&mut command, None), is_match);
+    #[case(
+        |s: &str| format!("foo{}", s),
+        |s: &str| format!("foo{}", s),
+        |s: &str| format!("foo{}", s),
+        |s: &str| format!("tar -xvf {}", s),
+        |dir: &str, filename: &str| format!("mkdir -p {dir} && tar -xvf {filename} -C {dir}", dir=dir, filename=filename),
+        true
+    )]
+    #[case(
+        |s: &str| format!("foo{}", s),
+        |s: &str| format!("foo{}", s),
+        |s: &str| format!("foo{}", s),
+        |s: &str| format!("tar --extract -f {}", s),
+        |dir: &str, filename: &str| format!("mkdir -p {dir} && tar --extract -f {filename} -C {dir}", dir=dir, filename=filename),
+        true
+    )]
+    #[case(
+        |s: &str| format!("\"foo bar{}\"", s),
+        |s: &str| format!("foo bar{}", s),
+        |s: &str| format!("'foo bar{}'", s),
+        |s: &str| format!("tar xvf {}", s),
+        |dir: &str, filename: &str| format!("mkdir -p {dir} && tar xvf {filename} -C {dir}", dir=dir, filename=filename),
+        true
+    )]
+    #[case(
+        |s: &str| format!("\"foo bar{}\"", s),
+        |s: &str| format!("foo bar{}", s),
+        |s: &str| format!("'foo bar{}'", s),
+        |s: &str| format!("tar -xvf {}", s),
+        |dir: &str, filename: &str| format!("mkdir -p {dir} && tar -xvf {filename} -C {dir}", dir=dir, filename=filename),
+        true
+    )]
+    #[case(
+        |s: &str| format!("\"foo bar{}\"", s),
+        |s: &str| format!("foo bar{}", s),
+        |s: &str| format!("'foo bar{}'", s),
+        |s: &str| format!("tar --extract -f {}", s),
+        |dir: &str, filename: &str| format!("mkdir -p {dir} && tar --extract -f {filename} -C {dir}", dir=dir, filename=filename),
+        true
+    )]
+    fn test_match<F, G, H, I, J>(
+        #[case] filename: F,
+        #[case] unquoted: G,
+        #[case] quoted: H,
+        #[case] script: I,
+        #[case] fixed: J,
+        #[case] is_match: bool,
+    ) where
+        F: Fn(&str) -> String,
+        G: Fn(&str) -> String,
+        H: Fn(&str) -> String,
+        I: Fn(&str) -> String,
+        J: Fn(&str, &str) -> String,
+    {
+        for ext in TAR_EXTENSIONS {
+            tar_error(&unquoted(ext));
+            let mut command = CrabCommand::new(script(&filename(ext)), Some("".to_owned()), None);
+            assert_eq!(match_rule(&mut command, None), is_match);
+        }
     }
 
     // #[rstest]
