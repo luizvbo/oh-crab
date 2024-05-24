@@ -34,7 +34,7 @@ codegen-units = 1 # Reduce number of codegen units to increase optimizations
 
 [dev-dependencies]
 mockall = "0.12.0"
-tempfile = "3.8.1"
+tempfile = "3.10.1"
 rstest = "0.18.2"
 
 [target.aarch64-apple-darwin]
