@@ -19,7 +19,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     let mut command_parts = command.script_parts.clone();
-    command_parts[1] = "link".to_owned();
+    "link".clone_into(&mut command_parts[1]);
     command_parts.insert(2, "--overwrite".to_owned());
     command_parts.insert(3, "--dry-run".to_owned());
     vec![command_parts.join(" ")]

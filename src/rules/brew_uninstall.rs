@@ -19,7 +19,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     let mut command_parts = command.script_parts.clone();
-    command_parts[1] = "uninstall".to_owned();
+    "uninstall".clone_into(&mut command_parts[1]);
     command_parts.insert(2, "--force".to_owned());
     vec![command_parts.join(" ")]
 }

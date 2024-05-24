@@ -27,7 +27,7 @@ fn is_tar_extract(cmd: &str) -> bool {
         return true;
     }
     let cmd_split: Vec<&str> = cmd.split_whitespace().collect();
-    return cmd_split.len() > 1 && cmd_split[1].contains('x');
+    cmd_split.len() > 1 && cmd_split[1].contains('x')
 }
 
 fn tar_file(cmd: &[String]) -> Option<(String, String)> {
@@ -120,7 +120,7 @@ mod tests {
         let filename = format!("./{}", filename);
         let path = tmp_dir.path().join(&filename);
 
-        let _ = env::set_current_dir(&tmp_dir.path());
+        let _ = env::set_current_dir(tmp_dir.path());
         reset(&path);
 
         let entries = fs::read_dir(".").unwrap();
@@ -228,7 +228,7 @@ mod tests {
 
     #[test]
     // The unit tests were split into test_match, test_side_effect and test_get_new_command.
-    // However, there was an issue with tempfile raising errors when the tests were running in 
+    // However, there was an issue with tempfile raising errors when the tests were running in
     // parallel. Hence, we moved them to the same function.
     fn test_dirty_unrar() {
         for (filename, unquoted, quoted) in get_filename() {
