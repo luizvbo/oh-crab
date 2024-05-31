@@ -73,17 +73,20 @@ pub fn side_effect(old_cmd: CrabCommand, command: Option<&str>) {
             let file = file.unwrap();
             let path = file.path().unwrap().to_path_buf();
 
-            if !path
-                .canonicalize()
-                .unwrap()
-                .starts_with(std::env::current_dir().unwrap())
-            {
-                // it's unsafe to overwrite files outside of the current directory
-                continue;
-            }
+            let filename = path.to_string_lossy();
+            if !filename.starts_with("._") {
+                if !path
+                    .canonicalize()
+                    .unwrap()
+                    .starts_with(std::env::current_dir().unwrap())
+                {
+                    // it's unsafe to overwrite files outside of the current directory
+                    continue;
+                }
 
-            if path.is_file() {
-                fs::remove_file(path).unwrap_or(());
+                if path.is_file() {
+                    fs::remove_file(path).unwrap_or(());
+                }
             }
         }
     }
