@@ -1,6 +1,6 @@
 [package]
 name = "ohcrab"
-version = "0.7.4"
+version = "0.7.5"
 edition = "2021"
 description = "Fix your command line magically"
 authors = ["Luiz Otavio Vilas Boas Oliveira <luiz.vbo@gmail.com>"]
