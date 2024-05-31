@@ -684,7 +684,7 @@ checksum = "51d515d32fb182ee37cda2ccdcb92950d6a3c2893aa280e540671c2cd0f3b1d9"
 
 [[package]]
 name = "ohcrab"
-version = "0.7.4"
+version = "0.7.5"
 dependencies = [
  "clap",
  "console",
