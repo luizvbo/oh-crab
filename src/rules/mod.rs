@@ -31,6 +31,8 @@ mod cp_omitting_directory;
 mod cpp11;
 #[cfg(feature = "tar")]
 mod dirty_untar;
+#[cfg(feature = "zip")]
+mod dirty_unzip;
 mod django_south_ghost;
 mod django_south_merge;
 mod docker_image_being_used_by_container;
@@ -160,6 +162,8 @@ pub fn get_rules() -> Vec<Rule> {
         cpp11::get_rule(),
         #[cfg(feature = "tar")]
         dirty_untar::get_rule(),
+        #[cfg(feature = "zip")]
+        dirty_unzip::get_rule(),
         django_south_ghost::get_rule(),
         django_south_merge::get_rule(),
         docker_image_being_used_by_container::get_rule(),
