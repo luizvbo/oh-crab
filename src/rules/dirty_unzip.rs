@@ -2,39 +2,28 @@ use super::{utils::match_rule_with_is_app, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
 use shlex::Quoter;
 use std::fs;
-use tar::Archive;
+use std::fs::File;
+use std::io::Result;
+use zip::read::ZipArchive;
 
-const TAR_EXTENSIONS: [&str; 15] = [
-    ".tar",
-    ".tar.Z",
-    ".tar.bz2",
-    ".tar.gz",
-    ".tar.lz",
-    ".tar.lzma",
-    ".tar.xz",
-    ".taz",
-    ".tb2",
-    ".tbz",
-    ".tbz2",
-    ".tgz",
-    ".tlz",
-    ".txz",
-    ".tz",
-];
+fn is_bad_zip(file: &str) -> Result<bool> {
+    let reader = File::open(file)?;
+    let mut archive = ZipArchive::new(reader)?;
 
-fn is_tar_extract(cmd: &str) -> bool {
-    if cmd.contains("--extract") {
-        return true;
-    }
-    let cmd_split: Vec<&str> = cmd.split_whitespace().collect();
-    cmd_split.len() > 1 && cmd_split[1].contains('x')
+    Ok(archive.len() > 1)
 }
 
-fn tar_file(cmd: &[String]) -> Option<(String, String)> {
-    for c in cmd {
-        for ext in &TAR_EXTENSIONS {
-            if c.ends_with(ext) {
-                return Some((c.clone(), c[..c.len() - ext.len()].to_string()));
+fn get_zipped_file(command: &CrabCommand) -> Option<String> {
+    // unzip works this way:
+    // unzip [-flags] file[.zip] [file(s) ...] [-x file(s) ...]
+    //                ^          ^ files to unzip from the archive
+    //                archive to unzip
+    for c in &command.script_parts[1..] {
+        if !c.starts_with('-') {
+            if c.ends_with(".zip") {
+                return Some(c.to_string());
+            } else {
+                return Some(format!("{}.zip", c));
             }
         }
     }
@@ -42,59 +31,85 @@ fn tar_file(cmd: &[String]) -> Option<(String, String)> {
 }
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    !command.script.contains("-C")
-        && is_tar_extract(&command.script)
-        && tar_file(&command.script_parts).is_some()
+    if command.script.contains("-d") {
+        return false;
+    }
+    let zipped_files = get_zipped_file(command);
+    return match zipped_files {
+        Some(zip_file) => is_bad_zip(&zip_file).is_ok(),
+        None => false,
+    };
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
-    match_rule_with_is_app(auxiliary_match_rule, command, vec!["tar"], None)
+    match_rule_with_is_app(auxiliary_match_rule, command, vec!["unzip"], None)
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     let shlex_quoter = Quoter::new();
-    return match tar_file(&command.script_parts) {
-        Some((_, filepath_no_ext)) => {
-            let dir = shlex_quoter.quote(&filepath_no_ext).unwrap();
-            vec![system_shell.unwrap().and(vec![
-                &format!("mkdir -p {}", dir),
-                &format!("{cmd} -C {dir}", dir = dir, cmd = command.script),
-            ])]
-        }
-        nonw => return vec![],
+    let zipped_file = get_zipped_file(command);
+    return match zipped_file {
+        Some(zipped_file) => vec![format!(
+            "{} -d {}",
+            command.script,
+            shlex_quoter.quote(&zipped_file).unwrap()
+        )],
+        None => vec![],
     };
 }
 
 pub fn side_effect(old_cmd: CrabCommand, command: Option<&str>) {
-    if let Some((filepath, _)) = tar_file(&old_cmd.script_parts) {
-        let mut archive = Archive::new(std::fs::File::open(filepath).unwrap());
+    let zipped_file = get_zipped_file(&old_cmd);
+    if let Some(zipped_file) = zipped_file {
+        match fs::File::open(&zipped_file) {
+            Ok(reader) => match ZipArchive::new(reader) {
+                Ok(mut archive) => {
+                    for i in 0..archive.len() {
+                        match archive.by_index(i) {
+                            Ok(mut file) => {
+                                let outpath = file.mangled_name();
+                                match outpath.canonicalize() {
+                                    Ok(outpath) => {
+                                        if !outpath.starts_with(std::env::current_dir().unwrap()) {
+                                            // it's unsafe to overwrite files outside of the current directory
+                                            continue;
+                                        }
+                                    }
+                                    Err(e) => {
+                                        eprintln!("Failed to canonicalize path: {}", e);
+                                        continue;
+                                    }
+                                }
 
-        for file in archive.entries().unwrap() {
-            let file = file.unwrap();
-            let path = file.path().unwrap().to_path_buf();
-
-            let filename = path.to_string_lossy();
-            if !filename.starts_with("._") {
-                if !path
-                    .canonicalize()
-                    .unwrap()
-                    .starts_with(std::env::current_dir().unwrap())
-                {
-                    // it's unsafe to overwrite files outside of the current directory
-                    continue;
+                                if outpath.is_file() {
+                                    if let Err(e) = fs::remove_file(&outpath) {
+                                        eprintln!(
+                                            "Failed to remove file {}: {}",
+                                            outpath.display(),
+                                            e
+                                        );
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                eprintln!("Failed to get file from archive: {}", e);
+                            }
+                        }
+                    }
                 }
-
-                if path.is_file() {
-                    fs::remove_file(path).unwrap_or(());
+                Err(e) => {
+                    eprintln!("Failed to open zip archive: {}", e);
                 }
+            },
+            Err(e) => {
+                eprintln!("Failed to open file {}: {}", zipped_file, e);
             }
         }
     }
 }
-
 pub fn get_rule() -> Rule {
     Rule::new(
-        "dirty_untar".to_owned(),
+        "dirty_unzip".to_owned(),
         None,
         None,
         None,
@@ -106,7 +121,7 @@ pub fn get_rule() -> Rule {
 
 #[cfg(test)]
 mod tests {
-    use super::{get_new_command, match_rule, side_effect, TAR_EXTENSIONS};
+    use super::{get_new_command, match_rule, side_effect};
     use crate::cli::command::CrabCommand;
     use crate::shell::Bash;
     use std::env;
@@ -114,12 +129,10 @@ mod tests {
     use std::fs::File;
     use std::io::Write;
     use std::path::Path;
-    use std::path::PathBuf;
-    use tar::Archive;
-    use tar::Builder;
     use tempfile::TempDir;
+    use zip::{write::SimpleFileOptions, ZipWriter};
 
-    pub fn tar_error(filename: &str, tmp_dir: &TempDir) {
+    pub fn zip_error(filename: &str, tmp_dir: &TempDir) {
         let filename = format!("./{}", filename);
         let path = tmp_dir.path().join(&filename);
 
@@ -152,24 +165,25 @@ mod tests {
     }
 
     fn reset(path: &Path) {
-        fs::create_dir("d").unwrap();
-        let files = vec!["a", "b", "c", "d/e"];
+        let file = File::create(path).unwrap();
+        let mut zip = ZipWriter::new(file);
 
-        let tar_gz = File::create(path).unwrap();
-        let mut tar = Builder::new(tar_gz);
+        let options =
+            SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
 
-        for file in files {
-            let file_path = PathBuf::from(file);
+        zip.start_file("a", options).unwrap();
+        zip.write_all(b"1").unwrap();
 
-            let mut f = File::create(&file_path).unwrap();
-            f.write_all(b"*").unwrap();
-            tar.append_path(&file_path).unwrap();
-            fs::remove_file(&file_path).unwrap();
-        }
+        zip.start_file("b", options).unwrap();
+        zip.write_all(b"2").unwrap();
 
-        let tar_gz = File::open(path).unwrap();
-        let mut tar = Archive::new(tar_gz);
-        tar.unpack(".").unwrap();
+        zip.start_file("c", options).unwrap();
+        zip.write_all(b"3").unwrap();
+
+        zip.start_file("d/e", options).unwrap();
+        zip.write_all(b"4").unwrap();
+
+        zip.finish().unwrap();
     }
 
     fn get_filename() -> Vec<(
@@ -238,7 +252,7 @@ mod tests {
             for (script, fixed) in get_script() {
                 for ext in TAR_EXTENSIONS {
                     let tmp_dir = TempDir::new().unwrap();
-                    tar_error(&unquoted(ext), &tmp_dir);
+                    zip_error(&unquoted(ext), &tmp_dir);
                     let mut command =
                         CrabCommand::new(script(&filename(ext)), Some("".to_owned()), None);
                     assert!(match_rule(&mut command, None));
