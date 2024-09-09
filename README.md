@@ -8,6 +8,7 @@
 ## Table of contents
 
 1. [Installation](#installation)
+    1. [Add ohcrab to your environment](#add-ohcrab-to-your-environment)
 1. [Usage](#usage)
 1. [Contributing](#contributing)
 1. [Road map](#road-map)
@@ -80,7 +81,7 @@ Now, you should be able to run your program from the terminal by typing
 `ohcrab`.
 
 Proceed to
-[adding ohcrab to your environment](#adding-ohcrab-to-your-environment) to
+[add ohcrab to your environment](#add-ohcrab-to-your-environment) to
 finalize the installation.
 
 ### Install from cargo
@@ -99,27 +100,42 @@ You can install `ohcrab` using [`cargo`](https://crates.io/):
 cargo install ohcrab
 ```
 
-### Adding ohcrab to your environment
+### Add ohcrab to your environment
 
 In order for `ohcrab` to work in your terminal, you need to export the correct
-function for your shell. Currently, we support `bash` and `zsh`. Copy and paste
-the respective command to your terminal:
+function for your shell. Currently, we support `Bash`, `ZSH` and `PowerShell`
+(experimental). Copy and paste the respective command to your terminal:
 
-- For `bash`, use:
+#### Bash setup 
 
 ```shell
 eval $(ohcrab --shell bash)
 ```
 
-- For `zsh`, use:
+#### ZSH setup 
 
 ```shell
 eval $(ohcrab --shell zsh)
 ```
 
-**NOTE**: In order to load `ohcrab` every time you open a terminal, add the
-`eval` command above to your .bash_profile, .bashrc, .zshrc or other startup
-script.
+#### PowerShell setup 
+
+For PowerShell, we have two options:
+
+```powershell
+iex "$(ohcrab --shell powershell)"
+```
+
+Or you can use this instead:
+
+```powershell
+iex "$(ohcrab --shell pwsh)"
+```
+
+#### Loading ohcrab automatically
+
+In order to load `ohcrab` every time you open a terminal, add the `eval`
+command above to your .bash_profile, .bashrc, .zshrc or other startup script.
 
 ### Changing the alias
 
@@ -148,10 +164,10 @@ new rules or improving the crate.
 - [x] Add `sudo` support
 - [x] Distribute binaries for Linux, MacOs and Windows.
 - [x] Make a short screen record of its functioning
+- [x] Add support to PowerShell
 - [ ] Inform the user which shell type is being used when the `ohcrab` shell
       function is generated.
 - [ ] Add support to user shell aliases.
-- [ ] Add support to PowerShell
 - [ ] Reduce number/size of dependencies
 - [ ] Make it available via package managers
 - [ ] Benchmark against thefuck
