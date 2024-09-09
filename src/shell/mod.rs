@@ -124,6 +124,12 @@ pub struct PowerShell {
     command: String,
 }
 
+impl Default for PowerShell {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PowerShell {
     pub fn new() -> Self {
         let command = PowerShell::get_powershell_command().expect("No PowerShell command found");
