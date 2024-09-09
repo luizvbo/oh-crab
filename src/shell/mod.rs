@@ -2,12 +2,13 @@ use std::env;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::process::Command;
 
 use crate::{ARGUMENT_PLACEHOLDER, ENV_VAR_NAME_ALIAS, ENV_VAR_NAME_HISTORY, ENV_VAR_NAME_SHELL};
 
 pub trait Shell {
     fn app_alias(&self, alias_name: &str) -> String;
-    fn get_shell(&self) -> String;
+    fn get_shell_command(&self) -> String;
     fn get_history_file_name(&self) -> String;
     fn script_from_history(&self, command_script: &str) -> String {
         command_script.to_owned()
@@ -109,15 +110,92 @@ pub fn get_bash_type(shell_type: &str) -> Box<dyn Shell> {
     match shell_candidate.as_str() {
         "zsh" => Box::new(Zsh),
         "bash" => Box::new(Bash),
-        _ => panic!("The shell '{}' is not supported yet", shell_type),
+        "powershell" | "pwsh" => Box::new(PowerShell::new()),
+        _ => panic!(
+            "The shell '{}' is not supported yet. Supported shells: 'zsh', 'bash', 'powershell'",
+            shell_type
+        ),
     }
 }
 
 pub struct Zsh;
 pub struct Bash;
+pub struct PowerShell {
+    command: String,
+}
+
+impl Default for PowerShell {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl PowerShell {
+    pub fn new() -> Self {
+        let command = PowerShell::get_powershell_command().expect("No PowerShell command found");
+        PowerShell { command }
+    }
+
+    pub fn get_powershell_command() -> Option<String> {
+        // Check for pwsh (PowerShell Core)
+        let pwsh_check = Command::new("pwsh").arg("--version").output();
+        if let Ok(output) = pwsh_check {
+            if output.status.success() {
+                return Some("pwsh".to_string());
+            }
+        }
+        // Check for powershell (Windows PowerShell)
+        let powershell_check = Command::new("powershell")
+            .arg("-Command")
+            .arg("$PSVersionTable.PSVersion")
+            .output();
+
+        if let Ok(output) = powershell_check {
+            if output.status.success() {
+                return Some("powershell".to_string());
+            }
+        }
+        None
+    }
+}
+
+impl Shell for PowerShell {
+    fn get_shell_command(&self) -> String {
+        self.command.clone()
+    }
+
+    fn app_alias(&self, alias_name: &str) -> String {
+        format!(
+            "function {alias_name} {{
+            $history = (Get-History -Count 1).CommandLine;
+            if (-not [string]::IsNullOrWhiteSpace($history)) {{
+                $crab = $(ohcrab $args $history);
+                if (-not [string]::IsNullOrWhiteSpace($crab)) {{
+                    if ($crab.StartsWith(\"echo\")) {{ $crab = $crab.Substring(5); }}
+                    else {{ iex \"$crab\"; }}
+                }}
+            }}
+            [Console]::ResetColor()
+        }}",
+            alias_name = alias_name
+        )
+    }
+
+    fn and(&self, commands: Vec<&str>) -> String {
+        commands
+            .iter()
+            .map(|&c| format!("({})", c))
+            .collect::<Vec<String>>()
+            .join(" -and ")
+    }
+
+    fn get_history_file_name(&self) -> String {
+        "".to_string()
+    }
+}
 
 impl Shell for Zsh {
-    fn get_shell(&self) -> String {
+    fn get_shell_command(&self) -> String {
         "zsh".to_owned()
     }
 
@@ -164,7 +242,7 @@ impl Shell for Zsh {
 }
 
 impl Shell for Bash {
-    fn get_shell(&self) -> String {
+    fn get_shell_command(&self) -> String {
         "bash".to_owned()
     }
 

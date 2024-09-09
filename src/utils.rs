@@ -326,7 +326,7 @@ mod tests {
         pub MyShell {}
         impl Shell for MyShell {
             fn app_alias(&self, alias_name: &str) -> String;
-            fn get_shell(&self) -> String;
+            fn get_shell_command(&self) -> String;
             fn get_history_file_name(&self) -> String;
             fn script_from_history(&self, command_script: &str) -> String;
             fn get_history<'a>(&self, file_path: Option<&'a str>) -> Vec<String> ;

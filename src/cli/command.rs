@@ -3,6 +3,7 @@ use std::process::{Command, Stdio};
 use std::{fmt, str};
 
 use crate::shell::Shell;
+use crate::utils::debug_log;
 
 #[derive(Debug)]
 pub struct CorrectedCommand {
@@ -111,7 +112,8 @@ pub fn shlex_split(in_str: &str) -> Vec<String> {
 
 pub fn run_command(raw_command: Vec<String>, system_shell: &dyn Shell) -> CrabCommand {
     let command = prepare_command(raw_command);
-    let mut output = shell_command(&system_shell.get_shell())
+    debug_log(&format!("Running command {:?}", command));
+    let mut output = shell_command(&system_shell.get_shell_command())
         .arg(&command)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -136,7 +138,9 @@ pub fn shell_command(words_str: &str) -> Command {
     let mut words_vec = split(words_str).expect("empty shell command");
     let mut words = words_vec.iter_mut();
     let first_cmd = words.next().expect("absent shell binary");
-    let dash_c = if words_str.contains("cmd.exe") {
+    let dash_c = if first_cmd == "powershell" {
+        "-Command"
+    } else if words_str.contains("cmd.exe") {
         "/c"
     } else {
         "-c"

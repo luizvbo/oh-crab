@@ -53,7 +53,6 @@ mod tests {
     use super::{auxiliary_match_rule, get_new_command};
     use crate::cli::command::CrabCommand;
     use crate::rules::match_rule_without_sudo;
-    use crate::shell::Bash;
     use rstest::rstest;
 
     #[rstest]
@@ -83,7 +82,6 @@ mod tests {
         #[case] stdout: &str,
         #[case] expected: Vec<&str>,
     ) {
-        let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(get_new_command(&mut command, None), expected);
     }
