@@ -65,7 +65,6 @@ pub fn get_rule() -> Rule {
 mod tests {
     use super::{get_new_command, match_rule};
     use crate::cli::command::CrabCommand;
-    use crate::shell::Bash;
     use rstest::rstest;
 
     const ERROR_NO_WEBSITE: &str = "\nhostscli.errors.WebsiteImportError:\n\nNo Domain list found for website: a_website_that_does_not_exist\n\nPlease raise a Issue here: https://github.com/dhilipsiva/hostscli/issues/new\nif you think we should add domains for this website.\n\ntype `hostscli websites` to see a list of websites that you can block/unblock\n";
@@ -85,7 +84,6 @@ mod tests {
         #[case] stdout: &str,
         #[case] expected: Vec<&str>,
     ) {
-        let system_shell = Bash {};
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         assert_eq!(get_new_command(&mut command, None), expected);
     }
