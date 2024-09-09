@@ -8,7 +8,10 @@
 ## Table of contents
 
 1. [Installation](#installation)
+    1. [Download the binary](#download-the-binary)
+    1. [Install using cargo](#install-from-cargo)
     1. [Add ohcrab to your environment](#add-ohcrab-to-your-environment)
+    1. [Changing the alias](#changing-the-alias)
 1. [Usage](#usage)
 1. [Contributing](#contributing)
 1. [Road map](#road-map)
@@ -17,12 +20,12 @@
 
 Currently, there are two methods of installation:
 
-1. [Downloading the binary](#downloading-the-binary)
+1. [Download the binary](#download-the-binary)
 1. [Install using cargo](#install-from-cargo)
 
 See below how to install using any of these methods.
 
-### Downloading the binary
+### Download the binary
 
 Follow these steps to download and install the package using the pre-compiled
 binaries for your OS and architecture:
