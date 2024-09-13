@@ -35,10 +35,10 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
         return false;
     }
     let zipped_files = get_zipped_file(command);
-    return match zipped_files {
+    match zipped_files {
         Some(zip_file) => is_bad_zip(&zip_file).is_ok(),
         None => false,
-    };
+    }
 }
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
@@ -48,14 +48,14 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     let shlex_quoter = Quoter::new();
     let zipped_file = get_zipped_file(command);
-    return match zipped_file {
+    match zipped_file {
         Some(zipped_file) => vec![format!(
             "{} -d {}",
             command.script,
             shlex_quoter.quote(&zipped_file).unwrap()
         )],
         None => vec![],
-    };
+    }
 }
 
 pub fn side_effect(old_cmd: CrabCommand, command: Option<&str>) {
