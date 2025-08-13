@@ -15,7 +15,7 @@ use cli::{
     parser::{get_parser, prepare_arguments},
 };
 use rules::get_corrected_commands;
-use shell::get_bash_type;
+use shell::{get_bash_type, Shell};
 use std::env;
 
 use crate::{ui::interactive_menu, utils::debug_log};
@@ -25,34 +25,53 @@ const ENV_VAR_NAME_HISTORY: &str = "OHCRAB_COMMAND_HISTORY";
 const ENV_VAR_NAME_ALIAS: &str = "OHCRAB_ALIAS";
 const ENV_VAR_NAME_SHELL: &str = "OHCRAB_SHELL";
 
+/// Handles the command correction logic.
+fn handle_command_correction(
+    command_values: clap::parser::Values<String>,
+    system_shell: &dyn Shell,
+    select_first: bool,
+) {
+    let command_vec: Vec<String> = command_values.collect();
+    debug_log(&format!("Retrieved command(s): {:?}", command_vec));
+
+    let mut crab_command = run_command(command_vec, system_shell);
+    debug_log(&format!("Crab command: {:?}", crab_command));
+
+    let corrected_commands = get_corrected_commands(&mut crab_command, system_shell);
+    debug_log(&format!(
+        "Candidate command(s): {:?}",
+        corrected_commands
+            .iter()
+            .map(|cmd| cmd.script.to_owned())
+            .collect::<Vec<_>>()
+    ));
+
+    let selected_command = if select_first {
+        corrected_commands.get(0)
+    } else {
+        interactive_menu(&corrected_commands)
+    };
+
+    if let Some(valid_command) = selected_command {
+        // Print a new line after the menu if in interactive mode
+        if !select_first {
+            eprintln!();
+        }
+        debug_log(&format!("Command selected: {:?}", valid_command));
+        valid_command.run(crab_command);
+    }
+}
+
 fn main() {
     // Skip the first element of `env::args()` (the name of program)
-    let args = env::args().skip(1).collect();
+    let args: Vec<String> = env::args().skip(1).collect();
     let args = prepare_arguments(args);
     let mut arg_matches = get_parser().get_matches_from(args);
     let system_shell = get_bash_type(&arg_matches.remove_one::<String>("shell").unwrap());
+    let select_first = arg_matches.get_flag("select-first");
 
     if let Some(command) = arg_matches.remove_many::<String>("command") {
-        let command_vec = command.collect();
-        debug_log(&format!("Retrieved command(s): {:?}", command_vec));
-        let mut crab_command = run_command(command_vec, &*system_shell);
-        debug_log(&format!("Crab command: {:?}", crab_command));
-        let corrected_commands = get_corrected_commands(&mut crab_command, &*system_shell);
-        debug_log(&format!(
-            "Candidate command(s): {:?}",
-            corrected_commands
-                .iter()
-                .map(|cmd| cmd.script.to_owned())
-                .collect::<Vec<_>>()
-        ));
-        let selected_command = interactive_menu(&corrected_commands);
-        // Print a new line after the menu
-        eprintln!();
-        if let Some(valid_command) = selected_command {
-            let corrected_commands = get_corrected_commands(&mut crab_command, &*system_shell);
-            debug_log(&format!("Command selected: {:?}", valid_command));
-            valid_command.run(crab_command);
-        }
+        handle_command_correction(command, &*system_shell, select_first);
     } else {
         let alias_name = arg_matches.get_one::<String>("alias").unwrap();
         println!("{}", system_shell.app_alias(alias_name));

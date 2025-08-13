@@ -1,3 +1,4 @@
+// FILE: ./src/cli/parser.rs
 use clap::{command, Arg, ArgAction};
 use std::env;
 
@@ -10,20 +11,20 @@ use crate::{ARGUMENT_PLACEHOLDER, ENV_VAR_NAME_ALIAS, ENV_VAR_NAME_HISTORY, ENV_
 ///
 /// * `argv`:
 pub fn prepare_arguments(mut argv: Vec<String>) -> Vec<String> {
-    match argv.iter().position(|x| *x == ARGUMENT_PLACEHOLDER) {
-        Some(index) => {
-            let mut argv_processed = Vec::<String>::with_capacity(argv.len() + 1);
-            argv_processed.extend_from_slice(&argv[index + 1..]);
-            argv_processed.push("--".to_owned());
-            argv_processed.extend_from_slice(&argv[..index]);
-            argv_processed
+    if let Some(index) = argv.iter().position(|x| *x == ARGUMENT_PLACEHOLDER) {
+        let mut command_part = argv.split_off(index);
+        // Remove the placeholder itself
+        command_part.remove(0);
+
+        let mut processed_args = command_part;
+        processed_args.push("--".to_owned());
+        processed_args.append(&mut argv);
+        processed_args
+    } else {
+        if !argv.is_empty() && !argv[0].starts_with('-') && argv[0] != "--" {
+            argv.insert(0, "--".to_owned());
         }
-        None => {
-            if !argv.is_empty() && !argv[0].starts_with('-') && argv[0] != "--" {
-                argv.insert(0, "--".to_owned());
-            }
-            argv
-        }
+        argv
     }
 }
 
@@ -58,6 +59,14 @@ pub fn get_parser() -> clap::Command {
                 .required(false),
         )
         .arg(
+            Arg::new("select-first")
+                .long("select-first")
+                .short('y')
+                .help("Automatically select the first corrected command")
+                .action(ArgAction::SetTrue)
+                .required(false),
+        )
+        .arg(
             Arg::new("command")
                 .help("Command that should be fixed")
                 .action(ArgAction::Append)
@@ -76,67 +85,72 @@ mod tests {
     use clap::parser::ValueSource;
     use std::env;
 
+    // This single test now covers all logic related to the 'alias' argument,
+    // preventing race conditions.
     #[test]
-    fn test_get_parser_alias_source() {
+    fn test_parser_alias_logic() {
+        // --- Test Case 1: Default value ---
         env::remove_var(ENV_VAR_NAME_ALIAS);
+        let matches = get_parser().get_matches_from(Vec::<String>::new());
         assert_eq!(
-            get_parser()
-                .get_matches_from(Vec::<String>::new())
-                .value_source("alias"),
+            matches.value_source("alias"),
             Some(ValueSource::DefaultValue)
         );
-        env::set_var(ENV_VAR_NAME_ALIAS, "env_alias");
         assert_eq!(
-            get_parser()
-                .get_matches_from(Vec::<String>::new())
-                .value_source("alias"),
+            matches.get_one::<String>("alias"),
+            Some(&"crab".to_string())
+        );
+
+        // --- Test Case 2: Value from environment variable ---
+        env::set_var(ENV_VAR_NAME_ALIAS, "env_alias");
+        let matches = get_parser().get_matches_from(Vec::<String>::new());
+        assert_eq!(
+            matches.value_source("alias"),
             Some(ValueSource::EnvVariable)
         );
         assert_eq!(
-            get_parser()
-                .get_matches_from(vec!["--alias=new_alias"])
-                .value_source("alias"),
-            Some(ValueSource::CommandLine)
-        );
-    }
-    #[test]
-    fn test_get_parser_matches() {
-        // In case no alias is provided or the environment variable `OC_ALIAS`
-        // is not set we should get the default value "crab"
-        env::remove_var(ENV_VAR_NAME_ALIAS);
-        assert_eq!(
-            get_parser()
-                .get_matches_from(Vec::<String>::new())
-                .get_one::<String>("alias"),
-            Some(&"crab".to_string())
-        );
-        // Test alias defined from environment variable
-        env::set_var(ENV_VAR_NAME_ALIAS, "env_alias");
-        assert_eq!(
-            get_parser()
-                .get_matches_from(Vec::<String>::new())
-                .get_one::<String>("alias"),
+            matches.get_one::<String>("alias"),
             Some(&"env_alias".to_string())
         );
+
+        // --- Test Case 3: Value from command line (overrides env var) ---
+        let matches = get_parser().get_matches_from(vec!["--alias", "new_alias"]);
         assert_eq!(
-            get_parser()
-                .get_matches_from(vec!["--alias", "new_alias"])
-                .get_one::<String>("alias"),
+            matches.value_source("alias"),
+            Some(ValueSource::CommandLine)
+        );
+        assert_eq!(
+            matches.get_one::<String>("alias"),
             Some(&"new_alias".to_string())
         );
+
+        // --- Cleanup ---
+        env::remove_var(ENV_VAR_NAME_ALIAS);
+    }
+
+    // This test is now independent and doesn't interfere.
+    #[test]
+    fn test_parser_other_arguments() {
+        env::remove_var(ENV_VAR_NAME_SHELL);
+        env::remove_var(ENV_VAR_NAME_HISTORY);
+
+        // Test default shell
         assert_eq!(
             get_parser()
                 .get_matches_from(Vec::<String>::new())
                 .get_one::<String>("shell"),
             Some(&"bash".to_string())
         );
+
+        // Test shell from command line
         assert_eq!(
             get_parser()
-                .get_matches_from(vec!["-s", "bash"])
+                .get_matches_from(vec!["-s", "zsh"])
                 .get_one::<String>("shell"),
-            Some(&"bash".to_string())
+            Some(&"zsh".to_string())
         );
-        // Test shell defined from environment variable
+
+        // Test shell from environment variable
         env::set_var(ENV_VAR_NAME_SHELL, "pws");
         assert_eq!(
             get_parser()
@@ -144,9 +158,13 @@ mod tests {
                 .get_one::<String>("shell"),
             Some(&"pws".to_string())
         );
+
+        // Test debug flag
         assert!(get_parser()
             .get_matches_from(vec!["-d", "--", "anything"])
             .get_flag("debug"));
+
+        // Test command from command line
         assert_eq!(
             get_parser()
                 .get_matches_from(vec!["--", "ls", "-a"])
@@ -155,7 +173,8 @@ mod tests {
                 .collect::<Vec<_>>(),
             ["ls", "-a"]
         );
-        // Test command defined from environment variable
+
+        // Test command from environment variable
         env::set_var(ENV_VAR_NAME_HISTORY, "ls -a\nls -lah");
         assert_eq!(
             get_parser()
@@ -165,6 +184,10 @@ mod tests {
                 .collect::<Vec<_>>(),
             ["ls -a\nls -lah"]
         );
+
+        // --- Cleanup ---
+        env::remove_var(ENV_VAR_NAME_SHELL);
+        env::remove_var(ENV_VAR_NAME_HISTORY);
     }
 
     #[test]
