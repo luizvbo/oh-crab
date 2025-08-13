@@ -47,7 +47,7 @@ fn handle_command_correction(
     ));
 
     let selected_command = if select_first {
-        corrected_commands.get(0)
+        corrected_commands.first()
     } else {
         interactive_menu(&corrected_commands)
     };

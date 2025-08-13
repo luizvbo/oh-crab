@@ -80,10 +80,7 @@ mod tests {
         let mut command = CrabCommand::new(script.to_owned(), Some(stdout.to_owned()), None);
         // For matching cases, we need to mock `which` to return an error.
         let mock_which_result = if expected { Some(false) } else { mock_which };
-        assert_eq!(
-            _match_rule(&mut command, None, mock_which_result),
-            expected
-        );
+        assert_eq!(_match_rule(&mut command, None, mock_which_result), expected);
     }
 
     #[rstest]

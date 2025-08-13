@@ -23,7 +23,7 @@ where
     F: Fn(&str) -> bool,
 {
     if let Some(output) = &command.output {
-        command.script_parts.first().map_or(false, |s| s == "ln")
+        command.script_parts.first().is_some_and(|s| s == "ln")
             && (command.script_parts.contains(&"-s".to_owned())
                 || command.script_parts.contains(&"--symbolic".to_owned()))
             && output.contains("File exists")

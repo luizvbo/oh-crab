@@ -14,7 +14,7 @@ fn get_sub_dirs(parent: &str) -> Vec<String> {
         let sub_dirs: Vec<String> = entries
             .into_iter()
             .flatten()
-            .filter(|entry| entry.metadata().map_or(false, |m| m.is_dir()))
+            .filter(|entry| entry.metadata().is_ok_and(|m| m.is_dir()))
             .map(|entry| entry.path().to_str().unwrap().to_string())
             .collect();
     }

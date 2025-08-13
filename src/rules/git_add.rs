@@ -125,16 +125,30 @@ mod tests {
     }
 
     #[rstest]
-    #[case("git submodule update unknown", "unknown", "git add -- unknown && git submodule update unknown")]
-    #[case("git commit unknown", "unknown", "git add -- unknown && git commit unknown")]
+    #[case(
+        "git submodule update unknown",
+        "unknown",
+        "git add -- unknown && git submodule update unknown"
+    )]
+    #[case(
+        "git commit unknown",
+        "unknown",
+        "git add -- unknown && git commit unknown"
+    )]
     // This is the corrected test case:
-    #[case("git commit \"file with spaces.txt\"", "file with spaces.txt", "git add -- 'file with spaces.txt' && git commit \"file with spaces.txt\"")]
+    #[case(
+        "git commit \"file with spaces.txt\"",
+        "file with spaces.txt",
+        "git add -- 'file with spaces.txt' && git commit \"file with spaces.txt\""
+    )]
     fn test_get_new_command(#[case] script: &str, #[case] target: &str, #[case] expected: &str) {
-        let stdout =
-            format!("error: pathspec '{}' did not match any file(s) known to git.", target);
+        let stdout = format!(
+            "error: pathspec '{}' did not match any file(s) known to git.",
+            target
+        );
         let system_shell = Bash {};
         let command = CrabCommand::new(script.to_owned(), Some(stdout), None);
-        
+
         // The assertion now correctly expects single quotes from shlex in the `git add`
         // part and preserves the original double quotes in the `git commit` part.
         assert_eq!(

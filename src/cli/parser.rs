@@ -6,7 +6,7 @@ use crate::{ARGUMENT_PLACEHOLDER, ENV_VAR_NAME_ALIAS, ENV_VAR_NAME_HISTORY, ENV_
 
 /// Prepares arguments by:
 /// - Removing placeholder and moving arguments after it to beginning, we need this
-///     to distinguish arguments from `command` with ours;
+///   to distinguish arguments from `command` with ours;
 /// - Adding `--` before `command`, so that our parser ignores arguments of `command`.
 ///
 /// * `argv`:

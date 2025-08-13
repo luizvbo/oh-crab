@@ -190,6 +190,9 @@ mod tests {
         let system_shell: Box<dyn Shell> = Box::new(Bash {});
         let crab_command = run_command(command_vec, &*system_shell);
         assert_eq!(crab_command.script, command);
-        assert!(crab_command.output.unwrap().contains("No such file or directory"));
+        assert!(crab_command
+            .output
+            .unwrap()
+            .contains("No such file or directory"));
     }
 }

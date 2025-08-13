@@ -10,7 +10,7 @@ use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
-        command.script_parts.first().map_or(false, |s| s == "lein")
+        command.script_parts.first().is_some_and(|s| s == "lein")
             && output.contains("is not a task. See 'lein help'")
             && output.contains("Did you mean this?")
     } else {

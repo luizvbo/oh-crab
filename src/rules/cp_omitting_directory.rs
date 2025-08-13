@@ -6,7 +6,7 @@ use regex::Regex;
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
     if let Some(output) = &command.output {
-        command.script_parts.first().map_or(false, |s| s == "cp")
+        command.script_parts.first().is_some_and(|s| s == "cp")
             && (output.contains("omitting directory") || output.contains("is a directory"))
     } else {
         false
