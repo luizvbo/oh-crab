@@ -7,6 +7,7 @@ use crate::{
     shell::Shell,
 };
 use regex::Regex;
+use shlex::Quoter; // Import the Quoter
 use std::path::Path;
 
 fn get_missing_file(command: &CrabCommand, path_exists: Option<bool>) -> Option<String> {
@@ -59,8 +60,12 @@ fn mockable_get_new_command(
     system_shell: Option<&dyn Shell>,
     path_exists: Option<bool>,
 ) -> Vec<String> {
-    let missing_file = get_missing_file(command, path_exists);
-    let str_git_add = format!("git add -- {}", missing_file.unwrap_or("".to_owned()));
+    let missing_file = get_missing_file(command, path_exists).unwrap_or_default();
+    // Use the shlex Quoter to handle spaces and special characters
+    let quoter = Quoter::new();
+    let quoted_missing_file = quoter.quote(&missing_file).unwrap_or_default();
+
+    let str_git_add = format!("git add -- {}", quoted_missing_file);
     vec![system_shell
         .unwrap()
         .and(vec![&str_git_add, &command.script])]
@@ -94,56 +99,47 @@ mod tests {
     use super::{mockable_get_new_command, mockable_match_rule};
     use crate::cli::command::CrabCommand;
     use crate::shell::Bash;
+    use rstest::rstest;
 
-    macro_rules! parameterized_match_rule_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (script, target, path_exists, check_eq) = $value;
-                    let stdout = format!("error: pathspec '{}' did not match any file(s) known to git.", target);
-                    let mut command = CrabCommand::new(
-                                script.to_owned(),
-                                Some(stdout.to_owned()),
-                                None
-                            );
-                    assert_eq!(mockable_match_rule(&mut command, Some(path_exists)), check_eq);
-                }
-            )*
-        }
+    #[rstest]
+    #[case("git submodule update unknown", "unknown", true, true)]
+    #[case("git commit unknown", "unknown", true, true)]
+    #[case("git submodule update known", "", true, false)]
+    #[case("git commit known", "", true, false)]
+    fn test_match_rule(
+        #[case] script: &str,
+        #[case] target: &str,
+        #[case] path_exists: bool,
+        #[case] expected: bool,
+    ) {
+        let stdout = if !target.is_empty() {
+            format!(
+                "error: pathspec '{}' did not match any file(s) known to git.",
+                target
+            )
+        } else {
+            "".to_string()
+        };
+        let command = CrabCommand::new(script.to_owned(), Some(stdout), None);
+        assert_eq!(mockable_match_rule(&command, Some(path_exists)), expected);
     }
 
-    macro_rules! parameterized_get_new_command_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (script, target, expected) = $value;
-                    let stdout = format!("error: pathspec '{}' did not match any file(s) known to git.", target);
-                    let system_shell = Bash{};
-                    let mut command = CrabCommand::new(
-                                script.to_owned(),
-                                Some(stdout.to_owned()),
-                                None
-                            );
-                    assert_eq!(mockable_get_new_command(&mut command, Some(&system_shell), Some(true))[0], expected);
-                }
-            )*
-        }
-    }
-
-    parameterized_match_rule_tests! {
-        match_rule_1: ("git submodule update unknown", "unknown", true, true),
-        match_rule_2: ("git commit unknown", "unknown", true, true),
-    }
-
-    parameterized_match_rule_tests! {
-        unmatch_rule_1: ("git submodule update known", "", true, false),
-        unmatch_rule_2: ("git commit known", "", true, false),
-    }
-
-    parameterized_get_new_command_tests! {
-        get_new_command_1: ("git submodule update unknown", "unknown", "git add -- unknown && git submodule update unknown"),
-        get_new_command_2: ("git commit unknown", "unknown", "git add -- unknown && git commit unknown"),
+    #[rstest]
+    #[case("git submodule update unknown", "unknown", "git add -- unknown && git submodule update unknown")]
+    #[case("git commit unknown", "unknown", "git add -- unknown && git commit unknown")]
+    // This is the corrected test case:
+    #[case("git commit \"file with spaces.txt\"", "file with spaces.txt", "git add -- 'file with spaces.txt' && git commit \"file with spaces.txt\"")]
+    fn test_get_new_command(#[case] script: &str, #[case] target: &str, #[case] expected: &str) {
+        let stdout =
+            format!("error: pathspec '{}' did not match any file(s) known to git.", target);
+        let system_shell = Bash {};
+        let command = CrabCommand::new(script.to_owned(), Some(stdout), None);
+        
+        // The assertion now correctly expects single quotes from shlex in the `git add`
+        // part and preserves the original double quotes in the `git commit` part.
+        assert_eq!(
+            mockable_get_new_command(&command, Some(&system_shell), Some(true))[0],
+            expected
+        );
     }
 }
