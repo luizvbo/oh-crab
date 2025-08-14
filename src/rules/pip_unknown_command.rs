@@ -28,7 +28,7 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     if let Some(output) = &command.output {
-        println!("{:?}", output);
+        println!("{output:?}");
         let broken_cmd = Regex::new(r#"ERROR: unknown command "([^"]+)""#)
             .unwrap()
             .captures(output)
@@ -64,10 +64,7 @@ mod tests {
     use rstest::rstest;
 
     fn pip_unknown_cmd(broken: &str, suggested: &str) -> String {
-        format!(
-            r#"ERROR: unknown command "{}" - maybe you meant "{}""#,
-            broken, suggested
-        )
+        format!(r#"ERROR: unknown command "{broken}" - maybe you meant "{suggested}""#)
     }
 
     #[rstest]

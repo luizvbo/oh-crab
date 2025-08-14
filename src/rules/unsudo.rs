@@ -3,7 +3,7 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     if let Some(output) = &command.output {
-        command.script_parts.first().map_or(false, |s| s == "sudo")
+        command.script_parts.first().is_some_and(|s| s == "sudo")
             && output
                 .to_lowercase()
                 .contains("you cannot perform this operation as root")

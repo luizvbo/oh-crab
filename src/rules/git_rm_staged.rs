@@ -59,7 +59,7 @@ mod tests {
     use rstest::rstest;
 
     fn output(target: &str) -> String {
-        format!("error: the following file has changes staged in the index:\n    {}\n(use --cached to keep the file, or -f to force removal)", target)
+        format!("error: the following file has changes staged in the index:\n    {target}\n(use --cached to keep the file, or -f to force removal)")
     }
 
     #[rstest]

@@ -19,7 +19,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
         let arg = command.script_parts[1..].join(" ");
         vec![match arg.is_empty() {
             true => "ls -A".to_owned(),
-            false => format!("ls -A {}", arg),
+            false => format!("ls -A {arg}"),
         }]
     } else {
         Vec::<String>::new()

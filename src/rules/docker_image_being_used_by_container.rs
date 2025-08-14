@@ -20,7 +20,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
         .unwrap()
         .trim()
         .split(' ')
-        .last()
+        .next_back()
         .unwrap();
     vec![format!(
         "docker container rm -f {} && {}",

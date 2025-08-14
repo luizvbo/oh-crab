@@ -14,9 +14,9 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
     }
     if let Some(output) = &command.output {
         let last_arg = command.script_parts.last().unwrap();
-        let help_command = format!("{} --help", last_arg);
+        let help_command = format!("{last_arg} --help");
 
-        if output.trim() == format!("No manual entry for {}", last_arg) {
+        if output.trim() == format!("No manual entry for {last_arg}") {
             return vec![help_command];
         }
 

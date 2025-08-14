@@ -48,7 +48,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
             vec![replace_argument(
                 &command.script,
                 &command_name,
-                &format!("env \"PATH=$PATH\" {}", command_name),
+                &format!("env \"PATH=$PATH\" {command_name}"),
             )]
         } else {
             vec![]
@@ -79,7 +79,7 @@ mod tests {
     use rstest::rstest;
 
     fn error_command_not_found(command: &str) -> String {
-        format!("sudo: {}: command not found", command)
+        format!("sudo: {command}: command not found")
     }
 
     #[rstest]

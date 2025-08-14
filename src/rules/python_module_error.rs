@@ -20,7 +20,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
             .and_then(|caps| caps.get(1).map(|m| m.as_str().to_owned()))
             .unwrap_or("".to_owned());
         vec![system_shell.unwrap().and(vec![
-            &format!("pip install {}", missing_module),
+            &format!("pip install {missing_module}"),
             &command.script,
         ])]
     } else {
@@ -48,7 +48,7 @@ mod tests {
     use rstest::rstest;
 
     fn module_error_output(filename: &str, module_name: &str) -> String {
-        format!("Traceback (most recent call last):\n  File \"{}\", line 1, in <module>\n    import {}\nModuleNotFoundError: No module named '{}'", filename, module_name, module_name)
+        format!("Traceback (most recent call last):\n  File \"{filename}\", line 1, in <module>\n    import {module_name}\nModuleNotFoundError: No module named '{module_name}'")
     }
 
     #[rstest]

@@ -4,9 +4,10 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     command.script.contains("manage.py")
         && command.script.contains("migrate")
-        && command.output.as_ref().map_or(false, |output| {
-            output.contains("--merge: will just attempt the migration")
-        })
+        && command
+            .output
+            .as_ref()
+            .is_some_and(|output| output.contains("--merge: will just attempt the migration"))
 }
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {

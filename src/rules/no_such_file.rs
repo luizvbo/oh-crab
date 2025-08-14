@@ -25,7 +25,7 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
         command
             .script_parts
             .first()
-            .map_or(false, |s| s == "mv" || s == "cp")
+            .is_some_and(|s| s == "mv" || s == "cp")
             && get_file(output).is_some()
     } else {
         false

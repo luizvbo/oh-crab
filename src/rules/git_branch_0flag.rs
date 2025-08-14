@@ -27,7 +27,7 @@ fn auxiliary_get_new_command(
         let fixed_script = command.script.replace(branch_name, &fixed_flag);
         if let Some(stdout) = &command.output {
             if stdout.contains("A branch named '") && stdout.contains("' already exists.") {
-                let delete_branch = format!("git branch -D {}", branch_name);
+                let delete_branch = format!("git branch -D {branch_name}");
                 vec![delete_branch, fixed_script]
             } else {
                 vec![fixed_script]
@@ -110,7 +110,7 @@ mod tests {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         let new_command = expected
             .iter()
-            .map(|s| format!("git branch {}", s))
+            .map(|s| format!("git branch {s}"))
             .collect::<Vec<_>>();
         assert_eq!(get_new_command(&mut command, None), new_command);
     }

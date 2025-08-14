@@ -41,12 +41,10 @@ where
                     .get(2)
                     .map_or("", |m| m.as_str())
                     .split_whitespace()
-                    .map(|part| format!("\"{}\"", part)) // shell.quote(part)
+                    .map(|part| format!("\"{part}\"")) // shell.quote(part)
                     .collect::<Vec<_>>()
                     .join(" ");
-                let new_script = command
-                    .script
-                    .replace(&format!(r"\b{}\b", alias), &expansion);
+                let new_script = command.script.replace(&format!(r"\b{alias}\b"), &expansion);
 
                 command.script = new_script;
             }
@@ -92,7 +90,7 @@ where
                     .collect::<Vec<_>>()
                     .join(" ");
 
-                let re = Regex::new(&format!(r"\b{}\b", alias)).unwrap();
+                let re = Regex::new(&format!(r"\b{alias}\b")).unwrap();
                 let new_script = re.replace(&new_command.script, &expansion);
 
                 *new_command = new_command.update(Some(new_script.to_string()), None, None);

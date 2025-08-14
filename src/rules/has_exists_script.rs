@@ -15,7 +15,7 @@ where
             && command
                 .script_parts
                 .first()
-                .map_or(false, |s| fn_file_exists(s))
+                .is_some_and(|s| fn_file_exists(s))
     } else {
         false
     }
