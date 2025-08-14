@@ -2,6 +2,9 @@ on: [push]
 
 name: CI
 
+permissions:
+  contents: read
+
 env:
   MSRV_FEATURES: "--all-features"
 
@@ -36,10 +39,12 @@ jobs:
       - name: Run cargo clippy
         run: cargo clippy -- -D warnings
 
-  build_and_test_linux:
-    name: Build and Test (Linux)
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+  build_and_test:
+    name: Build and Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -51,22 +56,6 @@ jobs:
       - name: Build and test
         run: cargo nextest run --workspace --all-features
 
-  build_and_test_macos:
-    name: Build and Test (macOS)
-    runs-on: macos-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - name: Install nextest
-        uses: taiki-e/install-action@v2
-        with:
-          tool: nextest
-      - name: Build and test
-        run: cargo nextest run --workspace --all-features
-
-  # Optional: MSRV check (if you set `rust-version` in Cargo.toml)
   msrv:
     name: Check MSRV
     needs: crate_metadata
