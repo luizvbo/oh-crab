@@ -89,7 +89,7 @@ mod tests {
     // preventing race conditions.
     #[test]
     fn test_parser_alias_logic() {
-        // --- Test Case 1: Default value ---
+        // Test default value 
         env::remove_var(ENV_VAR_NAME_ALIAS);
         let matches = get_parser().get_matches_from(Vec::<String>::new());
         assert_eq!(
@@ -101,7 +101,7 @@ mod tests {
             Some(&"crab".to_string())
         );
 
-        // --- Test Case 2: Value from environment variable ---
+        // Test value from environment variable
         env::set_var(ENV_VAR_NAME_ALIAS, "env_alias");
         let matches = get_parser().get_matches_from(Vec::<String>::new());
         assert_eq!(
@@ -113,7 +113,7 @@ mod tests {
             Some(&"env_alias".to_string())
         );
 
-        // --- Test Case 3: Value from command line (overrides env var) ---
+        // Test value from command line (overrides env var)
         let matches = get_parser().get_matches_from(vec!["--alias", "new_alias"]);
         assert_eq!(
             matches.value_source("alias"),
@@ -124,7 +124,7 @@ mod tests {
             Some(&"new_alias".to_string())
         );
 
-        // --- Cleanup ---
+        // Cleanup
         env::remove_var(ENV_VAR_NAME_ALIAS);
     }
 
@@ -185,7 +185,7 @@ mod tests {
             ["ls -a\nls -lah"]
         );
 
-        // --- Cleanup ---
+        // Cleanup
         env::remove_var(ENV_VAR_NAME_SHELL);
         env::remove_var(ENV_VAR_NAME_HISTORY);
     }
