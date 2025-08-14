@@ -89,7 +89,7 @@ mod tests {
     // preventing race conditions.
     #[test]
     fn test_parser_alias_logic() {
-        // Test default value 
+        // Test default value
         env::remove_var(ENV_VAR_NAME_ALIAS);
         let matches = get_parser().get_matches_from(Vec::<String>::new());
         assert_eq!(
