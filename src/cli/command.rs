@@ -169,16 +169,30 @@ mod tests {
     fn test_run_command() {
         let terminal_command = {
             if cfg!(target_family = "unix") {
-                "echo".to_owned()
+                "echo"
             } else {
-                "Write-Output".to_owned()
+                "Write-Output"
             }
         };
-        let command_vec = vec![terminal_command, "Hello!".to_owned()];
+        let command_vec = vec![terminal_command.to_owned(), "Hello!".to_owned()];
         let command = command_vec.join(" ").trim().to_owned();
         let system_shell: Box<dyn Shell> = Box::new(Bash {});
         let crab_command = run_command(command_vec, &*system_shell);
         assert_eq!(crab_command.script, command);
         assert_eq!(crab_command.output.unwrap(), "Hello!\n");
+    }
+
+    #[cfg(target_family = "unix")]
+    #[test]
+    fn test_run_command_with_error() {
+        let command_vec = vec!["ls".to_owned(), "non_existent_directory".to_owned()];
+        let command = command_vec.join(" ").trim().to_owned();
+        let system_shell: Box<dyn Shell> = Box::new(Bash {});
+        let crab_command = run_command(command_vec, &*system_shell);
+        assert_eq!(crab_command.script, command);
+        assert!(crab_command
+            .output
+            .unwrap()
+            .contains("No such file or directory"));
     }
 }

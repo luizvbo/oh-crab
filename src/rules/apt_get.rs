@@ -61,76 +61,39 @@ mod tests {
     use super::{_match_rule, get_new_command};
     use crate::cli::command::CrabCommand;
     use crate::shell::Bash;
+    use rstest::rstest;
 
-    macro_rules! parameterized_match_rule_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (script, stdout) = $value;
-                    let mut command = CrabCommand::new(
-                                script.to_owned(),
-                                Some(stdout.to_owned()),
-                                None
-                            );
-                    assert!(_match_rule(&mut command, None, Some(false)));
-                }
-            )*
-        }
+    #[rstest]
+    #[case("vim", "vim: command not found", None, true)]
+    #[case("sudo vim", "vim: command not found", None, true)]
+    #[case("vim", "The program \"vim\" is currently not installed. You can install it by typing: sudo apt install vim", None, true)]
+    #[case("", "", Some(false), false)]
+    #[case("vim", "", Some(false), false)]
+    #[case("vim", "vim: command not found", Some(true), false)]
+    #[case("sudo vim", "vim: command not found", Some(true), false)]
+    fn test_match_rule(
+        #[case] script: &str,
+        #[case] stdout: &str,
+        #[case] mock_which: Option<bool>,
+        #[case] expected: bool,
+    ) {
+        let mut command = CrabCommand::new(script.to_owned(), Some(stdout.to_owned()), None);
+        // For matching cases, we need to mock `which` to return an error.
+        let mock_which_result = if expected { Some(false) } else { mock_which };
+        assert_eq!(_match_rule(&mut command, None, mock_which_result), expected);
     }
 
-    macro_rules! parameterized_unmatch_rule_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (script, stdout, mock_which) = $value;
-                    let mut command = CrabCommand::new(
-                                script.to_owned(),
-                                Some(stdout.to_owned()),
-                                None
-                            );
-                    assert!(!_match_rule(&mut command, None, mock_which));
-                }
-            )*
-        }
-    }
-
-    macro_rules! parameterized_get_new_command_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (script, stdout, expected) = $value;
-                    let system_shell = Bash{};
-                    let mut command = CrabCommand::new(
-                                script.to_owned(),
-                                Some(stdout.to_owned()),
-                                None
-                            );
-                    assert_eq!(get_new_command(&mut command, Some(&system_shell))[0], expected);
-                }
-            )*
-        }
-    }
-
-    parameterized_match_rule_tests! {
-        match_rule_1: ("vim", "vim: command not found"),
-        match_rule_2: ("sudo vim", "vim: command not found"),
-        match_rule_3: ("vim", "The program \"vim\" is currently not installed. You can install it by typing: sudo apt install vim"),
-    }
-
-    parameterized_unmatch_rule_tests! {
-        unmatch_rule_1: ("", "", Some(false)),
-        unmatch_rule_2: ("vim", "", Some(false)),
-        unmatch_rule_4: ("vim", "vim: command not found", Some(true)),
-        unmatch_rule_5: ("sudo vim", "vim: command not found", Some(true)),
-    }
-
-    parameterized_get_new_command_tests! {
-        get_new_command_1: ("vim", "", "sudo apt-get install vim && vim"),
-        get_new_command_2: ("git init", "", "sudo apt-get install git && git init"),
-        get_new_command_3: ("sudo vim", "", "sudo apt-get install vim && sudo vim"),
-        get_new_command_4: ("sudo git init", "", "sudo apt-get install git && sudo git init"),
+    #[rstest]
+    #[case("vim", "", "sudo apt-get install vim && vim")]
+    #[case("git init", "", "sudo apt-get install git && git init")]
+    #[case("sudo vim", "", "sudo apt-get install vim && sudo vim")]
+    #[case("sudo git init", "", "sudo apt-get install git && sudo git init")]
+    fn test_get_new_command(#[case] script: &str, #[case] stdout: &str, #[case] expected: &str) {
+        let system_shell = Bash {};
+        let mut command = CrabCommand::new(script.to_owned(), Some(stdout.to_owned()), None);
+        assert_eq!(
+            get_new_command(&mut command, Some(&system_shell))[0],
+            expected
+        );
     }
 }
