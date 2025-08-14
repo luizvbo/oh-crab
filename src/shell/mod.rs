@@ -109,7 +109,7 @@ pub fn get_bash_type(shell_type: &str) -> Box<dyn Shell> {
     match shell_candidate.as_str() {
         "zsh" => Box::new(Zsh),
         "bash" => Box::new(Bash),
-        _ => panic!("The shell '{}' is not supported yet", shell_type),
+        _ => panic!("The shell '{shell_type}' is not supported yet"),
     }
 }
 
@@ -125,20 +125,15 @@ impl Shell for Zsh {
         format!(
             r#"
             {alias_name} () {{
-                export {var_name_shell}="zsh";
-                export {var_name_alias}="{alias_name}";
-                export {var_name_history}="$(fc -ln -1)";
+                export {ENV_VAR_NAME_SHELL}="zsh";
+                export {ENV_VAR_NAME_ALIAS}="{alias_name}";
+                export {ENV_VAR_NAME_HISTORY}="$(fc -ln -1)";
                 OC_CMD=$(
-                    ohcrab {argument_placeholder} $@
+                    ohcrab {ARGUMENT_PLACEHOLDER} $@
                 ) && eval $OC_CMD;
-                unset {var_name_history};
+                unset {ENV_VAR_NAME_HISTORY};
             }}
             "#,
-            alias_name = alias_name,
-            var_name_shell = ENV_VAR_NAME_SHELL,
-            var_name_alias = ENV_VAR_NAME_ALIAS,
-            var_name_history = ENV_VAR_NAME_HISTORY,
-            argument_placeholder = ARGUMENT_PLACEHOLDER,
         )
     }
 
@@ -172,20 +167,15 @@ impl Shell for Bash {
         format!(
             r#"
             function {alias_name} () {{
-                export {var_name_shell}="bash";
-                export {var_name_alias}="{alias_name}";
-                export {var_name_history}="$(fc -ln -1)";
+                export {ENV_VAR_NAME_SHELL}="bash";
+                export {ENV_VAR_NAME_ALIAS}="{alias_name}";
+                export {ENV_VAR_NAME_HISTORY}="$(fc -ln -1)";
                 OC_CMD=$(
-                    ohcrab {argument_placeholder} "$@"
+                    ohcrab {ARGUMENT_PLACEHOLDER} "$@"
                 ) && eval "$OC_CMD";
-                unset {var_name_history};
+                unset {ENV_VAR_NAME_HISTORY};
             }}
             "#,
-            alias_name = alias_name,
-            var_name_history = ENV_VAR_NAME_HISTORY,
-            var_name_shell = ENV_VAR_NAME_SHELL,
-            var_name_alias = ENV_VAR_NAME_ALIAS,
-            argument_placeholder = ARGUMENT_PLACEHOLDER,
         )
     }
 

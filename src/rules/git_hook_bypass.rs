@@ -31,7 +31,7 @@ fn auxiliary_get_new_command(
         Some(hooked_command) => vec![replace_argument(
             &command.script,
             hooked_command,
-            &format!("{} --no-verify", hooked_command),
+            &format!("{hooked_command} --no-verify"),
         )],
         None => vec![],
     }

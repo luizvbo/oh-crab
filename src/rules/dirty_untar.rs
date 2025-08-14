@@ -53,16 +53,16 @@ pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -
 
 pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> Vec<String> {
     let shlex_quoter = Quoter::new();
-    return match tar_file(&command.script_parts) {
+    match tar_file(&command.script_parts) {
         Some((_, filepath_no_ext)) => {
             let dir = shlex_quoter.quote(&filepath_no_ext).unwrap();
             vec![system_shell.unwrap().and(vec![
-                &format!("mkdir -p {}", dir),
+                &format!("mkdir -p {dir}"),
                 &format!("{cmd} -C {dir}", dir = dir, cmd = command.script),
             ])]
         }
-        nonw => return vec![],
-    };
+        nonw => vec![],
+    }
 }
 
 pub fn side_effect(old_cmd: CrabCommand, command: Option<&str>) {

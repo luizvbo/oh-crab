@@ -88,7 +88,7 @@ mod tests {
         let mut command = CrabCommand::new(command.to_owned(), Some(stdout.to_owned()), None);
         let new_command = expected
             .iter()
-            .map(|s| format!("git bisect {}", s))
+            .map(|s| format!("git bisect {s}"))
             .collect::<Vec<_>>();
         assert_eq!(
             get_new_command(&mut command, Some(&system_shell)),

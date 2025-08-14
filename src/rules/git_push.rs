@@ -63,7 +63,7 @@ fn auxiliary_get_new_command(
         vec![replace_argument(
             &command_parts.join(" "),
             "push",
-            &format!("push {}", arguments),
+            &format!("push {arguments}"),
         )]
     } else {
         Vec::<String>::new()
@@ -109,13 +109,12 @@ Branch feature/set-upstream set up to track remote branch feature/set-upstream f
             "".to_string()
         } else {
             format!(
-                "fatal: The current branch {} has no upstream branch.
+                "fatal: The current branch {branch_name} has no upstream branch.
 To push the current branch and set the remote as upstream, use
 
-    git push --set-upstream origin {}
+    git push --set-upstream origin {branch_name}
 
-",
-                branch_name, branch_name
+"
             )
         }
     }

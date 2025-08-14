@@ -1,10 +1,9 @@
-# This file is based on the work from https://github.com/denisidoro/navi,
-# licensed under the Apache 2.0 license. The license can be found in
-# https://github.com/denisidoro/navi/blob/master/LICENSE
-
 on: [push]
 
 name: CI
+
+permissions:
+  contents: read
 
 env:
   MSRV_FEATURES: "--all-features"
@@ -14,11 +13,15 @@ jobs:
     name: Extract crate metadata
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4.1.1
-    - name: Extract crate information
-      id: crate_metadata
-      run: |
-        cargo metadata --no-deps --format-version 1 | jq -r '"msrv=" + .packages[0].rust_version' | tee -a $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+      - name: Install Rust (stable) for cargo metadata
+        uses: dtolnay/rust-toolchain@stable
+      - name: Extract crate information
+        id: crate_metadata
+        run: |
+          cargo metadata --no-deps --format-version 1 \
+          | jq -r '"msrv=" + .packages[0].rust_version' \
+          | tee -a "$GITHUB_OUTPUT"
     outputs:
       msrv: ${{ steps.crate_metadata.outputs.msrv }}
 
@@ -26,75 +29,50 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4.1.1
-
-      # - name: Install stable toolchain
-      #   uses: actions-rs/toolchain@v1
-      #   with:
-      #     profile: minimal
-      #     toolchain: stable
-      #     override: true
-      #     components: rustfmt, clippy
-
+      - uses: actions/checkout@v4
+      - name: Install Rust (stable) + components
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
       - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
-        continue-on-error: false
-        with:
-          command: fmt
-          args: --all -- --check
-
+        run: cargo fmt --all -- --check
       - name: Run cargo clippy
-        uses: actions-rs/cargo@v1
-        continue-on-error: false
+        run: cargo clippy -- -D warnings
+
+  build_and_test:
+    name: Build and Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install nextest
+        uses: taiki-e/install-action@v2
         with:
-          command: clippy
-          args: -- -D warnings
+          tool: nextest
+      - name: Build and test
+        run: cargo nextest run --workspace --all-features
 
-  build_and_test_linux:
-    name: Build and Test (Linux)
+  msrv:
+    name: Check MSRV
+    needs: crate_metadata
+    if: ${{ needs.crate_metadata.outputs.msrv != '' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4.1.1
-
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - uses: taiki-e/install-action@nextest
-      - name: 'Build and test'
-        run: cargo nextest run --workspace --all-features
-
-  build_and_test_macos:
-    name: Build and Test (MacOS)
-    runs-on: macos-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4.1.1
-
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - uses: taiki-e/install-action@nextest
-      - name: 'Build and test'
-        run: cargo nextest run --workspace --all-features
-
-  # build_and_test_windows:
-  #   name: Build and Test (Windows)
-  #   runs-on: windows-latest
-  #   timeout-minutes: 20
-  #   steps:
-  #     - name: Prepare symlink configuration
-  #       run: git config --global core.symlinks true
-  #
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v4.1.1
-  #
-  #     - name: Install stable toolchain
-  #       uses: dtolnay/rust-toolchain@stable
-  #
-  #     - uses: taiki-e/install-action@nextest
-  #     - name: 'Build and test'
-  #       run: cargo nextest run --workspace --all-features
+      - uses: actions/checkout@v4
+      # Install rustup via stable so we can install a dynamic toolchain
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install MSRV toolchain
+        run: |
+          MSRV="${{ needs.crate_metadata.outputs.msrv }}"
+          rustup toolchain install "$MSRV" --profile minimal
+          rustup component add --toolchain "$MSRV" clippy rustfmt || true
+          rustup default "$MSRV"
+      - uses: Swatinem/rust-cache@v2
+      - name: Build (MSRV)
+        run: cargo build --workspace --all-features
+      - name: Clippy (MSRV)
+        run: cargo clippy --workspace --all-features -- -D warnings

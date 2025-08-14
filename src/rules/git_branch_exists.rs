@@ -35,7 +35,7 @@ fn auxiliary_get_new_command(
             for new_command_template in new_command_templates {
                 let new_command_with_branch = new_command_template
                     .iter()
-                    .map(|s| format!("{} {}", s, branch_name))
+                    .map(|s| format!("{s} {branch_name}"))
                     .collect::<Vec<String>>();
                 new_commands.push(
                     system_shell

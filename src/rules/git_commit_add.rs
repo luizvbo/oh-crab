@@ -29,7 +29,7 @@ fn auxiliary_get_new_command(
     let mut new_commands = Vec::new();
 
     for opt in opts {
-        let new_command = replace_argument(&command.script, "commit", &format!("commit {}", opt));
+        let new_command = replace_argument(&command.script, "commit", &format!("commit {opt}"));
         new_commands.push(new_command);
     }
     new_commands
