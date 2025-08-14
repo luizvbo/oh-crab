@@ -20,7 +20,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
         };
         vec![system_shell
             .unwrap()
-            .and(vec![&migration_script, &command.script])]
+            .and(vec![migration_script, &command.script])]
     } else {
         vec![]
     }
