@@ -57,8 +57,7 @@ mod tests {
     fn output_branch(branch_name: Option<&str>) -> String {
         if let Some(branch_name) = branch_name {
             format!(
-                "error: pathspec '{}' did not match any file(s) known to git",
-                branch_name
+                "error: pathspec '{branch_name}' did not match any file(s) known to git"
             )
         } else {
             "".to_owned()

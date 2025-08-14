@@ -4,7 +4,7 @@ use crate::{cli::command::CrabCommand, shell::Shell};
 pub fn match_rule(command: &mut CrabCommand, system_shell: Option<&dyn Shell>) -> bool {
     command.script.contains("manage.py")
         && command.script.contains("migrate")
-        && command.output.as_ref().map_or(false, |output| {
+        && command.output.as_ref().is_some_and(|output| {
             output.contains("or pass --delete-ghost-migrations")
         })
 }

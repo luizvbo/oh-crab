@@ -6,7 +6,7 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
         (command
             .script_parts
             .get(1)
-            .map_or(false, |s| s == "ln" || s == "link"))
+            .is_some_and(|s| s == "ln" || s == "link"))
             && output.contains("brew link --overwrite --dry-run")
     } else {
         false

@@ -20,7 +20,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
         if let Some(name) = get_name(output) {
             vec![system_shell
                 .unwrap()
-                .and(vec![&format!("nix-env -iA {}", name), &command.script])]
+                .and(vec![&format!("nix-env -iA {name}"), &command.script])]
         } else {
             vec![]
         }

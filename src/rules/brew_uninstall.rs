@@ -6,7 +6,7 @@ fn auxiliary_match_rule(command: &CrabCommand) -> bool {
         (command
             .script_parts
             .get(1)
-            .map_or(false, |s| s == "uninstall" || s == "rm" || s == "remove"))
+            .is_some_and(|s| s == "uninstall" || s == "rm" || s == "remove"))
             && output.contains("brew uninstall --force")
     } else {
         false

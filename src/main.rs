@@ -34,9 +34,9 @@ fn main() {
 
     if let Some(command) = arg_matches.remove_many::<String>("command") {
         let command_vec = command.collect();
-        debug_log(&format!("Retrieved command(s): {:?}", command_vec));
+        debug_log(&format!("Retrieved command(s): {command_vec:?}"));
         let mut crab_command = run_command(command_vec, &*system_shell);
-        debug_log(&format!("Crab command: {:?}", crab_command));
+        debug_log(&format!("Crab command: {crab_command:?}"));
         let corrected_commands = get_corrected_commands(&mut crab_command, &*system_shell);
         debug_log(&format!(
             "Candidate command(s): {:?}",
@@ -50,7 +50,7 @@ fn main() {
         eprintln!();
         if let Some(valid_command) = selected_command {
             let corrected_commands = get_corrected_commands(&mut crab_command, &*system_shell);
-            debug_log(&format!("Command selected: {:?}", valid_command));
+            debug_log(&format!("Command selected: {valid_command:?}"));
             valid_command.run(crab_command);
         }
     } else {

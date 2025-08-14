@@ -84,7 +84,7 @@ fn mockable_get_new_command(
 
             if new_commands.is_empty() {
                 new_commands.push(system_shell.unwrap().and(vec![
-                    &format!("git branch {}", missing_file),
+                    &format!("git branch {missing_file}"),
                     &command.script,
                 ]));
             }
@@ -131,11 +131,10 @@ mod tests {
 
     fn did_not_match(target: &str, did_you_forget: bool) -> String {
         let mut error = format!(
-            "error: pathspec '{}' did not match any file(s) known to git.",
-            target
+            "error: pathspec '{target}' did not match any file(s) known to git."
         );
         if did_you_forget {
-            error = format!("{}\nDid you forget to 'git add'?'", error);
+            error = format!("{error}\nDid you forget to 'git add'?'");
         }
         error
     }

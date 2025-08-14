@@ -23,7 +23,7 @@ use regex::Regex;
 /// ```
 #[cfg(debug_assertions)]
 pub fn debug_log(message: &str) {
-    println!("{}", message);
+    println!("{message}");
 }
 
 #[cfg(not(debug_assertions))]
@@ -47,12 +47,12 @@ pub fn debug_log(_: &str) {
 /// This function returns a new string with the replaced argument.
 pub fn replace_argument(script: &str, from_: &str, to: &str) -> String {
     let re = Regex::new(&format!(" {}$", regex::escape(from_))).unwrap();
-    let replaced_in_the_end = re.replace(script, &format!(" {}", to));
+    let replaced_in_the_end = re.replace(script, &format!(" {to}"));
 
     if replaced_in_the_end != script {
         replaced_in_the_end.into_owned()
     } else {
-        script.replace(&format!(" {} ", from_), &format!(" {} ", to))
+        script.replace(&format!(" {from_} "), &format!(" {to} "))
     }
 }
 

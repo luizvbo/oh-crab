@@ -21,8 +21,8 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
             .captures_iter(output)
             .map(|cap| cap[1].to_owned())
             .collect::<Vec<_>>();
-        println!("{:?}", apps);
-        println!("{:?}", output);
+        println!("{apps:?}");
+        println!("{output:?}");
         apps.iter()
             .map(|app| format!("{} --app {}", command.script, app))
             .collect()

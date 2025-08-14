@@ -33,7 +33,7 @@ where
     if let Some(output) = &command.output {
         let re = Regex::new(r".*missing script: (.*)\n").unwrap();
         if let Some(caps) = re.captures(output) {
-            println!("{:?}", caps);
+            println!("{caps:?}");
             replace_command(
                 command,
                 &caps[1],
@@ -81,15 +81,14 @@ npm ERR! argv "/opt/node/bin/node" "/opt/node/bin/npm" "run" "dvelop"
 npm ERR! node v4.4.7
 npm ERR! npm  v2.15.8
 
-npm ERR! missing script: {}
+npm ERR! missing script: {script}
 npm ERR!
 npm ERR! If you need help, you may report this error at:
 npm ERR!     <https://github.com/npm/npm/issues>
 
 npm ERR! Please include the following file with any support request:
 npm ERR!     /home/nvbn/exp/code_view/client_web/npm-debug.log
-"#,
-            script
+"#
         )
     }
     #[rstest]

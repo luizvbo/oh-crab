@@ -30,7 +30,7 @@ pub fn get_new_command(command: &mut CrabCommand, system_shell: Option<&dyn Shel
     let suggestions = get_suggestions(caps.get(1).map_or("", |m| m.as_str()).to_owned());
     suggestions
         .iter()
-        .map(|formula| format!("brew install {}", formula))
+        .map(|formula| format!("brew install {formula}"))
         .collect()
 }
 

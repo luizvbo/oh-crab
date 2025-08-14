@@ -2,7 +2,7 @@ use super::{utils::match_rule_with_is_app, Rule};
 use crate::{cli::command::CrabCommand, shell::Shell};
 
 fn auxiliary_match_rule(command: &CrabCommand) -> bool {
-    command.script_parts.first().map_or(false, |s| s == "javac")
+    command.script_parts.first().is_some_and(|s| s == "javac")
         && !command.script.ends_with(".java")
 }
 
