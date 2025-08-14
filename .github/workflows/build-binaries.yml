@@ -1,0 +1,62 @@
+name: "Build binaries"
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - runner: ubuntu-latest
+            target: i686-unknown-linux-gnu
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+          - runner: macos-latest
+            target: x86_64-apple-darwin
+          - runner: macos-latest
+            target: aarch64-apple-darwin
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: "Build binary"
+        run: cargo build --release --locked --target ${{ matrix.target }}
+      - name: "Archive binary"
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET=${{ matrix.target }}
+
+          if [[ "$TARGET" == *"-windows-"* ]]; then
+            BIN_NAME="ohcrab.exe"
+            ARCHIVE_FILE="ohcrab-$TARGET.zip"
+            7z a $ARCHIVE_FILE ./target/$TARGET/release/$BIN_NAME
+          else
+            BIN_NAME="ohcrab"
+            ARCHIVE_FILE="ohcrab-$TARGET.tar.gz"
+            tar czvf $ARCHIVE_FILE -C ./target/$TARGET/release $BIN_NAME
+          fi
+
+          sha256sum $ARCHIVE_FILE > $ARCHIVE_FILE.sha256
+      - name: "Upload binary artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-${{ matrix.target }}
+          path: |
+            *.tar.gz
+            *.zip
+            *.sha256
