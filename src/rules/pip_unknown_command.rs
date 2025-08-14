@@ -64,9 +64,7 @@ mod tests {
     use rstest::rstest;
 
     fn pip_unknown_cmd(broken: &str, suggested: &str) -> String {
-        format!(
-            r#"ERROR: unknown command "{broken}" - maybe you meant "{suggested}""#
-        )
+        format!(r#"ERROR: unknown command "{broken}" - maybe you meant "{suggested}""#)
     }
 
     #[rstest]

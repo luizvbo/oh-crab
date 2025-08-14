@@ -44,9 +44,7 @@ where
                     .map(|part| format!("\"{part}\"")) // shell.quote(part)
                     .collect::<Vec<_>>()
                     .join(" ");
-                let new_script = command
-                    .script
-                    .replace(&format!(r"\b{alias}\b"), &expansion);
+                let new_script = command.script.replace(&format!(r"\b{alias}\b"), &expansion);
 
                 command.script = new_script;
             }
